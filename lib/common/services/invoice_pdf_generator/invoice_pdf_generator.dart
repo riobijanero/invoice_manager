@@ -9,7 +9,7 @@ import 'package:invoice_manager/services/invoice_pdf_generator/config.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../../models/invoice.dart';
+import 'package:invoice_manager/common/models/invoice.dart';
 import '../../utils/date_utils.dart';
 import '../../utils/invoice_calculations.dart';
 

@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
-import '../models/invoice.dart';
+import 'package:invoice_manager/common/models/invoice.dart';
 
 const String _invoicesFileName = 'invoices.json';
 

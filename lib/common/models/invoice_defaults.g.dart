@@ -1,13 +1,14 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'app_defaults.dart';
+part of 'invoice_defaults.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$AppDefaultsImpl _$$AppDefaultsImplFromJson(Map<String, dynamic> json) =>
-    _$AppDefaultsImpl(
+_$InvoiceDefaultsImpl _$$InvoiceDefaultsImplFromJson(
+        Map<String, dynamic> json) =>
+    _$InvoiceDefaultsImpl(
       lastInvoiceNumber: json['lastInvoiceNumber'] as String? ?? '',
       sender: json['sender'] == null
           ? const Sender()

@@ -1,4 +1,4 @@
-import 'package:invoice_manager/models/invoice.dart';
+import 'package:invoice_manager/common/models/invoice.dart';
 import 'package:invoice_manager/services/invoice_pdf_generator/client_block.dart';
 import 'package:invoice_manager/services/invoice_pdf_generator/sender_block.dart';
 import 'package:pdf/widgets.dart' as pw;

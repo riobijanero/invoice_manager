@@ -232,8 +232,8 @@ class _$SenderImpl extends _Sender {
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, name, jobDescription, address, phoneNumber, email, website, ustId);
+  int get hashCode => Object.hash(runtimeType, name, jobDescription, address,
+      phoneNumber, email, website, ustId);
 
   @JsonKey(ignore: true)
   @override

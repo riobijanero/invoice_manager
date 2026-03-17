@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'app_defaults.dart';
+part of 'invoice_defaults.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -14,12 +14,12 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-AppDefaults _$AppDefaultsFromJson(Map<String, dynamic> json) {
-  return _AppDefaults.fromJson(json);
+InvoiceDefaults _$InvoiceDefaultsFromJson(Map<String, dynamic> json) {
+  return _InvoiceDefaults.fromJson(json);
 }
 
 /// @nodoc
-mixin _$AppDefaults {
+mixin _$InvoiceDefaults {
   String get lastInvoiceNumber => throw _privateConstructorUsedError;
   Sender get sender => throw _privateConstructorUsedError;
   Client get client => throw _privateConstructorUsedError;
@@ -34,15 +34,15 @@ mixin _$AppDefaults {
   String get serviceDescriptionTemplate => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
-  $AppDefaultsCopyWith<AppDefaults> get copyWith =>
+  $InvoiceDefaultsCopyWith<InvoiceDefaults> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $AppDefaultsCopyWith<$Res> {
-  factory $AppDefaultsCopyWith(
-          AppDefaults value, $Res Function(AppDefaults) then) =
-      _$AppDefaultsCopyWithImpl<$Res, AppDefaults>;
+abstract class $InvoiceDefaultsCopyWith<$Res> {
+  factory $InvoiceDefaultsCopyWith(
+          InvoiceDefaults value, $Res Function(InvoiceDefaults) then) =
+      _$InvoiceDefaultsCopyWithImpl<$Res, InvoiceDefaults>;
   @useResult
   $Res call(
       {String lastInvoiceNumber,
@@ -64,9 +64,9 @@ abstract class $AppDefaultsCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$AppDefaultsCopyWithImpl<$Res, $Val extends AppDefaults>
-    implements $AppDefaultsCopyWith<$Res> {
-  _$AppDefaultsCopyWithImpl(this._value, this._then);
+class _$InvoiceDefaultsCopyWithImpl<$Res, $Val extends InvoiceDefaults>
+    implements $InvoiceDefaultsCopyWith<$Res> {
+  _$InvoiceDefaultsCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
@@ -171,11 +171,11 @@ class _$AppDefaultsCopyWithImpl<$Res, $Val extends AppDefaults>
 }
 
 /// @nodoc
-abstract class _$$AppDefaultsImplCopyWith<$Res>
-    implements $AppDefaultsCopyWith<$Res> {
-  factory _$$AppDefaultsImplCopyWith(
-          _$AppDefaultsImpl value, $Res Function(_$AppDefaultsImpl) then) =
-      __$$AppDefaultsImplCopyWithImpl<$Res>;
+abstract class _$$InvoiceDefaultsImplCopyWith<$Res>
+    implements $InvoiceDefaultsCopyWith<$Res> {
+  factory _$$InvoiceDefaultsImplCopyWith(_$InvoiceDefaultsImpl value,
+          $Res Function(_$InvoiceDefaultsImpl) then) =
+      __$$InvoiceDefaultsImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -201,11 +201,11 @@ abstract class _$$AppDefaultsImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$AppDefaultsImplCopyWithImpl<$Res>
-    extends _$AppDefaultsCopyWithImpl<$Res, _$AppDefaultsImpl>
-    implements _$$AppDefaultsImplCopyWith<$Res> {
-  __$$AppDefaultsImplCopyWithImpl(
-      _$AppDefaultsImpl _value, $Res Function(_$AppDefaultsImpl) _then)
+class __$$InvoiceDefaultsImplCopyWithImpl<$Res>
+    extends _$InvoiceDefaultsCopyWithImpl<$Res, _$InvoiceDefaultsImpl>
+    implements _$$InvoiceDefaultsImplCopyWith<$Res> {
+  __$$InvoiceDefaultsImplCopyWithImpl(
+      _$InvoiceDefaultsImpl _value, $Res Function(_$InvoiceDefaultsImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -224,7 +224,7 @@ class __$$AppDefaultsImplCopyWithImpl<$Res>
     Object? dueDateType = null,
     Object? serviceDescriptionTemplate = null,
   }) {
-    return _then(_$AppDefaultsImpl(
+    return _then(_$InvoiceDefaultsImpl(
       lastInvoiceNumber: null == lastInvoiceNumber
           ? _value.lastInvoiceNumber
           : lastInvoiceNumber // ignore: cast_nullable_to_non_nullable
@@ -279,8 +279,8 @@ class __$$AppDefaultsImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
-class _$AppDefaultsImpl extends _AppDefaults {
-  const _$AppDefaultsImpl(
+class _$InvoiceDefaultsImpl extends _InvoiceDefaults {
+  const _$InvoiceDefaultsImpl(
       {this.lastInvoiceNumber = '',
       this.sender = const Sender(),
       this.client = const Client(),
@@ -295,8 +295,8 @@ class _$AppDefaultsImpl extends _AppDefaults {
       this.serviceDescriptionTemplate = ''})
       : super._();
 
-  factory _$AppDefaultsImpl.fromJson(Map<String, dynamic> json) =>
-      _$$AppDefaultsImplFromJson(json);
+  factory _$InvoiceDefaultsImpl.fromJson(Map<String, dynamic> json) =>
+      _$$InvoiceDefaultsImplFromJson(json);
 
   @override
   @JsonKey()
@@ -336,14 +336,14 @@ class _$AppDefaultsImpl extends _AppDefaults {
 
   @override
   String toString() {
-    return 'AppDefaults(lastInvoiceNumber: $lastInvoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, ustId: $ustId, businessTitle: $businessTitle, hourlyRate: $hourlyRate, discountType: $discountType, discountValue: $discountValue, dueDateType: $dueDateType, serviceDescriptionTemplate: $serviceDescriptionTemplate)';
+    return 'InvoiceDefaults(lastInvoiceNumber: $lastInvoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, ustId: $ustId, businessTitle: $businessTitle, hourlyRate: $hourlyRate, discountType: $discountType, discountValue: $discountValue, dueDateType: $dueDateType, serviceDescriptionTemplate: $serviceDescriptionTemplate)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$AppDefaultsImpl &&
+            other is _$InvoiceDefaultsImpl &&
             (identical(other.lastInvoiceNumber, lastInvoiceNumber) ||
                 other.lastInvoiceNumber == lastInvoiceNumber) &&
             (identical(other.sender, sender) || other.sender == sender) &&
@@ -389,12 +389,13 @@ class _$AppDefaultsImpl extends _AppDefaults {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$AppDefaultsImplCopyWith<_$AppDefaultsImpl> get copyWith =>
-      __$$AppDefaultsImplCopyWithImpl<_$AppDefaultsImpl>(this, _$identity);
+  _$$InvoiceDefaultsImplCopyWith<_$InvoiceDefaultsImpl> get copyWith =>
+      __$$InvoiceDefaultsImplCopyWithImpl<_$InvoiceDefaultsImpl>(
+          this, _$identity);
 }
 
-abstract class _AppDefaults extends AppDefaults {
-  const factory _AppDefaults(
+abstract class _InvoiceDefaults extends InvoiceDefaults {
+  const factory _InvoiceDefaults(
       {final String lastInvoiceNumber,
       final Sender sender,
       final Client client,
@@ -406,11 +407,11 @@ abstract class _AppDefaults extends AppDefaults {
       final DiscountType discountType,
       final double discountValue,
       final DueDateType dueDateType,
-      final String serviceDescriptionTemplate}) = _$AppDefaultsImpl;
-  const _AppDefaults._() : super._();
+      final String serviceDescriptionTemplate}) = _$InvoiceDefaultsImpl;
+  const _InvoiceDefaults._() : super._();
 
-  factory _AppDefaults.fromJson(Map<String, dynamic> json) =
-      _$AppDefaultsImpl.fromJson;
+  factory _InvoiceDefaults.fromJson(Map<String, dynamic> json) =
+      _$InvoiceDefaultsImpl.fromJson;
 
   @override
   String get lastInvoiceNumber;
@@ -438,6 +439,6 @@ abstract class _AppDefaults extends AppDefaults {
   String get serviceDescriptionTemplate;
   @override
   @JsonKey(ignore: true)
-  _$$AppDefaultsImplCopyWith<_$AppDefaultsImpl> get copyWith =>
+  _$$InvoiceDefaultsImplCopyWith<_$InvoiceDefaultsImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

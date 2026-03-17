@@ -4,11 +4,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:invoice_manager/common/providers/providers.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 
-import '../../providers/providers.dart';
-import '../../services/invoice_pdf_generator/invoice_pdf_generator.dart';
+import '../../common/services/invoice_pdf_generator/invoice_pdf_generator.dart';
 
 class PreviewScreen extends ConsumerWidget {
   const PreviewScreen({super.key, required this.invoiceId});

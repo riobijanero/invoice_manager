@@ -1,6 +1,6 @@
-import '../models/discount_type.dart';
-import '../models/due_date_type.dart';
-import '../models/invoice.dart';
+import 'package:invoice_manager/common/models/discount_type.dart';
+import 'package:invoice_manager/common/models/due_date_type.dart';
+import 'package:invoice_manager/common/models/invoice.dart';
 
 /// Computed values for an invoice (subtotal, discount, net, VAT, gross).
 class InvoiceTotals {

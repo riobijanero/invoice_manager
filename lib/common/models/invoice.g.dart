@@ -18,7 +18,8 @@ _$InvoiceImpl _$$InvoiceImplFromJson(Map<String, dynamic> json) =>
       bankDetails:
           BankDetails.fromJson(json['bankDetails'] as Map<String, dynamic>),
       invoiceDate: DateTime.parse(json['invoiceDate'] as String),
-      businessTitle: json['businessTitle'] as String? ?? 'App und Webentwicklung',
+      businessTitle:
+          json['businessTitle'] as String? ?? 'App und Webentwicklung',
       serviceMonth: (json['serviceMonth'] as num).toInt(),
       serviceYear: (json['serviceYear'] as num).toInt(),
       hours: (json['hours'] as num).toDouble(),

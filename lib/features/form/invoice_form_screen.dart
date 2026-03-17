@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:invoice_manager/common/providers/providers.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../models/app_defaults.dart';
-import '../../models/bank_details.dart';
-import '../../models/client.dart';
-import '../../models/discount_type.dart';
-import '../../models/due_date_type.dart';
-import '../../models/invoice.dart';
-import '../../models/sender.dart';
-import '../../providers/providers.dart';
+import 'package:invoice_manager/common/models/bank_details.dart';
+import 'package:invoice_manager/common/models/client.dart';
+import 'package:invoice_manager/common/models/discount_type.dart';
+import 'package:invoice_manager/common/models/due_date_type.dart';
+import 'package:invoice_manager/common/models/invoice.dart';
+import 'package:invoice_manager/common/models/invoice_defaults.dart';
+import 'package:invoice_manager/common/models/sender.dart';
 import '../../routing/app_router.dart';
 
 class InvoiceFormScreen extends ConsumerStatefulWidget {
@@ -53,7 +53,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   DueDateType _dueDateType = DueDateType.twoWeeks;
   DateTime? _customDueDate;
   Invoice? _loadedInvoice;
-  AppDefaults? _defaults;
+  InvoiceDefaults? _defaults;
   bool _initialized = false;
 
   static const List<int> _months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
@@ -152,7 +152,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _serviceDescription.text = inv.serviceDescription;
   }
 
-  void _applyDefaults(AppDefaults d) {
+  void _applyDefaults(InvoiceDefaults d) {
     if (_loadedInvoice != null) return;
     _senderName.text = d.sender.name;
     _senderAddress.text = d.sender.address;

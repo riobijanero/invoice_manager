@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../models/invoice.dart';
-import '../../providers/providers.dart';
+import 'package:invoice_manager/common/models/invoice.dart';
+import 'package:invoice_manager/common/providers/providers.dart';
 import '../../routing/app_router.dart';
-import '../../utils/currency_format.dart';
-import '../../utils/invoice_calculations.dart';
+import '../../common/utils/currency_format.dart';
+import '../../common/utils/invoice_calculations.dart';
 
 class InvoiceListScreen extends ConsumerWidget {
   const InvoiceListScreen({super.key});
@@ -45,20 +45,17 @@ class InvoiceListScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final invoice = invoices[index];
               final totals = computeTotals(invoice);
-              final clientLine = invoice.client.name.isNotEmpty
-                  ? invoice.client.name
-                  : _firstLine(invoice.client.address);
+              final clientLine =
+                  invoice.client.name.isNotEmpty ? invoice.client.name : _firstLine(invoice.client.address);
               final dateFormat = DateFormat('dd.MM.yyyy');
-              final periodLabel =
-                  '${_monthName(invoice.serviceMonth)} ${invoice.serviceYear}';
+              final periodLabel = '${_monthName(invoice.serviceMonth)} ${invoice.serviceYear}';
               return ListTile(
                 title: Text('Nr. ${invoice.invoiceNumber} · $clientLine'),
                 subtitle: Text(
                   '${dateFormat.format(invoice.invoiceDate)} · $periodLabel · ${formatCurrency(totals.gross)}',
                 ),
                 trailing: PopupMenuButton<String>(
-                  onSelected: (value) =>
-                      _handleAction(context, ref, value, invoice),
+                  onSelected: (value) => _handleAction(context, ref, value, invoice),
                   itemBuilder: (context) => [
                     const PopupMenuItem(
                       value: 'duplicate',
@@ -186,8 +183,18 @@ String _firstLine(String text) {
 
 String _monthName(int month) {
   const names = [
-    'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-    'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+    'Januar',
+    'Februar',
+    'März',
+    'April',
+    'Mai',
+    'Juni',
+    'Juli',
+    'August',
+    'September',
+    'Oktober',
+    'November',
+    'Dezember',
   ];
   if (month < 1 || month > 12) return '$month';
   return names[month - 1];

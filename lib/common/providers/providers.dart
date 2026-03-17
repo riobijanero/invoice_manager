@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/app_defaults.dart';
-import '../models/invoice.dart';
-import '../repositories/defaults_repository.dart';
-import '../repositories/invoice_repository.dart';
+import 'package:invoice_manager/common/models/invoice.dart';
+import 'package:invoice_manager/common/models/invoice_defaults.dart';
+import 'package:invoice_manager/repositories/defaults_repository.dart';
+import 'package:invoice_manager/repositories/invoice_repository.dart';
 
 final invoiceRepositoryProvider = Provider<InvoiceRepository>((ref) {
   return InvoiceRepository();
@@ -18,13 +18,12 @@ final invoiceListProvider = FutureProvider<List<Invoice>>((ref) async {
   return repo.getAll();
 });
 
-final defaultsProvider = FutureProvider<AppDefaults>((ref) async {
+final defaultsProvider = FutureProvider<InvoiceDefaults>((ref) async {
   final repo = ref.watch(defaultsRepositoryProvider);
   return repo.load();
 });
 
-final invoiceDetailProvider =
-    FutureProvider.family<Invoice?, String>((ref, id) async {
+final invoiceDetailProvider = FutureProvider.family<Invoice?, String>((ref, id) async {
   final repo = ref.watch(invoiceRepositoryProvider);
   return repo.getById(id);
 });

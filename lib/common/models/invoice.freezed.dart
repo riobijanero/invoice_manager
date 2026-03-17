@@ -431,6 +431,7 @@ class _$InvoiceImpl implements _Invoice {
   @override
   final DateTime invoiceDate;
   @override
+  @JsonKey()
   final String businessTitle;
   @override
   final int serviceMonth;
@@ -452,6 +453,7 @@ class _$InvoiceImpl implements _Invoice {
   @override
   final DateTime? customDueDate;
   @override
+  @JsonKey()
   final String jobDescription;
   @override
   final String serviceDescription;
@@ -507,28 +509,28 @@ class _$InvoiceImpl implements _Invoice {
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hashAll([
-      runtimeType,
-      id,
-      createdAt,
-      updatedAt,
-      invoiceNumber,
-      sender,
-      client,
-      contractNumber,
-      bankDetails,
-      invoiceDate,
-      businessTitle,
-      serviceMonth,
-      serviceYear,
-      hours,
-      hourlyRate,
-      discountType,
-      discountValue,
-      dueDateType,
-      customDueDate,
-      jobDescription,
-      serviceDescription,
-    ]);
+        runtimeType,
+        id,
+        createdAt,
+        updatedAt,
+        invoiceNumber,
+        sender,
+        client,
+        contractNumber,
+        bankDetails,
+        invoiceDate,
+        businessTitle,
+        serviceMonth,
+        serviceYear,
+        hours,
+        hourlyRate,
+        discountType,
+        discountValue,
+        dueDateType,
+        customDueDate,
+        jobDescription,
+        serviceDescription
+      ]);
 
   @JsonKey(ignore: true)
   @override
