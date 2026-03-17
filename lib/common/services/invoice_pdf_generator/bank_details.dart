@@ -1,5 +1,5 @@
 import 'package:invoice_manager/common/models/bank_details.dart';
-import 'package:invoice_manager/services/utils.dart';
+import 'package:invoice_manager/common/services/utils.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 /// Bank details table for the invoice PDF (Kontoinhaber, Geldinstitut, IBAN, BIC).

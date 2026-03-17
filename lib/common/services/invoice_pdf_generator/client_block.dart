@@ -1,6 +1,6 @@
 import 'package:invoice_manager/common/models/client.dart';
 import 'package:invoice_manager/common/models/sender.dart';
-import 'package:invoice_manager/services/invoice_pdf_generator/config.dart';
+import 'package:invoice_manager/common/services/invoice_pdf_generator/config.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 const pw.TextStyle _senderOneLineTextStyle = pw.TextStyle(

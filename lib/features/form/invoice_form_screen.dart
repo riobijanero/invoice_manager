@@ -12,6 +12,11 @@ import 'package:invoice_manager/common/models/due_date_type.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
 import 'package:invoice_manager/common/models/invoice_defaults.dart';
 import 'package:invoice_manager/common/models/sender.dart';
+import 'package:invoice_manager/features/form/bank_details_fields.dart';
+import 'package:invoice_manager/features/form/client_fields.dart';
+import 'package:invoice_manager/features/form/invoice_detail_fields.dart';
+import 'package:invoice_manager/features/form/sender_fields.dart';
+import 'package:invoice_manager/features/form/utils/utils.dart';
 import '../../routing/app_router.dart';
 
 class InvoiceFormScreen extends ConsumerStatefulWidget {
@@ -55,22 +60,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   Invoice? _loadedInvoice;
   InvoiceDefaults? _defaults;
   bool _initialized = false;
-
-  static const List<int> _months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-  static const List<String> _monthLabels = [
-    'Januar',
-    'Februar',
-    'März',
-    'April',
-    'Mai',
-    'Juni',
-    'Juli',
-    'August',
-    'September',
-    'Oktober',
-    'November',
-    'Dezember',
-  ];
 
   @override
   void initState() {
@@ -154,6 +143,11 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
 
   void _applyDefaults(InvoiceDefaults d) {
     if (_loadedInvoice != null) return;
+
+    // Prefill invoice number for "new invoice" screens:
+    // lastInvoiceNumber + 1 (preserve possible prefix and zero-padding).
+    _invoiceNumber.text = nextInvoiceNumber(d.lastInvoiceNumber);
+
     _senderName.text = d.sender.name;
     _senderAddress.text = d.sender.address;
     _senderPhone.text = d.sender.phoneNumber;
@@ -245,7 +239,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isNew ? 'Neue Rechnung' : 'Rechnung bearbeiten'),
+        title: Text(isNew ? 'Neue Rechnung Nr ${_invoiceNumber.text}' : 'Rechnung (${_invoiceNumber.text}) bearbeiten'),
       ),
       body: asyncInvoice != null && asyncInvoice.isLoading && widget.invoiceId != null
           ? const Center(child: CircularProgressIndicator())
@@ -254,356 +248,117 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(24),
                 children: [
-                  TextFormField(
-                    controller: _invoiceNumber,
-                    decoration: const InputDecoration(
-                      labelText: 'Rechnungsnummer',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text('Absender', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _senderName,
-                    decoration: const InputDecoration(
-                      labelText: 'Name',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _jobDescription,
-                    decoration: const InputDecoration(
-                      labelText: 'Jobbeschreibung (optional)',
-                      border: OutlineInputBorder(),
-                      alignLabelWithHint: true,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _senderAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Adresse',
-                      border: OutlineInputBorder(),
-                      alignLabelWithHint: true,
-                    ),
-                    maxLines: 3,
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _senderPhone,
-                    decoration: const InputDecoration(
-                      labelText: 'Telefon',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _senderEmail,
-                    decoration: const InputDecoration(
-                      labelText: 'E-Mail',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _senderWebsite,
-                    decoration: const InputDecoration(
-                      labelText: 'Website',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text('Kunde', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _clientName,
-                    decoration: const InputDecoration(
-                      labelText: 'Name',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _clientAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Adresse',
-                      border: OutlineInputBorder(),
-                      alignLabelWithHint: true,
-                    ),
-                    maxLines: 3,
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _contractNumber,
-                    decoration: const InputDecoration(
-                      labelText: 'Vertragsnummer (optional)',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text('Bankdaten (Absender)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _accountHolder,
-                    decoration: const InputDecoration(
-                      labelText: 'Kontoinhaber',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _institution,
-                    decoration: const InputDecoration(
-                      labelText: 'Geldinstitut',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _iban,
-                    decoration: const InputDecoration(
-                      labelText: 'IBAN',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _bic,
-                    decoration: const InputDecoration(
-                      labelText: 'BIC',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _ustId,
-                    decoration: const InputDecoration(
-                      labelText: 'USt-ID (für PDF, aus Standardwerten)',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _businessTitle,
-                    decoration: const InputDecoration(
-                      labelText: 'Geschäftstitel (z. B. App und Webentwicklung)',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  InkWell(
-                    onTap: () async {
-                      final date = await showDatePicker(
-                        context: context,
-                        initialDate: _invoiceDate ?? DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2100),
-                      );
-                      if (date != null) setState(() => _invoiceDate = date);
-                    },
-                    child: InputDecorator(
-                      decoration: const InputDecoration(
-                        labelText: 'Rechnungsdatum',
-                        border: OutlineInputBorder(),
-                      ),
-                      child: Text(
-                        _invoiceDate != null ? DateFormat('dd.MM.yyyy').format(_invoiceDate!) : '',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
+                  Wrap(
+                    // crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: DropdownButtonFormField<int>(
-                          value: _serviceMonth,
-                          decoration: const InputDecoration(
-                            labelText: 'Leistungszeitraum Monat',
-                            border: OutlineInputBorder(),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 400),
+                          child: Column(
+                            children: [
+                              SenderFields(
+                                senderNameController: _senderName,
+                                jobDescriptionController: _jobDescription,
+                                senderAddressController: _senderAddress,
+                                senderPhoneController: _senderPhone,
+                                senderEmailController: _senderEmail,
+                                senderWebsiteController: _senderWebsite,
+                                ustIdController: _ustId,
+                              ),
+                              const SizedBox(height: 20),
+                              BankDetailsFields(
+                                accountHolderController: _accountHolder,
+                                institutionController: _institution,
+                                ibanController: _iban,
+                                bicController: _bic,
+                              ),
+                            ],
                           ),
-                          items: List.generate(
-                            12,
-                            (i) => DropdownMenuItem(
-                              value: _months[i],
-                              child: Text(_monthLabels[i]),
-                            ),
-                          ),
-                          onChanged: (v) {
-                            if (v != null) {
-                              setState(() {
-                                _serviceMonth = v;
-                                _updatePeriodInDescription();
-                              });
-                            }
-                          },
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 24),
                       Expanded(
-                        child: DropdownButtonFormField<int>(
-                          value: _serviceYear,
-                          decoration: const InputDecoration(
-                            labelText: 'Leistungszeitraum Jahr',
-                            border: OutlineInputBorder(),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 400),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              ClientFields(
+                                clientNameController: _clientName,
+                                clientAddressController: _clientAddress,
+                                contractNumberController: _contractNumber,
+                              ),
+                              const SizedBox(height: 30),
+                              InvoiceDetailFields(
+                                invoiceNumberController: _invoiceNumber,
+                                invoiceDate: _invoiceDate,
+                                onInvoiceDateTap: () async {
+                                  final date = await showDatePicker(
+                                    context: context,
+                                    initialDate: _invoiceDate ?? DateTime.now(),
+                                    firstDate: DateTime(2000),
+                                    lastDate: DateTime(2100),
+                                  );
+                                  if (date != null) setState(() => _invoiceDate = date);
+                                },
+                                serviceMonth: _serviceMonth,
+                                serviceYear: _serviceYear,
+                                onServiceMonthChanged: (v) {
+                                  setState(() {
+                                    _serviceMonth = v;
+                                    _updatePeriodInDescription();
+                                  });
+                                },
+                                onServiceYearChanged: (v) {
+                                  setState(() {
+                                    _serviceYear = v;
+                                    _updatePeriodInDescription();
+                                  });
+                                },
+                                hoursController: _hours,
+                                hourlyRateController: _hourlyRate,
+                                discountType: _discountType,
+                                onDiscountTypeChanged: (v) => setState(() => _discountType = v),
+                                discountValueController: _discountValue,
+                                dueDateType: _dueDateType,
+                                onDueDateTypeChanged: (v) => setState(() => _dueDateType = v),
+                                customDueDate: _customDueDate,
+                                onCustomDueDateTap: () async {
+                                  final d = await showDatePicker(
+                                    context: context,
+                                    initialDate:
+                                        _customDueDate ?? _invoiceDate?.add(const Duration(days: 14)) ?? DateTime.now(),
+                                    firstDate: DateTime(2000),
+                                    lastDate: DateTime(2100),
+                                  );
+                                  if (d != null) setState(() => _customDueDate = d);
+                                },
+                                serviceDescriptionController: _serviceDescription,
+                                businessTitleController: _businessTitle,
+                              ),
+                              const SizedBox(height: 30),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () => context.go('/'),
+                                    child: const Text('abbrechen'),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  TextButton(
+                                    onPressed: () => _save(context, ref),
+                                    child: const Text('Speichern'),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  FilledButton(
+                                    onPressed: () => _saveAndPreview(context, ref),
+                                    child: const Text('Vorschau'),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                          items: List.generate(
-                            5,
-                            (i) {
-                              final y = DateTime.now().year - 2 + i;
-                              return DropdownMenuItem(
-                                value: y,
-                                child: Text('$y'),
-                              );
-                            },
-                          ),
-                          onChanged: (v) {
-                            if (v != null) {
-                              setState(() {
-                                _serviceYear = v;
-                                _updatePeriodInDescription();
-                              });
-                            }
-                          },
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _hours,
-                    decoration: const InputDecoration(
-                      labelText: 'Stunden',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
-                      final n = double.tryParse(v.replaceFirst(',', '.'));
-                      if (n == null || n < 0) return 'Ungültige Zahl';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _hourlyRate,
-                    decoration: const InputDecoration(
-                      labelText: 'Stundensatz (€)',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
-                      final n = double.tryParse(v.replaceFirst(',', '.'));
-                      if (n == null || n < 0) return 'Ungültige Zahl';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      const Text('Rabatt: '),
-                      SegmentedButton<DiscountType>(
-                        segments: const [
-                          ButtonSegment(value: DiscountType.percent, label: Text('%')),
-                          ButtonSegment(value: DiscountType.amount, label: Text('Betrag')),
-                        ],
-                        selected: {_discountType},
-                        onSelectionChanged: (s) => setState(() => _discountType = s.first),
-                      ),
-                      const SizedBox(width: 16),
-                      SizedBox(
-                        width: 120,
-                        child: TextFormField(
-                          controller: _discountValue,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          validator: (v) {
-                            if (v == null || v.trim().isEmpty) return null;
-                            final n = double.tryParse(v.replaceFirst(',', '.'));
-                            if (n == null || n < 0) return 'Ungültig';
-                            return null;
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<DueDateType>(
-                    value: _dueDateType,
-                    decoration: const InputDecoration(
-                      labelText: 'Fälligkeit',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: DueDateType.values
-                        .map((e) => DropdownMenuItem(
-                              value: e,
-                              child: Text(e.displayName),
-                            ))
-                        .toList(),
-                    onChanged: (v) {
-                      if (v != null) setState(() => _dueDateType = v);
-                    },
-                  ),
-                  if (_dueDateType == DueDateType.custom) ...[
-                    const SizedBox(height: 12),
-                    InkWell(
-                      onTap: () async {
-                        final d = await showDatePicker(
-                          context: context,
-                          initialDate: _customDueDate ?? _invoiceDate?.add(const Duration(days: 14)) ?? DateTime.now(),
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
-                        );
-                        if (d != null) setState(() => _customDueDate = d);
-                      },
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Fälligkeitsdatum',
-                          border: OutlineInputBorder(),
-                        ),
-                        child: Text(
-                          _customDueDate != null ? DateFormat('dd.MM.yyyy').format(_customDueDate!) : 'Datum wählen',
-                        ),
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _serviceDescription,
-                    decoration: const InputDecoration(
-                      labelText: 'Leistungsbeschreibung',
-                      border: OutlineInputBorder(),
-                      alignLabelWithHint: true,
-                    ),
-                    maxLines: 5,
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-                  ),
-                  const SizedBox(height: 32),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => _saveAndPreview(context, ref),
-                        child: const Text('Vorschau'),
-                      ),
-                      const SizedBox(width: 12),
-                      FilledButton(
-                        onPressed: () => _save(context, ref),
-                        child: const Text('Speichern'),
                       ),
                     ],
                   ),
@@ -630,6 +385,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     final current = await defaultsRepo.load();
     final rate = double.tryParse(_hourlyRate.text.replaceFirst(',', '.')) ?? 0;
     await defaultsRepo.save(current.copyWith(
+      lastInvoiceNumber: widget.invoiceId == null ? _invoiceNumber.text.trim() : current.lastInvoiceNumber,
       sender: Sender(
         name: _senderName.text.trim(),
         jobDescription: _jobDescription.text.trim(),

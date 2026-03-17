@@ -1,7 +1,7 @@
 import 'package:invoice_manager/common/models/invoice.dart';
-import 'package:invoice_manager/services/invoice_pdf_generator/config.dart';
-import 'package:invoice_manager/services/utils.dart';
-import 'package:invoice_manager/utils/date_utils.dart';
+import 'package:invoice_manager/common/services/invoice_pdf_generator/config.dart';
+import 'package:invoice_manager/common/services/utils.dart';
+import 'package:invoice_manager/common/utils/date_utils.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 /// Title row: invoice title + contract + period on the left, meta table (date, number, USt-ID, contract) on the right.
