@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -49,12 +50,30 @@ class PreviewScreen extends ConsumerWidget {
               child: Text('Rechnung nicht gefunden.'),
             );
           }
-          return PdfPreview(
-            build: (PdfPageFormat format) => generateInvoicePdf(invoice),
-            allowPrinting: true,
-            allowSharing: false,
-            useActions: false,
-            pdfFileName: 'Rechnung-${invoice.invoiceNumber}.pdf',
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              // A4 aspect ratio (height/width). We use it to scale down the page
+              // so the entire sheet is visible even when the window is short.
+              const double a4Aspect = 297.0 / 210.0;
+              final maxWidth = constraints.maxWidth.isFinite ? constraints.maxWidth : 800;
+              final maxHeight = constraints.maxHeight.isFinite ? constraints.maxHeight : 1000;
+              final scaledMaxPageWidth = math.min(maxWidth, maxHeight / a4Aspect).toDouble();
+
+              return PdfPreview(
+                build: (PdfPageFormat format) => generateInvoicePdf(invoice),
+                allowPrinting: false,
+                allowSharing: false,
+                // Keep zoom/page controls available, but let the viewport scaling
+                // ensure the full page stays visible on small windows.
+                useActions: true,
+                canChangeOrientation: false,
+                canChangePageFormat: false,
+                pdfFileName: 'Rechnung-${invoice.invoiceNumber}.pdf',
+                maxPageWidth: scaledMaxPageWidth,
+                previewPageMargin: EdgeInsets.zero,
+                padding: EdgeInsets.zero,
+              );
+            },
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
