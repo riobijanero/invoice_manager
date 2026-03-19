@@ -275,87 +275,95 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                         ],
                       );
 
-                      final Widget rightColumn = Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                      final Widget actionButtonsRow = Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          ClientFields(
-                            clientNameController: _clientName,
-                            clientAddressController: _clientAddress,
-                            contractNumberController: _contractNumber,
+                          TextButton(
+                            onPressed: () => context.go('/'),
+                            child: const Text('abbrechen'),
                           ),
-                          const SizedBox(height: 30),
-                          InvoiceDetailFields(
-                            invoiceNumberController: _invoiceNumber,
-                            invoiceDate: _invoiceDate,
-                            onInvoiceDateTap: () async {
-                              final date = await showDatePicker(
-                                context: context,
-                                initialDate: _invoiceDate ?? DateTime.now(),
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime(2100),
-                              );
-                              if (date != null) setState(() => _invoiceDate = date);
-                            },
-                            serviceMonth: _serviceMonth,
-                            serviceYear: _serviceYear,
-                            onServiceMonthChanged: (v) {
-                              setState(() {
-                                _serviceMonth = v;
-                                _updatePeriodInDescription();
-                              });
-                            },
-                            onServiceYearChanged: (v) {
-                              setState(() {
-                                _serviceYear = v;
-                                _updatePeriodInDescription();
-                              });
-                            },
-                            hoursController: _hours,
-                            hourlyRateController: _hourlyRate,
-                            discountType: _discountType,
-                            onDiscountTypeChanged: (v) => setState(() => _discountType = v),
-                            discountValueController: _discountValue,
-                            dueDateType: _dueDateType,
-                            onDueDateTypeChanged: (v) => setState(() => _dueDateType = v),
-                            customDueDate: _customDueDate,
-                            onCustomDueDateTap: () async {
-                              final d = await showDatePicker(
-                                context: context,
-                                initialDate:
-                                    _customDueDate ?? _invoiceDate?.add(const Duration(days: 14)) ?? DateTime.now(),
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime(2100),
-                              );
-                              if (d != null) setState(() => _customDueDate = d);
-                            },
-                            serviceDescriptionController: _serviceDescription,
-                            businessTitleController: _businessTitle,
+                          const SizedBox(width: 12),
+                          TextButton(
+                            onPressed: () => _save(context, ref),
+                            child: const Text('Speichern'),
                           ),
-                          const SizedBox(height: 30),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                onPressed: () => context.go('/'),
-                                child: const Text('abbrechen'),
-                              ),
-                              const SizedBox(width: 12),
-                              TextButton(
-                                onPressed: () => _save(context, ref),
-                                child: const Text('Speichern'),
-                              ),
-                              const SizedBox(width: 12),
-                              FilledButton(
-                                onPressed: () => _saveAndPreview(context, ref),
-                                child: const Text('Vorschau'),
-                              ),
-                            ],
+                          const SizedBox(width: 12),
+                          FilledButton(
+                            onPressed: () => _saveAndPreview(context, ref),
+                            child: const Text('Vorschau'),
                           ),
                         ],
                       );
 
-                      final sideBySide = maxWidth >= (minColumnWidth * 2 + gap);
-                      if (sideBySide) {
+                      final Widget invoiceDetailFields = InvoiceDetailFields(
+                        invoiceNumberController: _invoiceNumber,
+                        invoiceDate: _invoiceDate,
+                        onInvoiceDateTap: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: _invoiceDate ?? DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
+                          );
+                          if (date != null) setState(() => _invoiceDate = date);
+                        },
+                        serviceMonth: _serviceMonth,
+                        serviceYear: _serviceYear,
+                        onServiceMonthChanged: (v) {
+                          setState(() {
+                            _serviceMonth = v;
+                            _updatePeriodInDescription();
+                          });
+                        },
+                        onServiceYearChanged: (v) {
+                          setState(() {
+                            _serviceYear = v;
+                            _updatePeriodInDescription();
+                          });
+                        },
+                        hoursController: _hours,
+                        hourlyRateController: _hourlyRate,
+                        discountType: _discountType,
+                        onDiscountTypeChanged: (v) => setState(() => _discountType = v),
+                        discountValueController: _discountValue,
+                        dueDateType: _dueDateType,
+                        onDueDateTypeChanged: (v) => setState(() => _dueDateType = v),
+                        customDueDate: _customDueDate,
+                        onCustomDueDateTap: () async {
+                          final d = await showDatePicker(
+                            context: context,
+                            initialDate:
+                                _customDueDate ?? _invoiceDate?.add(const Duration(days: 14)) ?? DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
+                          );
+                          if (d != null) setState(() => _customDueDate = d);
+                        },
+                        serviceDescriptionController: _serviceDescription,
+                        businessTitleController: _businessTitle,
+                      );
+
+                      final Widget clientFields = ClientFields(
+                        clientNameController: _clientName,
+                        clientAddressController: _clientAddress,
+                        contractNumberController: _contractNumber,
+                      );
+
+                      // Right column "stack" layout (current behavior for non-3-col screens).
+                      final Widget rightColumnStack = Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          clientFields,
+                          const SizedBox(height: 30),
+                          invoiceDetailFields,
+                          const SizedBox(height: 30),
+                          actionButtonsRow,
+                        ],
+                      );
+
+                      // 3-column layout: [Sender+Bank] | [Client] | [Invoice details+actions]
+                      final bool sideBySideThree = maxWidth >= (minColumnWidth * 3 + gap * 2);
+                      if (sideBySideThree) {
                         return Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -369,19 +377,58 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             Expanded(
                               child: ConstrainedBox(
                                 constraints: const BoxConstraints(minWidth: minColumnWidth),
-                                child: rightColumn,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [clientFields],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: gap),
+                            Expanded(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(minWidth: minColumnWidth),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    invoiceDetailFields,
+                                    const SizedBox(height: 30),
+                                    actionButtonsRow,
+                                  ],
+                                ),
                               ),
                             ),
                           ],
                         );
                       }
 
-                      // Narrow window: use Wrap so the second column moves underneath
-                      // the first one.
+                      // 2-column layout: keep current behavior (InvoiceDetailFields under ClientFields).
+                      final bool sideBySideTwo = maxWidth >= (minColumnWidth * 2 + gap);
+                      if (sideBySideTwo) {
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(minWidth: minColumnWidth),
+                                child: leftColumn,
+                              ),
+                            ),
+                            SizedBox(width: gap),
+                            Expanded(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(minWidth: minColumnWidth),
+                                child: rightColumnStack,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      // Narrow window: use Wrap so the second column moves underneath the first.
                       return Wrap(
                         children: [
                           SizedBox(width: maxWidth, child: leftColumn),
-                          SizedBox(width: maxWidth, child: rightColumn),
+                          SizedBox(width: maxWidth, child: rightColumnStack),
                         ],
                       );
                     },
