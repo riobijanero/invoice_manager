@@ -54,28 +54,67 @@ class InvoiceListScreen extends ConsumerWidget {
                 subtitle: Text(
                   '${dateFormat.format(invoice.invoiceDate)} · $periodLabel · ${formatCurrency(totals.gross)}',
                 ),
-                trailing: PopupMenuButton<String>(
-                  onSelected: (value) => _handleAction(context, ref, value, invoice),
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'duplicate',
-                      child: Row(
-                        children: [
-                          Icon(Icons.copy),
-                          SizedBox(width: 8),
-                          Text('Duplizieren'),
-                        ],
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () async {
+                        final initial = invoice.paidOn ?? invoice.invoiceDate;
+                        final date = await showDatePicker(
+                          context: context,
+                          initialDate: initial,
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (date == null) return;
+                        await ref
+                            .read(invoiceRepositoryProvider)
+                            .save(invoice.copyWith(paidOn: date));
+                        ref.invalidate(invoiceListProvider);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            const Text(
+                              'bezahlt am',
+                              style: TextStyle(fontSize: 12, color: Colors.black54),
+                            ),
+                            Text(
+                              invoice.paidOn != null ? dateFormat.format(invoice.paidOn!) : '-',
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const PopupMenuItem(
-                      value: 'delete',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete),
-                          SizedBox(width: 8),
-                          Text('Löschen'),
-                        ],
-                      ),
+                    PopupMenuButton<String>(
+                      onSelected: (value) => _handleAction(context, ref, value, invoice),
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'duplicate',
+                          child: Row(
+                            children: [
+                              Icon(Icons.copy),
+                              SizedBox(width: 8),
+                              Text('Duplizieren'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete),
+                              SizedBox(width: 8),
+                              Text('Löschen'),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

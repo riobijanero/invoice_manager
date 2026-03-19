@@ -10,6 +10,8 @@ class InvoiceDetailFields extends StatelessWidget {
     required this.invoiceNumberController,
     required this.invoiceDate,
     required this.onInvoiceDateTap,
+    required this.paidOn,
+    required this.onPaidOnTap,
     required this.serviceMonth,
     required this.serviceYear,
     required this.onServiceMonthChanged,
@@ -24,12 +26,13 @@ class InvoiceDetailFields extends StatelessWidget {
     required this.customDueDate,
     required this.onCustomDueDateTap,
     required this.serviceDescriptionController,
-    required this.businessTitleController,
   });
 
   final TextEditingController invoiceNumberController;
   final DateTime? invoiceDate;
   final VoidCallback onInvoiceDateTap;
+  final DateTime? paidOn;
+  final VoidCallback onPaidOnTap;
   final int serviceMonth;
   final int serviceYear;
   final ValueChanged<int> onServiceMonthChanged;
@@ -44,7 +47,6 @@ class InvoiceDetailFields extends StatelessWidget {
   final DateTime? customDueDate;
   final VoidCallback onCustomDueDateTap;
   final TextEditingController serviceDescriptionController;
-  final TextEditingController businessTitleController;
 
   static const List<int> _months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   static const List<String> _monthLabels = [
@@ -94,11 +96,16 @@ class InvoiceDetailFields extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        TextFormField(
-          controller: businessTitleController,
-          decoration: const InputDecoration(
-            labelText: 'Geschäftstitel (z. B. App und Webentwicklung)',
-            border: OutlineInputBorder(),
+        InkWell(
+          onTap: onPaidOnTap,
+          child: InputDecorator(
+            decoration: const InputDecoration(
+              labelText: 'Bezahlt am (optional)',
+              border: OutlineInputBorder(),
+            ),
+            child: Text(
+              paidOn != null ? DateFormat('dd.MM.yyyy').format(paidOn!) : 'Datum wählen',
+            ),
           ),
         ),
         const SizedBox(height: 16),

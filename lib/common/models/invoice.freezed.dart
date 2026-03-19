@@ -33,7 +33,6 @@ mixin _$Invoice {
   String get contractNumber => throw _privateConstructorUsedError;
   BankDetails get bankDetails => throw _privateConstructorUsedError;
   DateTime get invoiceDate => throw _privateConstructorUsedError;
-  String get businessTitle => throw _privateConstructorUsedError;
   int get serviceMonth => throw _privateConstructorUsedError;
   int get serviceYear => throw _privateConstructorUsedError;
   double get hours => throw _privateConstructorUsedError;
@@ -42,6 +41,7 @@ mixin _$Invoice {
   double get discountValue => throw _privateConstructorUsedError;
   DueDateType get dueDateType => throw _privateConstructorUsedError;
   DateTime? get customDueDate => throw _privateConstructorUsedError;
+  DateTime? get paidOn => throw _privateConstructorUsedError;
   String get jobDescription => throw _privateConstructorUsedError;
   String get serviceDescription => throw _privateConstructorUsedError;
 
@@ -65,7 +65,6 @@ abstract class $InvoiceCopyWith<$Res> {
       String contractNumber,
       BankDetails bankDetails,
       DateTime invoiceDate,
-      String businessTitle,
       int serviceMonth,
       int serviceYear,
       double hours,
@@ -74,6 +73,7 @@ abstract class $InvoiceCopyWith<$Res> {
       double discountValue,
       DueDateType dueDateType,
       DateTime? customDueDate,
+      DateTime? paidOn,
       String jobDescription,
       String serviceDescription});
 
@@ -104,7 +104,6 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
     Object? contractNumber = null,
     Object? bankDetails = null,
     Object? invoiceDate = null,
-    Object? businessTitle = null,
     Object? serviceMonth = null,
     Object? serviceYear = null,
     Object? hours = null,
@@ -113,6 +112,7 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
     Object? discountValue = null,
     Object? dueDateType = null,
     Object? customDueDate = freezed,
+    Object? paidOn = freezed,
     Object? jobDescription = null,
     Object? serviceDescription = null,
   }) {
@@ -153,10 +153,6 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
           ? _value.invoiceDate
           : invoiceDate // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      businessTitle: null == businessTitle
-          ? _value.businessTitle
-          : businessTitle // ignore: cast_nullable_to_non_nullable
-              as String,
       serviceMonth: null == serviceMonth
           ? _value.serviceMonth
           : serviceMonth // ignore: cast_nullable_to_non_nullable
@@ -188,6 +184,10 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
       customDueDate: freezed == customDueDate
           ? _value.customDueDate
           : customDueDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      paidOn: freezed == paidOn
+          ? _value.paidOn
+          : paidOn // ignore: cast_nullable_to_non_nullable
               as DateTime?,
       jobDescription: null == jobDescription
           ? _value.jobDescription
@@ -242,7 +242,6 @@ abstract class _$$InvoiceImplCopyWith<$Res> implements $InvoiceCopyWith<$Res> {
       String contractNumber,
       BankDetails bankDetails,
       DateTime invoiceDate,
-      String businessTitle,
       int serviceMonth,
       int serviceYear,
       double hours,
@@ -251,6 +250,7 @@ abstract class _$$InvoiceImplCopyWith<$Res> implements $InvoiceCopyWith<$Res> {
       double discountValue,
       DueDateType dueDateType,
       DateTime? customDueDate,
+      DateTime? paidOn,
       String jobDescription,
       String serviceDescription});
 
@@ -282,7 +282,6 @@ class __$$InvoiceImplCopyWithImpl<$Res>
     Object? contractNumber = null,
     Object? bankDetails = null,
     Object? invoiceDate = null,
-    Object? businessTitle = null,
     Object? serviceMonth = null,
     Object? serviceYear = null,
     Object? hours = null,
@@ -291,6 +290,7 @@ class __$$InvoiceImplCopyWithImpl<$Res>
     Object? discountValue = null,
     Object? dueDateType = null,
     Object? customDueDate = freezed,
+    Object? paidOn = freezed,
     Object? jobDescription = null,
     Object? serviceDescription = null,
   }) {
@@ -331,10 +331,6 @@ class __$$InvoiceImplCopyWithImpl<$Res>
           ? _value.invoiceDate
           : invoiceDate // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      businessTitle: null == businessTitle
-          ? _value.businessTitle
-          : businessTitle // ignore: cast_nullable_to_non_nullable
-              as String,
       serviceMonth: null == serviceMonth
           ? _value.serviceMonth
           : serviceMonth // ignore: cast_nullable_to_non_nullable
@@ -367,6 +363,10 @@ class __$$InvoiceImplCopyWithImpl<$Res>
           ? _value.customDueDate
           : customDueDate // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      paidOn: freezed == paidOn
+          ? _value.paidOn
+          : paidOn // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       jobDescription: null == jobDescription
           ? _value.jobDescription
           : jobDescription // ignore: cast_nullable_to_non_nullable
@@ -392,7 +392,6 @@ class _$InvoiceImpl implements _Invoice {
       this.contractNumber = '',
       required this.bankDetails,
       required this.invoiceDate,
-      this.businessTitle = 'App und Webentwicklung',
       required this.serviceMonth,
       required this.serviceYear,
       required this.hours,
@@ -401,6 +400,7 @@ class _$InvoiceImpl implements _Invoice {
       this.discountValue = 0.0,
       this.dueDateType = DueDateType.twoWeeks,
       this.customDueDate,
+      this.paidOn,
       this.jobDescription = '',
       required this.serviceDescription});
 
@@ -431,9 +431,6 @@ class _$InvoiceImpl implements _Invoice {
   @override
   final DateTime invoiceDate;
   @override
-  @JsonKey()
-  final String businessTitle;
-  @override
   final int serviceMonth;
   @override
   final int serviceYear;
@@ -453,6 +450,8 @@ class _$InvoiceImpl implements _Invoice {
   @override
   final DateTime? customDueDate;
   @override
+  final DateTime? paidOn;
+  @override
   @JsonKey()
   final String jobDescription;
   @override
@@ -460,7 +459,7 @@ class _$InvoiceImpl implements _Invoice {
 
   @override
   String toString() {
-    return 'Invoice(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, invoiceNumber: $invoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, invoiceDate: $invoiceDate, businessTitle: $businessTitle, serviceMonth: $serviceMonth, serviceYear: $serviceYear, hours: $hours, hourlyRate: $hourlyRate, discountType: $discountType, discountValue: $discountValue, dueDateType: $dueDateType, customDueDate: $customDueDate, jobDescription: $jobDescription, serviceDescription: $serviceDescription)';
+    return 'Invoice(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, invoiceNumber: $invoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, invoiceDate: $invoiceDate, serviceMonth: $serviceMonth, serviceYear: $serviceYear, hours: $hours, hourlyRate: $hourlyRate, discountType: $discountType, discountValue: $discountValue, dueDateType: $dueDateType, customDueDate: $customDueDate, paidOn: $paidOn, jobDescription: $jobDescription, serviceDescription: $serviceDescription)';
   }
 
   @override
@@ -483,8 +482,6 @@ class _$InvoiceImpl implements _Invoice {
                 other.bankDetails == bankDetails) &&
             (identical(other.invoiceDate, invoiceDate) ||
                 other.invoiceDate == invoiceDate) &&
-            (identical(other.businessTitle, businessTitle) ||
-                other.businessTitle == businessTitle) &&
             (identical(other.serviceMonth, serviceMonth) ||
                 other.serviceMonth == serviceMonth) &&
             (identical(other.serviceYear, serviceYear) ||
@@ -500,6 +497,7 @@ class _$InvoiceImpl implements _Invoice {
                 other.dueDateType == dueDateType) &&
             (identical(other.customDueDate, customDueDate) ||
                 other.customDueDate == customDueDate) &&
+            (identical(other.paidOn, paidOn) || other.paidOn == paidOn) &&
             (identical(other.jobDescription, jobDescription) ||
                 other.jobDescription == jobDescription) &&
             (identical(other.serviceDescription, serviceDescription) ||
@@ -519,7 +517,6 @@ class _$InvoiceImpl implements _Invoice {
         contractNumber,
         bankDetails,
         invoiceDate,
-        businessTitle,
         serviceMonth,
         serviceYear,
         hours,
@@ -528,6 +525,7 @@ class _$InvoiceImpl implements _Invoice {
         discountValue,
         dueDateType,
         customDueDate,
+        paidOn,
         jobDescription,
         serviceDescription
       ]);
@@ -557,7 +555,6 @@ abstract class _Invoice implements Invoice {
       final String contractNumber,
       required final BankDetails bankDetails,
       required final DateTime invoiceDate,
-      final String businessTitle,
       required final int serviceMonth,
       required final int serviceYear,
       required final double hours,
@@ -566,6 +563,7 @@ abstract class _Invoice implements Invoice {
       final double discountValue,
       final DueDateType dueDateType,
       final DateTime? customDueDate,
+      final DateTime? paidOn,
       final String jobDescription,
       required final String serviceDescription}) = _$InvoiceImpl;
 
@@ -592,8 +590,6 @@ abstract class _Invoice implements Invoice {
   @override
   DateTime get invoiceDate;
   @override
-  String get businessTitle;
-  @override
   int get serviceMonth;
   @override
   int get serviceYear;
@@ -609,6 +605,8 @@ abstract class _Invoice implements Invoice {
   DueDateType get dueDateType;
   @override
   DateTime? get customDueDate;
+  @override
+  DateTime? get paidOn;
   @override
   String get jobDescription;
   @override

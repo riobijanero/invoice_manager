@@ -18,8 +18,6 @@ _$InvoiceImpl _$$InvoiceImplFromJson(Map<String, dynamic> json) =>
       bankDetails:
           BankDetails.fromJson(json['bankDetails'] as Map<String, dynamic>),
       invoiceDate: DateTime.parse(json['invoiceDate'] as String),
-      businessTitle:
-          json['businessTitle'] as String? ?? 'App und Webentwicklung',
       serviceMonth: (json['serviceMonth'] as num).toInt(),
       serviceYear: (json['serviceYear'] as num).toInt(),
       hours: (json['hours'] as num).toDouble(),
@@ -34,6 +32,9 @@ _$InvoiceImpl _$$InvoiceImplFromJson(Map<String, dynamic> json) =>
       customDueDate: json['customDueDate'] == null
           ? null
           : DateTime.parse(json['customDueDate'] as String),
+      paidOn: json['paidOn'] == null
+          ? null
+          : DateTime.parse(json['paidOn'] as String),
       jobDescription: json['jobDescription'] as String? ?? '',
       serviceDescription: json['serviceDescription'] as String,
     );
@@ -49,7 +50,6 @@ Map<String, dynamic> _$$InvoiceImplToJson(_$InvoiceImpl instance) =>
       'contractNumber': instance.contractNumber,
       'bankDetails': instance.bankDetails,
       'invoiceDate': instance.invoiceDate.toIso8601String(),
-      'businessTitle': instance.businessTitle,
       'serviceMonth': instance.serviceMonth,
       'serviceYear': instance.serviceYear,
       'hours': instance.hours,
@@ -58,6 +58,7 @@ Map<String, dynamic> _$$InvoiceImplToJson(_$InvoiceImpl instance) =>
       'discountValue': instance.discountValue,
       'dueDateType': _$DueDateTypeEnumMap[instance.dueDateType]!,
       'customDueDate': instance.customDueDate?.toIso8601String(),
+      'paidOn': instance.paidOn?.toIso8601String(),
       'jobDescription': instance.jobDescription,
       'serviceDescription': instance.serviceDescription,
     };

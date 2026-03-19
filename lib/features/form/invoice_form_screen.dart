@@ -49,9 +49,9 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   late TextEditingController _jobDescription;
   late TextEditingController _serviceDescription;
   late TextEditingController _ustId;
-  late TextEditingController _businessTitle;
 
   DateTime? _invoiceDate;
+  DateTime? _paidOn;
   int _serviceMonth = DateTime.now().month;
   int _serviceYear = DateTime.now().year;
   DiscountType _discountType = DiscountType.percent;
@@ -83,8 +83,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _jobDescription = TextEditingController();
     _serviceDescription = TextEditingController();
     _ustId = TextEditingController();
-    _businessTitle = TextEditingController(text: 'App und Webentwicklung');
     _invoiceDate = DateTime.now();
+    _paidOn = null;
   }
 
   @override
@@ -108,7 +108,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _jobDescription.dispose();
     _serviceDescription.dispose();
     _ustId.dispose();
-    _businessTitle.dispose();
     super.dispose();
   }
 
@@ -128,7 +127,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _iban.text = inv.bankDetails.iban;
     _bic.text = inv.bankDetails.bic;
     _invoiceDate = inv.invoiceDate;
-    _businessTitle.text = inv.businessTitle;
+    _paidOn = inv.paidOn;
     _serviceMonth = inv.serviceMonth;
     _serviceYear = inv.serviceYear;
     _hours.text = inv.hours.toString();
@@ -143,6 +142,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
 
   void _applyDefaults(InvoiceDefaults d) {
     if (_loadedInvoice != null) return;
+
+    _paidOn = null;
 
     // Prefill invoice number for "new invoice" screens:
     // lastInvoiceNumber + 1 (preserve possible prefix and zero-padding).
@@ -174,7 +175,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       _serviceDescription.text = defaultServiceDescriptionTemplate.replaceAll('{PERIOD}', _periodPlaceholder());
     }
     _ustId.text = d.sender.ustId.isNotEmpty ? d.sender.ustId : d.ustId;
-    _businessTitle.text = d.businessTitle;
   }
 
   String _periodPlaceholder() {
@@ -232,7 +232,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       _applyInvoice(asyncInvoice.value!);
       if (asyncDefaults.hasValue) {
         _defaults = asyncDefaults.value;
-        _businessTitle.text = _defaults!.businessTitle.isNotEmpty ? _defaults!.businessTitle : 'App und Webentwicklung';
       }
       _initialized = true;
     }
@@ -307,6 +306,16 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                           );
                           if (date != null) setState(() => _invoiceDate = date);
                         },
+                        paidOn: _paidOn,
+                        onPaidOnTap: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: _paidOn ?? _invoiceDate ?? DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
+                          );
+                          if (date != null) setState(() => _paidOn = date);
+                        },
                         serviceMonth: _serviceMonth,
                         serviceYear: _serviceYear,
                         onServiceMonthChanged: (v) {
@@ -340,7 +349,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                           if (d != null) setState(() => _customDueDate = d);
                         },
                         serviceDescriptionController: _serviceDescription,
-                        businessTitleController: _businessTitle,
                       );
 
                       final Widget clientFields = ClientFields(
@@ -478,7 +486,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
         bic: _bic.text.trim(),
       ),
       ustId: _ustId.text.trim(),
-      businessTitle: _businessTitle.text.trim().isEmpty ? 'App und Webentwicklung' : _businessTitle.text.trim(),
       hourlyRate: rate,
       discountType: _discountType,
       discountValue: double.tryParse(_discountValue.text.replaceFirst(',', '.')) ?? 0,
@@ -521,7 +528,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
         bic: _bic.text.trim(),
       ),
       invoiceDate: _invoiceDate!,
-      businessTitle: _businessTitle.text.trim().isEmpty ? 'App und Webentwicklung' : _businessTitle.text.trim(),
+      paidOn: _paidOn,
       serviceMonth: _serviceMonth,
       serviceYear: _serviceYear,
       hours: hours,

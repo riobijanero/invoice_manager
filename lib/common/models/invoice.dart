@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:json_annotation/json_annotation.dart';
 
 import 'bank_details.dart';
 import 'client.dart';
@@ -24,7 +23,6 @@ class Invoice with _$Invoice {
     @Default('') String contractNumber,
     required BankDetails bankDetails,
     required DateTime invoiceDate,
-    @Default('App und Webentwicklung') String businessTitle,
     required int serviceMonth,
     required int serviceYear,
     required double hours,
@@ -33,12 +31,12 @@ class Invoice with _$Invoice {
     @Default(0.0) double discountValue,
     @Default(DueDateType.twoWeeks) DueDateType dueDateType,
     DateTime? customDueDate,
+    DateTime? paidOn,
     @Default('') String jobDescription,
     required String serviceDescription,
   }) = _Invoice;
 
-  factory Invoice.fromJson(Map<String, dynamic> json) =>
-      _$InvoiceFromJson(_migrateInvoiceJson(json));
+  factory Invoice.fromJson(Map<String, dynamic> json) => _$InvoiceFromJson(_migrateInvoiceJson(json));
 
   /// Supports legacy JSON with senderAddress/clientAddress strings.
   static Map<String, dynamic> _migrateInvoiceJson(Map<String, dynamic> json) {

@@ -52,7 +52,7 @@ List<pw.Widget> invoiceTableBlock({
     ),
     // Totals table directly under the main table, same width and visually connected.
     pw.Table(
-      border: pw.TableBorder(
+      border: const pw.TableBorder(
         top: pw.BorderSide.none,
         left: const pw.BorderSide(width: 0.5, color: PdfColors.grey800),
         right: const pw.BorderSide(width: 0.5, color: PdfColors.grey800),
