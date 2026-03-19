@@ -248,119 +248,143 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(24),
                 children: [
-                  Wrap(
-                    // crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 400),
-                          child: Column(
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      const minColumnWidth = 400.0;
+                      const gap = 24.0;
+                      final maxWidth = constraints.maxWidth.isFinite ? constraints.maxWidth : 0.0;
+
+                      final Widget leftColumn = Column(
+                        children: [
+                          SenderFields(
+                            senderNameController: _senderName,
+                            jobDescriptionController: _jobDescription,
+                            senderAddressController: _senderAddress,
+                            senderPhoneController: _senderPhone,
+                            senderEmailController: _senderEmail,
+                            senderWebsiteController: _senderWebsite,
+                            ustIdController: _ustId,
+                          ),
+                          const SizedBox(height: 20),
+                          BankDetailsFields(
+                            accountHolderController: _accountHolder,
+                            institutionController: _institution,
+                            ibanController: _iban,
+                            bicController: _bic,
+                          ),
+                        ],
+                      );
+
+                      final Widget rightColumn = Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          ClientFields(
+                            clientNameController: _clientName,
+                            clientAddressController: _clientAddress,
+                            contractNumberController: _contractNumber,
+                          ),
+                          const SizedBox(height: 30),
+                          InvoiceDetailFields(
+                            invoiceNumberController: _invoiceNumber,
+                            invoiceDate: _invoiceDate,
+                            onInvoiceDateTap: () async {
+                              final date = await showDatePicker(
+                                context: context,
+                                initialDate: _invoiceDate ?? DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                              );
+                              if (date != null) setState(() => _invoiceDate = date);
+                            },
+                            serviceMonth: _serviceMonth,
+                            serviceYear: _serviceYear,
+                            onServiceMonthChanged: (v) {
+                              setState(() {
+                                _serviceMonth = v;
+                                _updatePeriodInDescription();
+                              });
+                            },
+                            onServiceYearChanged: (v) {
+                              setState(() {
+                                _serviceYear = v;
+                                _updatePeriodInDescription();
+                              });
+                            },
+                            hoursController: _hours,
+                            hourlyRateController: _hourlyRate,
+                            discountType: _discountType,
+                            onDiscountTypeChanged: (v) => setState(() => _discountType = v),
+                            discountValueController: _discountValue,
+                            dueDateType: _dueDateType,
+                            onDueDateTypeChanged: (v) => setState(() => _dueDateType = v),
+                            customDueDate: _customDueDate,
+                            onCustomDueDateTap: () async {
+                              final d = await showDatePicker(
+                                context: context,
+                                initialDate:
+                                    _customDueDate ?? _invoiceDate?.add(const Duration(days: 14)) ?? DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                              );
+                              if (d != null) setState(() => _customDueDate = d);
+                            },
+                            serviceDescriptionController: _serviceDescription,
+                            businessTitleController: _businessTitle,
+                          ),
+                          const SizedBox(height: 30),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              SenderFields(
-                                senderNameController: _senderName,
-                                jobDescriptionController: _jobDescription,
-                                senderAddressController: _senderAddress,
-                                senderPhoneController: _senderPhone,
-                                senderEmailController: _senderEmail,
-                                senderWebsiteController: _senderWebsite,
-                                ustIdController: _ustId,
+                              TextButton(
+                                onPressed: () => context.go('/'),
+                                child: const Text('abbrechen'),
                               ),
-                              const SizedBox(height: 20),
-                              BankDetailsFields(
-                                accountHolderController: _accountHolder,
-                                institutionController: _institution,
-                                ibanController: _iban,
-                                bicController: _bic,
+                              const SizedBox(width: 12),
+                              TextButton(
+                                onPressed: () => _save(context, ref),
+                                child: const Text('Speichern'),
+                              ),
+                              const SizedBox(width: 12),
+                              FilledButton(
+                                onPressed: () => _saveAndPreview(context, ref),
+                                child: const Text('Vorschau'),
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 24),
-                      Expanded(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 400),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              ClientFields(
-                                clientNameController: _clientName,
-                                clientAddressController: _clientAddress,
-                                contractNumberController: _contractNumber,
+                        ],
+                      );
+
+                      final sideBySide = maxWidth >= (minColumnWidth * 2 + gap);
+                      if (sideBySide) {
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(minWidth: minColumnWidth),
+                                child: leftColumn,
                               ),
-                              const SizedBox(height: 30),
-                              InvoiceDetailFields(
-                                invoiceNumberController: _invoiceNumber,
-                                invoiceDate: _invoiceDate,
-                                onInvoiceDateTap: () async {
-                                  final date = await showDatePicker(
-                                    context: context,
-                                    initialDate: _invoiceDate ?? DateTime.now(),
-                                    firstDate: DateTime(2000),
-                                    lastDate: DateTime(2100),
-                                  );
-                                  if (date != null) setState(() => _invoiceDate = date);
-                                },
-                                serviceMonth: _serviceMonth,
-                                serviceYear: _serviceYear,
-                                onServiceMonthChanged: (v) {
-                                  setState(() {
-                                    _serviceMonth = v;
-                                    _updatePeriodInDescription();
-                                  });
-                                },
-                                onServiceYearChanged: (v) {
-                                  setState(() {
-                                    _serviceYear = v;
-                                    _updatePeriodInDescription();
-                                  });
-                                },
-                                hoursController: _hours,
-                                hourlyRateController: _hourlyRate,
-                                discountType: _discountType,
-                                onDiscountTypeChanged: (v) => setState(() => _discountType = v),
-                                discountValueController: _discountValue,
-                                dueDateType: _dueDateType,
-                                onDueDateTypeChanged: (v) => setState(() => _dueDateType = v),
-                                customDueDate: _customDueDate,
-                                onCustomDueDateTap: () async {
-                                  final d = await showDatePicker(
-                                    context: context,
-                                    initialDate:
-                                        _customDueDate ?? _invoiceDate?.add(const Duration(days: 14)) ?? DateTime.now(),
-                                    firstDate: DateTime(2000),
-                                    lastDate: DateTime(2100),
-                                  );
-                                  if (d != null) setState(() => _customDueDate = d);
-                                },
-                                serviceDescriptionController: _serviceDescription,
-                                businessTitleController: _businessTitle,
+                            ),
+                            const SizedBox(width: gap),
+                            Expanded(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(minWidth: minColumnWidth),
+                                child: rightColumn,
                               ),
-                              const SizedBox(height: 30),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  TextButton(
-                                    onPressed: () => context.go('/'),
-                                    child: const Text('abbrechen'),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  TextButton(
-                                    onPressed: () => _save(context, ref),
-                                    child: const Text('Speichern'),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  FilledButton(
-                                    onPressed: () => _saveAndPreview(context, ref),
-                                    child: const Text('Vorschau'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                            ),
+                          ],
+                        );
+                      }
+
+                      // Narrow window: use Wrap so the second column moves underneath
+                      // the first one.
+                      return Wrap(
+                        children: [
+                          SizedBox(width: maxWidth, child: leftColumn),
+                          SizedBox(width: maxWidth, child: rightColumn),
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),
