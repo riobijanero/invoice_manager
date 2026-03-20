@@ -12,7 +12,7 @@ List<pw.Widget> invoiceTableBlock({
   required String serviceDescription,
 }) {
   final totals = computeTotals(invoice);
-  final lineTotal = invoice.hours * invoice.hourlyRate;
+  final lineTotal = invoice.invoiceItem.hours * invoice.invoiceItem.hourlyRate;
 
   return [
     // Line-item table
@@ -40,8 +40,8 @@ List<pw.Widget> invoiceTableBlock({
           children: [
             cell(serviceDescription),
             cell('Std.'),
-            cell(invoice.hours.toStringAsFixed(0)),
-            cell(formatCurrency(invoice.hourlyRate)),
+            cell(invoice.invoiceItem.hours.toStringAsFixed(0)),
+            cell(formatCurrency(invoice.invoiceItem.hourlyRate)),
             cell(formatCurrency(lineTotal)),
           ],
         ),

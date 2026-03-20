@@ -18,10 +18,8 @@ _$InvoiceImpl _$$InvoiceImplFromJson(Map<String, dynamic> json) =>
       bankDetails:
           BankDetails.fromJson(json['bankDetails'] as Map<String, dynamic>),
       invoiceDate: DateTime.parse(json['invoiceDate'] as String),
-      serviceMonth: (json['serviceMonth'] as num).toInt(),
-      serviceYear: (json['serviceYear'] as num).toInt(),
-      hours: (json['hours'] as num).toDouble(),
-      hourlyRate: (json['hourlyRate'] as num).toDouble(),
+      invoiceItem:
+          InvoiceItem.fromJson(json['invoiceItem'] as Map<String, dynamic>),
       discountType:
           $enumDecodeNullable(_$DiscountTypeEnumMap, json['discountType']) ??
               DiscountType.percent,
@@ -35,10 +33,8 @@ _$InvoiceImpl _$$InvoiceImplFromJson(Map<String, dynamic> json) =>
       paidOn: json['paidOn'] == null
           ? null
           : DateTime.parse(json['paidOn'] as String),
-      jobDescription: json['jobDescription'] as String? ?? '',
       introductoryText: json['introductoryText'] as String? ??
           'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:',
-      serviceDescription: json['serviceDescription'] as String,
     );
 
 Map<String, dynamic> _$$InvoiceImplToJson(_$InvoiceImpl instance) =>
@@ -52,18 +48,13 @@ Map<String, dynamic> _$$InvoiceImplToJson(_$InvoiceImpl instance) =>
       'contractNumber': instance.contractNumber,
       'bankDetails': instance.bankDetails,
       'invoiceDate': instance.invoiceDate.toIso8601String(),
-      'serviceMonth': instance.serviceMonth,
-      'serviceYear': instance.serviceYear,
-      'hours': instance.hours,
-      'hourlyRate': instance.hourlyRate,
+      'invoiceItem': instance.invoiceItem,
       'discountType': _$DiscountTypeEnumMap[instance.discountType]!,
       'discountValue': instance.discountValue,
       'dueDateType': _$DueDateTypeEnumMap[instance.dueDateType]!,
       'customDueDate': instance.customDueDate?.toIso8601String(),
       'paidOn': instance.paidOn?.toIso8601String(),
-      'jobDescription': instance.jobDescription,
       'introductoryText': instance.introductoryText,
-      'serviceDescription': instance.serviceDescription,
     };
 
 const _$DiscountTypeEnumMap = {

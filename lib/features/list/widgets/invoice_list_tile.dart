@@ -22,13 +22,36 @@ class InvoiceListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final totals = computeTotals(invoice);
-    final clientLine =
-        invoice.client.name.isNotEmpty ? invoice.client.name : _firstLine(invoice.client.address);
+    final clientLine = invoice.client.name.isNotEmpty ? invoice.client.name : _firstLine(invoice.client.address);
     final dateFormat = DateFormat('dd.MM.yyyy');
-    final periodLabel = '${_monthName(invoice.serviceMonth)} ${invoice.serviceYear}';
+    final periodLabel =
+        '${_monthName(invoice.invoiceItem.serviceMonth)} ${invoice.invoiceItem.serviceYear}';
 
     return ListTile(
-      title: Text('Nr. ${invoice.invoiceNumber} · $clientLine'),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            'Nr. ${invoice.invoiceNumber} ·',
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              clientLine,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (invoice.paidOn != null) const SizedBox(width: 4),
+          if (invoice.paidOn != null)
+            const Icon(
+              Icons.check_circle,
+              size: 16,
+              color: Colors.green,
+            ),
+        ],
+      ),
       subtitle: Text(
         '${dateFormat.format(invoice.invoiceDate)} · $periodLabel · ${formatCurrency(totals.gross)}',
       ),
@@ -46,9 +69,7 @@ class InvoiceListTile extends ConsumerWidget {
                 lastDate: DateTime(2100),
               );
               if (date == null) return;
-              await ref
-                  .read(invoiceRepositoryProvider)
-                  .save(invoice.copyWith(paidOn: date));
+              await ref.read(invoiceRepositoryProvider).save(invoice.copyWith(paidOn: date));
               ref.invalidate(invoiceListProvider);
             },
             child: Padding(
@@ -125,4 +146,3 @@ String _monthName(int month) {
   if (month < 1 || month > 12) return '$month';
   return names[month - 1];
 }
-

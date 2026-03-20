@@ -4,6 +4,7 @@ import 'bank_details.dart';
 import 'client.dart';
 import 'discount_type.dart';
 import 'due_date_type.dart';
+import 'invoice_item.dart';
 import 'sender.dart';
 
 part 'invoice.freezed.dart';
@@ -23,21 +24,16 @@ class Invoice with _$Invoice {
     @Default('') String contractNumber,
     required BankDetails bankDetails,
     required DateTime invoiceDate,
-    required int serviceMonth,
-    required int serviceYear,
-    required double hours,
-    required double hourlyRate,
+    required InvoiceItem invoiceItem,
     @Default(DiscountType.percent) DiscountType discountType,
     @Default(0.0) double discountValue,
     @Default(DueDateType.twoWeeks) DueDateType dueDateType,
     DateTime? customDueDate,
     DateTime? paidOn,
-    @Default('') String jobDescription,
     @Default(
       'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:',
     )
     String introductoryText,
-    required String serviceDescription,
   }) = _Invoice;
 
   factory Invoice.fromJson(Map<String, dynamic> json) => _$InvoiceFromJson(_migrateInvoiceJson(json));
@@ -50,6 +46,20 @@ class Invoice with _$Invoice {
     }
     if (out['client'] == null && out['clientAddress'] != null) {
       out['client'] = _clientFromLegacyString(out['clientAddress'] as String? ?? '');
+    }
+
+    // Legacy schema: serviceMonth/serviceYear/hours/hourlyRate/serviceDescription
+    // were top-level fields on Invoice. Now they live in InvoiceItem.
+    if (out['invoiceItem'] == null) {
+      final serviceDescription = out['serviceDescription'] as String? ?? '';
+      out['invoiceItem'] = <String, dynamic>{
+        'serviceMonth': out['serviceMonth'] as int? ?? DateTime.now().month,
+        'serviceYear': out['serviceYear'] as int? ?? DateTime.now().year,
+        'hours': (out['hours'] as num?)?.toDouble() ?? 0.0,
+        'hourlyRate': (out['hourlyRate'] as num?)?.toDouble() ?? 0.0,
+        'serviceDescription': serviceDescription,
+      };
+      // Optional: keep old keys around, but they won't be used by the new model.
     }
     return out;
   }

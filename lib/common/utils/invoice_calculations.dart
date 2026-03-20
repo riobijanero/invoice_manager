@@ -22,7 +22,7 @@ class InvoiceTotals {
 }
 
 InvoiceTotals computeTotals(Invoice invoice) {
-  final subtotal = invoice.hours * invoice.hourlyRate;
+  final subtotal = invoice.invoiceItem.hours * invoice.invoiceItem.hourlyRate;
   final discountAmount = invoice.discountType == DiscountType.percent
       ? subtotal * (invoice.discountValue / 100)
       : invoice.discountValue;

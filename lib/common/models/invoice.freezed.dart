@@ -33,18 +33,13 @@ mixin _$Invoice {
   String get contractNumber => throw _privateConstructorUsedError;
   BankDetails get bankDetails => throw _privateConstructorUsedError;
   DateTime get invoiceDate => throw _privateConstructorUsedError;
-  int get serviceMonth => throw _privateConstructorUsedError;
-  int get serviceYear => throw _privateConstructorUsedError;
-  double get hours => throw _privateConstructorUsedError;
-  double get hourlyRate => throw _privateConstructorUsedError;
+  InvoiceItem get invoiceItem => throw _privateConstructorUsedError;
   DiscountType get discountType => throw _privateConstructorUsedError;
   double get discountValue => throw _privateConstructorUsedError;
   DueDateType get dueDateType => throw _privateConstructorUsedError;
   DateTime? get customDueDate => throw _privateConstructorUsedError;
   DateTime? get paidOn => throw _privateConstructorUsedError;
-  String get jobDescription => throw _privateConstructorUsedError;
   String get introductoryText => throw _privateConstructorUsedError;
-  String get serviceDescription => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -66,22 +61,18 @@ abstract class $InvoiceCopyWith<$Res> {
       String contractNumber,
       BankDetails bankDetails,
       DateTime invoiceDate,
-      int serviceMonth,
-      int serviceYear,
-      double hours,
-      double hourlyRate,
+      InvoiceItem invoiceItem,
       DiscountType discountType,
       double discountValue,
       DueDateType dueDateType,
       DateTime? customDueDate,
       DateTime? paidOn,
-      String jobDescription,
-      String introductoryText,
-      String serviceDescription});
+      String introductoryText});
 
   $SenderCopyWith<$Res> get sender;
   $ClientCopyWith<$Res> get client;
   $BankDetailsCopyWith<$Res> get bankDetails;
+  $InvoiceItemCopyWith<$Res> get invoiceItem;
 }
 
 /// @nodoc
@@ -106,18 +97,13 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
     Object? contractNumber = null,
     Object? bankDetails = null,
     Object? invoiceDate = null,
-    Object? serviceMonth = null,
-    Object? serviceYear = null,
-    Object? hours = null,
-    Object? hourlyRate = null,
+    Object? invoiceItem = null,
     Object? discountType = null,
     Object? discountValue = null,
     Object? dueDateType = null,
     Object? customDueDate = freezed,
     Object? paidOn = freezed,
-    Object? jobDescription = null,
     Object? introductoryText = null,
-    Object? serviceDescription = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -156,22 +142,10 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
           ? _value.invoiceDate
           : invoiceDate // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      serviceMonth: null == serviceMonth
-          ? _value.serviceMonth
-          : serviceMonth // ignore: cast_nullable_to_non_nullable
-              as int,
-      serviceYear: null == serviceYear
-          ? _value.serviceYear
-          : serviceYear // ignore: cast_nullable_to_non_nullable
-              as int,
-      hours: null == hours
-          ? _value.hours
-          : hours // ignore: cast_nullable_to_non_nullable
-              as double,
-      hourlyRate: null == hourlyRate
-          ? _value.hourlyRate
-          : hourlyRate // ignore: cast_nullable_to_non_nullable
-              as double,
+      invoiceItem: null == invoiceItem
+          ? _value.invoiceItem
+          : invoiceItem // ignore: cast_nullable_to_non_nullable
+              as InvoiceItem,
       discountType: null == discountType
           ? _value.discountType
           : discountType // ignore: cast_nullable_to_non_nullable
@@ -192,17 +166,9 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
           ? _value.paidOn
           : paidOn // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      jobDescription: null == jobDescription
-          ? _value.jobDescription
-          : jobDescription // ignore: cast_nullable_to_non_nullable
-              as String,
       introductoryText: null == introductoryText
           ? _value.introductoryText
           : introductoryText // ignore: cast_nullable_to_non_nullable
-              as String,
-      serviceDescription: null == serviceDescription
-          ? _value.serviceDescription
-          : serviceDescription // ignore: cast_nullable_to_non_nullable
               as String,
     ) as $Val);
   }
@@ -230,6 +196,14 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
       return _then(_value.copyWith(bankDetails: value) as $Val);
     });
   }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $InvoiceItemCopyWith<$Res> get invoiceItem {
+    return $InvoiceItemCopyWith<$Res>(_value.invoiceItem, (value) {
+      return _then(_value.copyWith(invoiceItem: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -249,18 +223,13 @@ abstract class _$$InvoiceImplCopyWith<$Res> implements $InvoiceCopyWith<$Res> {
       String contractNumber,
       BankDetails bankDetails,
       DateTime invoiceDate,
-      int serviceMonth,
-      int serviceYear,
-      double hours,
-      double hourlyRate,
+      InvoiceItem invoiceItem,
       DiscountType discountType,
       double discountValue,
       DueDateType dueDateType,
       DateTime? customDueDate,
       DateTime? paidOn,
-      String jobDescription,
-      String introductoryText,
-      String serviceDescription});
+      String introductoryText});
 
   @override
   $SenderCopyWith<$Res> get sender;
@@ -268,6 +237,8 @@ abstract class _$$InvoiceImplCopyWith<$Res> implements $InvoiceCopyWith<$Res> {
   $ClientCopyWith<$Res> get client;
   @override
   $BankDetailsCopyWith<$Res> get bankDetails;
+  @override
+  $InvoiceItemCopyWith<$Res> get invoiceItem;
 }
 
 /// @nodoc
@@ -290,18 +261,13 @@ class __$$InvoiceImplCopyWithImpl<$Res>
     Object? contractNumber = null,
     Object? bankDetails = null,
     Object? invoiceDate = null,
-    Object? serviceMonth = null,
-    Object? serviceYear = null,
-    Object? hours = null,
-    Object? hourlyRate = null,
+    Object? invoiceItem = null,
     Object? discountType = null,
     Object? discountValue = null,
     Object? dueDateType = null,
     Object? customDueDate = freezed,
     Object? paidOn = freezed,
-    Object? jobDescription = null,
     Object? introductoryText = null,
-    Object? serviceDescription = null,
   }) {
     return _then(_$InvoiceImpl(
       id: null == id
@@ -340,22 +306,10 @@ class __$$InvoiceImplCopyWithImpl<$Res>
           ? _value.invoiceDate
           : invoiceDate // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      serviceMonth: null == serviceMonth
-          ? _value.serviceMonth
-          : serviceMonth // ignore: cast_nullable_to_non_nullable
-              as int,
-      serviceYear: null == serviceYear
-          ? _value.serviceYear
-          : serviceYear // ignore: cast_nullable_to_non_nullable
-              as int,
-      hours: null == hours
-          ? _value.hours
-          : hours // ignore: cast_nullable_to_non_nullable
-              as double,
-      hourlyRate: null == hourlyRate
-          ? _value.hourlyRate
-          : hourlyRate // ignore: cast_nullable_to_non_nullable
-              as double,
+      invoiceItem: null == invoiceItem
+          ? _value.invoiceItem
+          : invoiceItem // ignore: cast_nullable_to_non_nullable
+              as InvoiceItem,
       discountType: null == discountType
           ? _value.discountType
           : discountType // ignore: cast_nullable_to_non_nullable
@@ -376,17 +330,9 @@ class __$$InvoiceImplCopyWithImpl<$Res>
           ? _value.paidOn
           : paidOn // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      jobDescription: null == jobDescription
-          ? _value.jobDescription
-          : jobDescription // ignore: cast_nullable_to_non_nullable
-              as String,
       introductoryText: null == introductoryText
           ? _value.introductoryText
           : introductoryText // ignore: cast_nullable_to_non_nullable
-              as String,
-      serviceDescription: null == serviceDescription
-          ? _value.serviceDescription
-          : serviceDescription // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
@@ -405,19 +351,14 @@ class _$InvoiceImpl implements _Invoice {
       this.contractNumber = '',
       required this.bankDetails,
       required this.invoiceDate,
-      required this.serviceMonth,
-      required this.serviceYear,
-      required this.hours,
-      required this.hourlyRate,
+      required this.invoiceItem,
       this.discountType = DiscountType.percent,
       this.discountValue = 0.0,
       this.dueDateType = DueDateType.twoWeeks,
       this.customDueDate,
       this.paidOn,
-      this.jobDescription = '',
       this.introductoryText =
-          'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:',
-      required this.serviceDescription});
+          'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:'});
 
   factory _$InvoiceImpl.fromJson(Map<String, dynamic> json) =>
       _$$InvoiceImplFromJson(json);
@@ -446,13 +387,7 @@ class _$InvoiceImpl implements _Invoice {
   @override
   final DateTime invoiceDate;
   @override
-  final int serviceMonth;
-  @override
-  final int serviceYear;
-  @override
-  final double hours;
-  @override
-  final double hourlyRate;
+  final InvoiceItem invoiceItem;
   @override
   @JsonKey()
   final DiscountType discountType;
@@ -468,16 +403,11 @@ class _$InvoiceImpl implements _Invoice {
   final DateTime? paidOn;
   @override
   @JsonKey()
-  final String jobDescription;
-  @override
-  @JsonKey()
   final String introductoryText;
-  @override
-  final String serviceDescription;
 
   @override
   String toString() {
-    return 'Invoice(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, invoiceNumber: $invoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, invoiceDate: $invoiceDate, serviceMonth: $serviceMonth, serviceYear: $serviceYear, hours: $hours, hourlyRate: $hourlyRate, discountType: $discountType, discountValue: $discountValue, dueDateType: $dueDateType, customDueDate: $customDueDate, paidOn: $paidOn, jobDescription: $jobDescription, introductoryText: $introductoryText, serviceDescription: $serviceDescription)';
+    return 'Invoice(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, invoiceNumber: $invoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, invoiceDate: $invoiceDate, invoiceItem: $invoiceItem, discountType: $discountType, discountValue: $discountValue, dueDateType: $dueDateType, customDueDate: $customDueDate, paidOn: $paidOn, introductoryText: $introductoryText)';
   }
 
   @override
@@ -500,13 +430,8 @@ class _$InvoiceImpl implements _Invoice {
                 other.bankDetails == bankDetails) &&
             (identical(other.invoiceDate, invoiceDate) ||
                 other.invoiceDate == invoiceDate) &&
-            (identical(other.serviceMonth, serviceMonth) ||
-                other.serviceMonth == serviceMonth) &&
-            (identical(other.serviceYear, serviceYear) ||
-                other.serviceYear == serviceYear) &&
-            (identical(other.hours, hours) || other.hours == hours) &&
-            (identical(other.hourlyRate, hourlyRate) ||
-                other.hourlyRate == hourlyRate) &&
+            (identical(other.invoiceItem, invoiceItem) ||
+                other.invoiceItem == invoiceItem) &&
             (identical(other.discountType, discountType) ||
                 other.discountType == discountType) &&
             (identical(other.discountValue, discountValue) ||
@@ -516,40 +441,30 @@ class _$InvoiceImpl implements _Invoice {
             (identical(other.customDueDate, customDueDate) ||
                 other.customDueDate == customDueDate) &&
             (identical(other.paidOn, paidOn) || other.paidOn == paidOn) &&
-            (identical(other.jobDescription, jobDescription) ||
-                other.jobDescription == jobDescription) &&
             (identical(other.introductoryText, introductoryText) ||
-                other.introductoryText == introductoryText) &&
-            (identical(other.serviceDescription, serviceDescription) ||
-                other.serviceDescription == serviceDescription));
+                other.introductoryText == introductoryText));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hashAll([
-        runtimeType,
-        id,
-        createdAt,
-        updatedAt,
-        invoiceNumber,
-        sender,
-        client,
-        contractNumber,
-        bankDetails,
-        invoiceDate,
-        serviceMonth,
-        serviceYear,
-        hours,
-        hourlyRate,
-        discountType,
-        discountValue,
-        dueDateType,
-        customDueDate,
-        paidOn,
-        jobDescription,
-        introductoryText,
-        serviceDescription
-      ]);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      createdAt,
+      updatedAt,
+      invoiceNumber,
+      sender,
+      client,
+      contractNumber,
+      bankDetails,
+      invoiceDate,
+      invoiceItem,
+      discountType,
+      discountValue,
+      dueDateType,
+      customDueDate,
+      paidOn,
+      introductoryText);
 
   @JsonKey(ignore: true)
   @override
@@ -576,18 +491,13 @@ abstract class _Invoice implements Invoice {
       final String contractNumber,
       required final BankDetails bankDetails,
       required final DateTime invoiceDate,
-      required final int serviceMonth,
-      required final int serviceYear,
-      required final double hours,
-      required final double hourlyRate,
+      required final InvoiceItem invoiceItem,
       final DiscountType discountType,
       final double discountValue,
       final DueDateType dueDateType,
       final DateTime? customDueDate,
       final DateTime? paidOn,
-      final String jobDescription,
-      final String introductoryText,
-      required final String serviceDescription}) = _$InvoiceImpl;
+      final String introductoryText}) = _$InvoiceImpl;
 
   factory _Invoice.fromJson(Map<String, dynamic> json) = _$InvoiceImpl.fromJson;
 
@@ -612,13 +522,7 @@ abstract class _Invoice implements Invoice {
   @override
   DateTime get invoiceDate;
   @override
-  int get serviceMonth;
-  @override
-  int get serviceYear;
-  @override
-  double get hours;
-  @override
-  double get hourlyRate;
+  InvoiceItem get invoiceItem;
   @override
   DiscountType get discountType;
   @override
@@ -630,11 +534,7 @@ abstract class _Invoice implements Invoice {
   @override
   DateTime? get paidOn;
   @override
-  String get jobDescription;
-  @override
   String get introductoryText;
-  @override
-  String get serviceDescription;
   @override
   @JsonKey(ignore: true)
   _$$InvoiceImplCopyWith<_$InvoiceImpl> get copyWith =>

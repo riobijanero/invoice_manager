@@ -24,11 +24,18 @@ Future<Uint8List> generateInvoicePdf(Invoice invoice) async {
     await rootBundle.load('assets/fonts/OpenSans-Bold.ttf'),
   );
   final dueDate = computeDueDate(invoice);
-  final periodStartDate = periodStart(invoice.serviceMonth, invoice.serviceYear);
-  final periodEndDate = periodEnd(invoice.serviceMonth, invoice.serviceYear);
+  final periodStartDate = periodStart(
+    invoice.invoiceItem.serviceMonth,
+    invoice.invoiceItem.serviceYear,
+  );
+  final periodEndDate = periodEnd(
+    invoice.invoiceItem.serviceMonth,
+    invoice.invoiceItem.serviceYear,
+  );
   final periodText = '${formatDate(periodStartDate)} - ${formatDate(periodEndDate)}';
   // Ensure service description in PDF always shows current invoice period (replace placeholder)
-  final serviceDescriptionForPdf = invoice.serviceDescription.replaceAll('{PERIOD}', periodText).trim();
+  final serviceDescriptionForPdf =
+      invoice.invoiceItem.serviceDescription.replaceAll('{PERIOD}', periodText).trim();
 
   final doc = pw.Document();
   doc.addPage(

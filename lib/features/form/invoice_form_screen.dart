@@ -11,6 +11,7 @@ import 'package:invoice_manager/common/models/discount_type.dart';
 import 'package:invoice_manager/common/models/due_date_type.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
 import 'package:invoice_manager/common/models/invoice_defaults.dart';
+import 'package:invoice_manager/common/models/invoice_item.dart';
 import 'package:invoice_manager/common/models/sender.dart';
 import 'package:invoice_manager/features/form/bank_details_fields.dart';
 import 'package:invoice_manager/features/form/client_fields.dart';
@@ -141,17 +142,17 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _bic.text = inv.bankDetails.bic;
     _invoiceDate = inv.invoiceDate;
     _paidOn = inv.paidOn;
-    _serviceMonth = inv.serviceMonth;
-    _serviceYear = inv.serviceYear;
-    _hours.text = inv.hours.toString();
-    _hourlyRate.text = inv.hourlyRate.toString();
+    _serviceMonth = inv.invoiceItem.serviceMonth;
+    _serviceYear = inv.invoiceItem.serviceYear;
+    _hours.text = inv.invoiceItem.hours.toString();
+    _hourlyRate.text = inv.invoiceItem.hourlyRate.toString();
     _discountType = inv.discountType;
     _discountValue.text = inv.discountValue.toString();
     _dueDateType = inv.dueDateType;
     _customDueDate = inv.customDueDate;
-    _jobDescription.text = inv.jobDescription;
+    _jobDescription.text = inv.sender.jobDescription;
     _introductoryText.text = inv.introductoryText;
-    _serviceDescription.text = inv.serviceDescription;
+    _serviceDescription.text = inv.invoiceItem.serviceDescription;
   }
 
   void _applyDefaults(InvoiceDefaults d) {
@@ -555,17 +556,18 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       ),
       invoiceDate: _invoiceDate!,
       paidOn: _paidOn,
-      serviceMonth: _serviceMonth,
-      serviceYear: _serviceYear,
-      hours: hours,
-      hourlyRate: rate,
+      invoiceItem: InvoiceItem(
+        serviceMonth: _serviceMonth,
+        serviceYear: _serviceYear,
+        hours: hours,
+        hourlyRate: rate,
+        serviceDescription: _serviceDescription.text.trim(),
+      ),
       discountType: _discountType,
       discountValue: discount,
       dueDateType: _dueDateType,
       customDueDate: _dueDateType == DueDateType.custom ? _customDueDate : null,
-      jobDescription: _jobDescription.text.trim(),
       introductoryText: _introductoryText.text.trim(),
-      serviceDescription: _serviceDescription.text.trim(),
     );
     return (invoice, null);
   }
