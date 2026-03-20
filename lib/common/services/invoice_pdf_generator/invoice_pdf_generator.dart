@@ -24,18 +24,32 @@ Future<Uint8List> generateInvoicePdf(Invoice invoice) async {
     await rootBundle.load('assets/fonts/OpenSans-Bold.ttf'),
   );
   final dueDate = computeDueDate(invoice);
-  final periodStartDate = periodStart(
-    invoice.invoiceItem.serviceMonth,
-    invoice.invoiceItem.serviceYear,
-  );
-  final periodEndDate = periodEnd(
-    invoice.invoiceItem.serviceMonth,
-    invoice.invoiceItem.serviceYear,
-  );
-  final periodText = '${formatDate(periodStartDate)} - ${formatDate(periodEndDate)}';
-  // Ensure service description in PDF always shows current invoice period (replace placeholder)
-  final serviceDescriptionForPdf =
-      invoice.invoiceItem.serviceDescription.replaceAll('{PERIOD}', periodText).trim();
+  final itemList = invoice.invoiceItemList;
+  final firstItem = itemList.isNotEmpty ? itemList.first : null;
+  final lastItem = itemList.isNotEmpty ? itemList.last : null;
+
+  // Title: show a single period range across all items.
+  final periodStartDate = firstItem != null
+      ? periodStart(firstItem.serviceMonth, firstItem.serviceYear)
+      : DateTime.now();
+  final periodEndDate = lastItem != null
+      ? periodEnd(lastItem.serviceMonth, lastItem.serviceYear)
+      : DateTime.now();
+  final periodText =
+      '${formatDate(periodStartDate)} - ${formatDate(periodEndDate)}';
+
+  // One row per invoice item; each row gets its own {PERIOD} replacement.
+  final serviceDescriptionsForPdf = itemList
+      .map((item) {
+        final start = periodStart(item.serviceMonth, item.serviceYear);
+        final end = periodEnd(item.serviceMonth, item.serviceYear);
+        final itemPeriodText = '${formatDate(start)} - ${formatDate(end)}';
+        return item
+            .serviceDescription
+            .replaceAll('{PERIOD}', itemPeriodText)
+            .trim();
+      })
+      .toList();
 
   final doc = pw.Document();
   doc.addPage(
@@ -63,7 +77,7 @@ Future<Uint8List> generateInvoicePdf(Invoice invoice) async {
             pw.SizedBox(height: 16),
             ...invoiceTableBlock(
               invoice: invoice,
-              serviceDescription: serviceDescriptionForPdf,
+              serviceDescriptions: serviceDescriptionsForPdf,
             ),
             pw.SizedBox(height: 24),
             // Payment sentence

@@ -24,8 +24,11 @@ class InvoiceListTile extends ConsumerWidget {
     final totals = computeTotals(invoice);
     final clientLine = invoice.client.name.isNotEmpty ? invoice.client.name : _firstLine(invoice.client.address);
     final dateFormat = DateFormat('dd.MM.yyyy');
-    final periodLabel =
-        '${_monthName(invoice.invoiceItem.serviceMonth)} ${invoice.invoiceItem.serviceYear}';
+    final firstItem =
+        invoice.invoiceItemList.isNotEmpty ? invoice.invoiceItemList.first : null;
+    final periodLabel = firstItem != null
+        ? '${_monthName(firstItem.serviceMonth)} ${firstItem.serviceYear}'
+        : '-';
 
     return ListTile(
       title: Row(

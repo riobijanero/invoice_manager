@@ -9,10 +9,10 @@ import 'package:pdf/widgets.dart' as pw;
 /// Main invoice table (line item + totals) used in the PDF body.
 List<pw.Widget> invoiceTableBlock({
   required Invoice invoice,
-  required String serviceDescription,
+  required List<String> serviceDescriptions,
 }) {
   final totals = computeTotals(invoice);
-  final lineTotal = invoice.invoiceItem.hours * invoice.invoiceItem.hourlyRate;
+  final items = invoice.invoiceItemList;
 
   return [
     // Line-item table
@@ -36,15 +36,28 @@ List<pw.Widget> invoiceTableBlock({
             cell('Gesamt', bold: true),
           ],
         ),
-        pw.TableRow(
-          children: [
-            cell(serviceDescription),
-            cell('Std.'),
-            cell(invoice.invoiceItem.hours.toStringAsFixed(0)),
-            cell(formatCurrency(invoice.invoiceItem.hourlyRate)),
-            cell(formatCurrency(lineTotal)),
-          ],
-        ),
+        if (items.isEmpty)
+          pw.TableRow(
+            children: [
+              cell(''),
+              cell('Std.'),
+              cell('0'),
+              cell(formatCurrency(0)),
+              cell(formatCurrency(0)),
+            ],
+          )
+        else
+          // One table row per invoice item.
+          for (int i = 0; i < items.length; i++)
+            pw.TableRow(
+              children: [
+                cell(serviceDescriptions.length > i ? serviceDescriptions[i] : ''),
+                cell('Std.'),
+                cell(items[i].hours.toStringAsFixed(0)),
+                cell(formatCurrency(items[i].hourlyRate)),
+                cell(formatCurrency(items[i].hours * items[i].hourlyRate)),
+              ],
+            ),
       ],
     ),
     // Totals table directly under the main table, same width and visually connected.

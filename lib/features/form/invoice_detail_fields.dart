@@ -13,12 +13,14 @@ class InvoiceDetailFields extends StatelessWidget {
     required this.paidOn,
     required this.onPaidOnTap,
     required this.introductoryTextController,
-    required this.serviceMonth,
-    required this.serviceYear,
+    required this.serviceMonths,
+    required this.serviceYears,
+    required this.hoursControllers,
+    required this.hourlyRateControllers,
+    required this.serviceDescriptionControllers,
     required this.onServiceMonthChanged,
     required this.onServiceYearChanged,
-    required this.hoursController,
-    required this.hourlyRateController,
+    required this.onAddInvoiceItem,
     required this.discountType,
     required this.onDiscountTypeChanged,
     required this.discountValueController,
@@ -26,7 +28,6 @@ class InvoiceDetailFields extends StatelessWidget {
     required this.onDueDateTypeChanged,
     required this.customDueDate,
     required this.onCustomDueDateTap,
-    required this.serviceDescriptionController,
   });
 
   final TextEditingController invoiceNumberController;
@@ -35,12 +36,14 @@ class InvoiceDetailFields extends StatelessWidget {
   final DateTime? paidOn;
   final VoidCallback onPaidOnTap;
   final TextEditingController introductoryTextController;
-  final int serviceMonth;
-  final int serviceYear;
-  final ValueChanged<int> onServiceMonthChanged;
-  final ValueChanged<int> onServiceYearChanged;
-  final TextEditingController hoursController;
-  final TextEditingController hourlyRateController;
+  final List<int> serviceMonths;
+  final List<int> serviceYears;
+  final List<TextEditingController> hoursControllers;
+  final List<TextEditingController> hourlyRateControllers;
+  final List<TextEditingController> serviceDescriptionControllers;
+  final void Function(int index, int value) onServiceMonthChanged;
+  final void Function(int index, int value) onServiceYearChanged;
+  final VoidCallback onAddInvoiceItem;
   final DiscountType discountType;
   final ValueChanged<DiscountType> onDiscountTypeChanged;
   final TextEditingController discountValueController;
@@ -48,7 +51,6 @@ class InvoiceDetailFields extends StatelessWidget {
   final ValueChanged<DueDateType> onDueDateTypeChanged;
   final DateTime? customDueDate;
   final VoidCallback onCustomDueDateTap;
-  final TextEditingController serviceDescriptionController;
 
   static const List<int> _months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   static const List<String> _monthLabels = [
@@ -122,94 +124,115 @@ class InvoiceDetailFields extends StatelessWidget {
           validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
         ),
         const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: DropdownButtonFormField<int>(
-                value: serviceMonth,
-                decoration: const InputDecoration(
-                  labelText: 'Leistungszeitraum Monat',
-                  border: OutlineInputBorder(),
-                ),
-                items: List.generate(
-                  12,
-                  (i) => DropdownMenuItem(
-                    value: _months[i],
-                    child: Text(_monthLabels[i]),
+        // Invoice item list (one block per invoice item / one table row in PDF).
+        for (int i = 0; i < serviceMonths.length; i++) ...[
+          Text(
+            'Leistungsposition ${i + 1}',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<int>(
+                  value: serviceMonths[i],
+                  decoration: const InputDecoration(
+                    labelText: 'Leistungszeitraum Monat',
+                    border: OutlineInputBorder(),
                   ),
-                ),
-                onChanged: (v) {
-                  if (v != null) onServiceMonthChanged(v);
-                },
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: DropdownButtonFormField<int>(
-                value: serviceYear,
-                decoration: const InputDecoration(
-                  labelText: 'Leistungszeitraum Jahr',
-                  border: OutlineInputBorder(),
-                ),
-                items: List.generate(
-                  5,
-                  (i) {
-                    final y = DateTime.now().year - 2 + i;
-                    return DropdownMenuItem(
-                      value: y,
-                      child: Text('$y'),
-                    );
+                  items: List.generate(
+                    12,
+                    (j) => DropdownMenuItem(
+                      value: _months[j],
+                      child: Text(_monthLabels[j]),
+                    ),
+                  ),
+                  onChanged: (v) {
+                    if (v != null) onServiceMonthChanged(i, v);
                   },
                 ),
-                onChanged: (v) {
-                  if (v != null) onServiceYearChanged(v);
-                },
               ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: DropdownButtonFormField<int>(
+                  value: serviceYears[i],
+                  decoration: const InputDecoration(
+                    labelText: 'Leistungszeitraum Jahr',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: List.generate(
+                    5,
+                    (j) {
+                      final y = DateTime.now().year - 2 + j;
+                      return DropdownMenuItem(
+                        value: y,
+                        child: Text('$y'),
+                      );
+                    },
+                  ),
+                  onChanged: (v) {
+                    if (v != null) onServiceYearChanged(i, v);
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: hoursControllers[i],
+            decoration: const InputDecoration(
+              labelText: 'Stunden',
+              border: OutlineInputBorder(),
             ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        TextFormField(
-          controller: hoursController,
-          decoration: const InputDecoration(
-            labelText: 'Stunden',
-            border: OutlineInputBorder(),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
+              final n = double.tryParse(v.replaceFirst(',', '.'));
+              if (n == null || n < 0) return 'Ungültige Zahl';
+              return null;
+            },
           ),
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          validator: (v) {
-            if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
-            final n = double.tryParse(v.replaceFirst(',', '.'));
-            if (n == null || n < 0) return 'Ungültige Zahl';
-            return null;
-          },
-        ),
-        const SizedBox(height: 16),
-        TextFormField(
-          controller: hourlyRateController,
-          decoration: const InputDecoration(
-            labelText: 'Stundensatz (€)',
-            border: OutlineInputBorder(),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: hourlyRateControllers[i],
+            decoration: const InputDecoration(
+              labelText: 'Stundensatz (€)',
+              border: OutlineInputBorder(),
+            ),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
+              final n = double.tryParse(v.replaceFirst(',', '.'));
+              if (n == null || n < 0) return 'Ungültige Zahl';
+              return null;
+            },
           ),
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          validator: (v) {
-            if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
-            final n = double.tryParse(v.replaceFirst(',', '.'));
-            if (n == null || n < 0) return 'Ungültige Zahl';
-            return null;
-          },
-        ),
-        const SizedBox(height: 16),
-        TextFormField(
-          controller: serviceDescriptionController,
-          decoration: const InputDecoration(
-            labelText: 'Leistungsbeschreibung',
-            border: OutlineInputBorder(),
-            alignLabelWithHint: true,
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: serviceDescriptionControllers[i],
+            decoration: const InputDecoration(
+              labelText: 'Leistungsbeschreibung',
+              border: OutlineInputBorder(),
+              alignLabelWithHint: true,
+            ),
+            maxLines: 5,
+            validator: (v) => (v == null || v.trim().isEmpty)
+                ? 'Pflichtfeld'
+                : null,
           ),
-          maxLines: 5,
-          validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
+          const SizedBox(height: 16),
+        ],
+
+        // Add another invoice item above the discount section.
+        Align(
+          alignment: Alignment.centerRight,
+          child: IconButton(
+            onPressed: onAddInvoiceItem,
+            icon: const Icon(Icons.add_circle_outline),
+            tooltip: 'Weitere Leistungsposition hinzufügen',
+          ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         Row(
           children: [
             const Text('Rabatt: '),

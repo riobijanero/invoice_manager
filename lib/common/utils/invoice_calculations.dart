@@ -22,7 +22,10 @@ class InvoiceTotals {
 }
 
 InvoiceTotals computeTotals(Invoice invoice) {
-  final subtotal = invoice.invoiceItem.hours * invoice.invoiceItem.hourlyRate;
+  final subtotal = invoice.invoiceItemList.fold<double>(
+    0.0,
+    (sum, item) => sum + (item.hours * item.hourlyRate),
+  );
   final discountAmount = invoice.discountType == DiscountType.percent
       ? subtotal * (invoice.discountValue / 100)
       : invoice.discountValue;

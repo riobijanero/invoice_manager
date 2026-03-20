@@ -33,7 +33,7 @@ mixin _$Invoice {
   String get contractNumber => throw _privateConstructorUsedError;
   BankDetails get bankDetails => throw _privateConstructorUsedError;
   DateTime get invoiceDate => throw _privateConstructorUsedError;
-  InvoiceItem get invoiceItem => throw _privateConstructorUsedError;
+  List<InvoiceItem> get invoiceItemList => throw _privateConstructorUsedError;
   DiscountType get discountType => throw _privateConstructorUsedError;
   double get discountValue => throw _privateConstructorUsedError;
   DueDateType get dueDateType => throw _privateConstructorUsedError;
@@ -61,7 +61,7 @@ abstract class $InvoiceCopyWith<$Res> {
       String contractNumber,
       BankDetails bankDetails,
       DateTime invoiceDate,
-      InvoiceItem invoiceItem,
+      List<InvoiceItem> invoiceItemList,
       DiscountType discountType,
       double discountValue,
       DueDateType dueDateType,
@@ -72,7 +72,6 @@ abstract class $InvoiceCopyWith<$Res> {
   $SenderCopyWith<$Res> get sender;
   $ClientCopyWith<$Res> get client;
   $BankDetailsCopyWith<$Res> get bankDetails;
-  $InvoiceItemCopyWith<$Res> get invoiceItem;
 }
 
 /// @nodoc
@@ -97,7 +96,7 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
     Object? contractNumber = null,
     Object? bankDetails = null,
     Object? invoiceDate = null,
-    Object? invoiceItem = null,
+    Object? invoiceItemList = null,
     Object? discountType = null,
     Object? discountValue = null,
     Object? dueDateType = null,
@@ -142,10 +141,10 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
           ? _value.invoiceDate
           : invoiceDate // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      invoiceItem: null == invoiceItem
-          ? _value.invoiceItem
-          : invoiceItem // ignore: cast_nullable_to_non_nullable
-              as InvoiceItem,
+      invoiceItemList: null == invoiceItemList
+          ? _value.invoiceItemList
+          : invoiceItemList // ignore: cast_nullable_to_non_nullable
+              as List<InvoiceItem>,
       discountType: null == discountType
           ? _value.discountType
           : discountType // ignore: cast_nullable_to_non_nullable
@@ -196,14 +195,6 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
       return _then(_value.copyWith(bankDetails: value) as $Val);
     });
   }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $InvoiceItemCopyWith<$Res> get invoiceItem {
-    return $InvoiceItemCopyWith<$Res>(_value.invoiceItem, (value) {
-      return _then(_value.copyWith(invoiceItem: value) as $Val);
-    });
-  }
 }
 
 /// @nodoc
@@ -223,7 +214,7 @@ abstract class _$$InvoiceImplCopyWith<$Res> implements $InvoiceCopyWith<$Res> {
       String contractNumber,
       BankDetails bankDetails,
       DateTime invoiceDate,
-      InvoiceItem invoiceItem,
+      List<InvoiceItem> invoiceItemList,
       DiscountType discountType,
       double discountValue,
       DueDateType dueDateType,
@@ -237,8 +228,6 @@ abstract class _$$InvoiceImplCopyWith<$Res> implements $InvoiceCopyWith<$Res> {
   $ClientCopyWith<$Res> get client;
   @override
   $BankDetailsCopyWith<$Res> get bankDetails;
-  @override
-  $InvoiceItemCopyWith<$Res> get invoiceItem;
 }
 
 /// @nodoc
@@ -261,7 +250,7 @@ class __$$InvoiceImplCopyWithImpl<$Res>
     Object? contractNumber = null,
     Object? bankDetails = null,
     Object? invoiceDate = null,
-    Object? invoiceItem = null,
+    Object? invoiceItemList = null,
     Object? discountType = null,
     Object? discountValue = null,
     Object? dueDateType = null,
@@ -306,10 +295,10 @@ class __$$InvoiceImplCopyWithImpl<$Res>
           ? _value.invoiceDate
           : invoiceDate // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      invoiceItem: null == invoiceItem
-          ? _value.invoiceItem
-          : invoiceItem // ignore: cast_nullable_to_non_nullable
-              as InvoiceItem,
+      invoiceItemList: null == invoiceItemList
+          ? _value._invoiceItemList
+          : invoiceItemList // ignore: cast_nullable_to_non_nullable
+              as List<InvoiceItem>,
       discountType: null == discountType
           ? _value.discountType
           : discountType // ignore: cast_nullable_to_non_nullable
@@ -351,14 +340,15 @@ class _$InvoiceImpl implements _Invoice {
       this.contractNumber = '',
       required this.bankDetails,
       required this.invoiceDate,
-      required this.invoiceItem,
+      final List<InvoiceItem> invoiceItemList = const <InvoiceItem>[],
       this.discountType = DiscountType.percent,
       this.discountValue = 0.0,
       this.dueDateType = DueDateType.twoWeeks,
       this.customDueDate,
       this.paidOn,
       this.introductoryText =
-          'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:'});
+          'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:'})
+      : _invoiceItemList = invoiceItemList;
 
   factory _$InvoiceImpl.fromJson(Map<String, dynamic> json) =>
       _$$InvoiceImplFromJson(json);
@@ -386,8 +376,15 @@ class _$InvoiceImpl implements _Invoice {
   final BankDetails bankDetails;
   @override
   final DateTime invoiceDate;
+  final List<InvoiceItem> _invoiceItemList;
   @override
-  final InvoiceItem invoiceItem;
+  @JsonKey()
+  List<InvoiceItem> get invoiceItemList {
+    if (_invoiceItemList is EqualUnmodifiableListView) return _invoiceItemList;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_invoiceItemList);
+  }
+
   @override
   @JsonKey()
   final DiscountType discountType;
@@ -407,7 +404,7 @@ class _$InvoiceImpl implements _Invoice {
 
   @override
   String toString() {
-    return 'Invoice(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, invoiceNumber: $invoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, invoiceDate: $invoiceDate, invoiceItem: $invoiceItem, discountType: $discountType, discountValue: $discountValue, dueDateType: $dueDateType, customDueDate: $customDueDate, paidOn: $paidOn, introductoryText: $introductoryText)';
+    return 'Invoice(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, invoiceNumber: $invoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, invoiceDate: $invoiceDate, invoiceItemList: $invoiceItemList, discountType: $discountType, discountValue: $discountValue, dueDateType: $dueDateType, customDueDate: $customDueDate, paidOn: $paidOn, introductoryText: $introductoryText)';
   }
 
   @override
@@ -430,8 +427,8 @@ class _$InvoiceImpl implements _Invoice {
                 other.bankDetails == bankDetails) &&
             (identical(other.invoiceDate, invoiceDate) ||
                 other.invoiceDate == invoiceDate) &&
-            (identical(other.invoiceItem, invoiceItem) ||
-                other.invoiceItem == invoiceItem) &&
+            const DeepCollectionEquality()
+                .equals(other._invoiceItemList, _invoiceItemList) &&
             (identical(other.discountType, discountType) ||
                 other.discountType == discountType) &&
             (identical(other.discountValue, discountValue) ||
@@ -458,7 +455,7 @@ class _$InvoiceImpl implements _Invoice {
       contractNumber,
       bankDetails,
       invoiceDate,
-      invoiceItem,
+      const DeepCollectionEquality().hash(_invoiceItemList),
       discountType,
       discountValue,
       dueDateType,
@@ -491,7 +488,7 @@ abstract class _Invoice implements Invoice {
       final String contractNumber,
       required final BankDetails bankDetails,
       required final DateTime invoiceDate,
-      required final InvoiceItem invoiceItem,
+      final List<InvoiceItem> invoiceItemList,
       final DiscountType discountType,
       final double discountValue,
       final DueDateType dueDateType,
@@ -522,7 +519,7 @@ abstract class _Invoice implements Invoice {
   @override
   DateTime get invoiceDate;
   @override
-  InvoiceItem get invoiceItem;
+  List<InvoiceItem> get invoiceItemList;
   @override
   DiscountType get discountType;
   @override

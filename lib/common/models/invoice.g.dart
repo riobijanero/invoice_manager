@@ -18,8 +18,10 @@ _$InvoiceImpl _$$InvoiceImplFromJson(Map<String, dynamic> json) =>
       bankDetails:
           BankDetails.fromJson(json['bankDetails'] as Map<String, dynamic>),
       invoiceDate: DateTime.parse(json['invoiceDate'] as String),
-      invoiceItem:
-          InvoiceItem.fromJson(json['invoiceItem'] as Map<String, dynamic>),
+      invoiceItemList: (json['invoiceItemList'] as List<dynamic>?)
+              ?.map((e) => InvoiceItem.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const <InvoiceItem>[],
       discountType:
           $enumDecodeNullable(_$DiscountTypeEnumMap, json['discountType']) ??
               DiscountType.percent,
@@ -48,7 +50,7 @@ Map<String, dynamic> _$$InvoiceImplToJson(_$InvoiceImpl instance) =>
       'contractNumber': instance.contractNumber,
       'bankDetails': instance.bankDetails,
       'invoiceDate': instance.invoiceDate.toIso8601String(),
-      'invoiceItem': instance.invoiceItem,
+      'invoiceItemList': instance.invoiceItemList,
       'discountType': _$DiscountTypeEnumMap[instance.discountType]!,
       'discountValue': instance.discountValue,
       'dueDateType': _$DueDateTypeEnumMap[instance.dueDateType]!,

@@ -45,19 +45,19 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   late TextEditingController _institution;
   late TextEditingController _iban;
   late TextEditingController _bic;
-  late TextEditingController _hours;
-  late TextEditingController _hourlyRate;
+  late List<TextEditingController> _hoursControllers;
+  late List<TextEditingController> _hourlyRateControllers;
   late TextEditingController _discountValue;
   late TextEditingController _jobDescription;
   late TextEditingController _introductoryText;
-  late TextEditingController _serviceDescription;
+  late List<TextEditingController> _serviceDescriptionControllers;
   late TextEditingController _ustId;
   late TextEditingController _taxNumber;
 
   DateTime? _invoiceDate;
   DateTime? _paidOn;
-  int _serviceMonth = DateTime.now().month;
-  int _serviceYear = DateTime.now().year;
+  List<int> _serviceMonths = [DateTime.now().month];
+  List<int> _serviceYears = [DateTime.now().year];
   DiscountType _discountType = DiscountType.percent;
   DueDateType _dueDateType = DueDateType.twoWeeks;
   DateTime? _customDueDate;
@@ -82,14 +82,14 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _institution = TextEditingController();
     _iban = TextEditingController();
     _bic = TextEditingController();
-    _hours = TextEditingController();
-    _hourlyRate = TextEditingController();
+    _hoursControllers = [TextEditingController()];
+    _hourlyRateControllers = [TextEditingController()];
     _discountValue = TextEditingController(text: '0');
     _jobDescription = TextEditingController();
     _introductoryText = TextEditingController(
       text: 'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:',
     );
-    _serviceDescription = TextEditingController();
+    _serviceDescriptionControllers = [TextEditingController()];
     _ustId = TextEditingController();
     _taxNumber = TextEditingController();
     _invoiceDate = DateTime.now();
@@ -112,12 +112,18 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _institution.dispose();
     _iban.dispose();
     _bic.dispose();
-    _hours.dispose();
-    _hourlyRate.dispose();
+    for (final c in _hoursControllers) {
+      c.dispose();
+    }
+    for (final c in _hourlyRateControllers) {
+      c.dispose();
+    }
     _discountValue.dispose();
     _jobDescription.dispose();
     _introductoryText.dispose();
-    _serviceDescription.dispose();
+    for (final c in _serviceDescriptionControllers) {
+      c.dispose();
+    }
     _ustId.dispose();
     _taxNumber.dispose();
     super.dispose();
@@ -142,17 +148,47 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _bic.text = inv.bankDetails.bic;
     _invoiceDate = inv.invoiceDate;
     _paidOn = inv.paidOn;
-    _serviceMonth = inv.invoiceItem.serviceMonth;
-    _serviceYear = inv.invoiceItem.serviceYear;
-    _hours.text = inv.invoiceItem.hours.toString();
-    _hourlyRate.text = inv.invoiceItem.hourlyRate.toString();
+    final items = inv.invoiceItemList.isNotEmpty
+        ? inv.invoiceItemList
+        : [
+            InvoiceItem(
+              serviceMonth: DateTime.now().month,
+              serviceYear: DateTime.now().year,
+              hours: 0,
+              hourlyRate: 0,
+              serviceDescription: '',
+            ),
+          ];
+
+    _serviceMonths = items.map((e) => e.serviceMonth).toList();
+    _serviceYears = items.map((e) => e.serviceYear).toList();
+
+    for (final c in _hoursControllers) {
+      c.dispose();
+    }
+    for (final c in _hourlyRateControllers) {
+      c.dispose();
+    }
+    for (final c in _serviceDescriptionControllers) {
+      c.dispose();
+    }
+
+    _hoursControllers = items
+        .map((e) => TextEditingController(text: e.hours.toString()))
+        .toList();
+    _hourlyRateControllers = items
+        .map((e) => TextEditingController(text: e.hourlyRate.toString()))
+        .toList();
+    _serviceDescriptionControllers = items
+        .map((e) => TextEditingController(text: e.serviceDescription))
+        .toList();
     _discountType = inv.discountType;
     _discountValue.text = inv.discountValue.toString();
     _dueDateType = inv.dueDateType;
     _customDueDate = inv.customDueDate;
     _jobDescription.text = inv.sender.jobDescription;
     _introductoryText.text = inv.introductoryText;
-    _serviceDescription.text = inv.invoiceItem.serviceDescription;
+    // invoiceItemList already handled above
   }
 
   void _applyDefaults(InvoiceDefaults d) {
@@ -179,7 +215,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       _iban.text = d.bankDetails!.iban;
       _bic.text = d.bankDetails!.bic;
     }
-    _hourlyRate.text = d.hourlyRate > 0 ? d.hourlyRate.toString() : '';
+    _hourlyRateControllers[0].text = d.hourlyRate > 0 ? d.hourlyRate.toString() : '';
     _discountType = d.discountType;
     _discountValue.text = d.discountValue.toString();
     _dueDateType = d.dueDateType;
@@ -188,18 +224,23 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _introductoryText.text =
         'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:';
     if (d.serviceDescriptionTemplate.isNotEmpty) {
-      final period = _periodPlaceholder();
-      _serviceDescription.text = d.serviceDescriptionTemplate.replaceAll('{PERIOD}', period);
+      final period = _periodPlaceholderFor(_serviceMonths.first, _serviceYears.first);
+      _serviceDescriptionControllers[0].text =
+          d.serviceDescriptionTemplate.replaceAll('{PERIOD}', period);
     } else {
-      _serviceDescription.text = defaultServiceDescriptionTemplate.replaceAll('{PERIOD}', _periodPlaceholder());
+      _serviceDescriptionControllers[0].text =
+          defaultServiceDescriptionTemplate.replaceAll(
+        '{PERIOD}',
+        _periodPlaceholderFor(_serviceMonths.first, _serviceYears.first),
+      );
     }
     _ustId.text = d.sender.ustId.isNotEmpty ? d.sender.ustId : d.ustId;
     _taxNumber.text = d.sender.taxNumber;
   }
 
-  String _periodPlaceholder() {
-    final start = DateTime(_serviceYear, _serviceMonth, 1);
-    final end = DateTime(_serviceYear, _serviceMonth + 1, 0);
+  String _periodPlaceholderFor(int month, int year) {
+    final start = DateTime(year, month, 1);
+    final end = DateTime(year, month + 1, 0);
     final fmt = DateFormat('dd.MM.yyyy');
     return '${fmt.format(start)} - ${fmt.format(end)}';
   }
@@ -207,18 +248,43 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   /// Updates the Leistungsbeschreibung so the date range matches the chosen
   /// Leistungszeitraum (month/year). Replaces {PERIOD} or any existing
   /// dd.MM.yyyy - dd.MM.yyyy range with the current period.
-  void _updatePeriodInDescription() {
-    final t = _serviceDescription.text;
-    final newPeriod = _periodPlaceholder();
+  void _updateItemPeriodInDescription(int index) {
+    final t = _serviceDescriptionControllers[index].text;
+    final newPeriod = _periodPlaceholderFor(_serviceMonths[index], _serviceYears[index]);
     if (t.contains('{PERIOD}')) {
-      _serviceDescription.text = t.replaceAll('{PERIOD}', newPeriod);
+      _serviceDescriptionControllers[index].text =
+          t.replaceAll('{PERIOD}', newPeriod);
       return;
     }
     // Replace existing date range (e.g. "01.03.2026 - 31.03.2026") with new period
     final periodPattern = RegExp(r'\d{2}\.\d{2}\.\d{4}\s*-\s*\d{2}\.\d{2}\.\d{4}');
     if (periodPattern.hasMatch(t)) {
-      _serviceDescription.text = t.replaceFirst(periodPattern, newPeriod);
+      _serviceDescriptionControllers[index].text =
+          t.replaceFirst(periodPattern, newPeriod);
     }
+  }
+
+  void _addInvoiceItem() {
+    final baseMonth = _serviceMonths.isNotEmpty ? _serviceMonths.last : DateTime.now().month;
+    final baseYear = _serviceYears.isNotEmpty ? _serviceYears.last : DateTime.now().year;
+
+    final baseHoursText = _hoursControllers.isNotEmpty ? _hoursControllers.last.text : '';
+    final baseHourlyRateText =
+        _hourlyRateControllers.isNotEmpty ? _hourlyRateControllers.last.text : '';
+    final baseServiceDescriptionText = _serviceDescriptionControllers.isNotEmpty
+        ? _serviceDescriptionControllers.last.text
+        : '';
+
+    setState(() {
+      _serviceMonths.add(baseMonth);
+      _serviceYears.add(baseYear);
+      _hoursControllers.add(TextEditingController(text: baseHoursText));
+      _hourlyRateControllers.add(TextEditingController(text: baseHourlyRateText));
+      _serviceDescriptionControllers
+          .add(TextEditingController(text: baseServiceDescriptionText));
+      // The new item starts with the same month/year as the last one, so no
+      // period replacement is needed until the user changes the month/year.
+    });
   }
 
   @override
@@ -337,22 +403,25 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                           );
                           if (date != null) setState(() => _paidOn = date);
                         },
-                        serviceMonth: _serviceMonth,
-                        serviceYear: _serviceYear,
-                        onServiceMonthChanged: (v) {
+                        introductoryTextController: _introductoryText,
+                        serviceMonths: _serviceMonths,
+                        serviceYears: _serviceYears,
+                        hoursControllers: _hoursControllers,
+                        hourlyRateControllers: _hourlyRateControllers,
+                        serviceDescriptionControllers: _serviceDescriptionControllers,
+                        onServiceMonthChanged: (index, v) {
                           setState(() {
-                            _serviceMonth = v;
-                            _updatePeriodInDescription();
+                            _serviceMonths[index] = v;
+                            _updateItemPeriodInDescription(index);
                           });
                         },
-                        onServiceYearChanged: (v) {
+                        onServiceYearChanged: (index, v) {
                           setState(() {
-                            _serviceYear = v;
-                            _updatePeriodInDescription();
+                            _serviceYears[index] = v;
+                            _updateItemPeriodInDescription(index);
                           });
                         },
-                        hoursController: _hours,
-                        hourlyRateController: _hourlyRate,
+                        onAddInvoiceItem: _addInvoiceItem,
                         discountType: _discountType,
                         onDiscountTypeChanged: (v) => setState(() => _discountType = v),
                         discountValueController: _discountValue,
@@ -369,8 +438,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                           );
                           if (d != null) setState(() => _customDueDate = d);
                         },
-                        serviceDescriptionController: _serviceDescription,
-                        introductoryTextController: _introductoryText,
                       );
 
                       final Widget clientFields = ClientFields(
@@ -485,7 +552,9 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   Future<void> _updateDefaultsFromForm(WidgetRef ref) async {
     final defaultsRepo = ref.read(defaultsRepositoryProvider);
     final current = await defaultsRepo.load();
-    final rate = double.tryParse(_hourlyRate.text.replaceFirst(',', '.')) ?? 0;
+    final rate = double.tryParse(
+      _hourlyRateControllers.isNotEmpty ? _hourlyRateControllers.first.text.replaceFirst(',', '.') : '',
+    ) ?? 0;
     await defaultsRepo.save(current.copyWith(
       lastInvoiceNumber: widget.invoiceId == null ? _invoiceNumber.text.trim() : current.lastInvoiceNumber,
       sender: Sender(
@@ -519,12 +588,29 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   }
 
   (Invoice?, String?) _buildInvoiceFromForm() {
-    final hours = double.tryParse(_hours.text.replaceFirst(',', '.')) ?? 0;
-    final rate = double.tryParse(_hourlyRate.text.replaceFirst(',', '.')) ?? 0;
     final discount = double.tryParse(_discountValue.text.replaceFirst(',', '.')) ?? 0;
-    final subtotal = hours * rate;
-    final discountAmount = _discountType == DiscountType.percent ? subtotal * (discount / 100) : discount;
-    if (discountAmount > subtotal) return (null, 'Rabatt darf den Zwischensummenbetrag nicht übersteigen.');
+
+    final items = List<InvoiceItem>.generate(_serviceMonths.length, (i) {
+      final hours = double.tryParse(_hoursControllers[i].text.replaceFirst(',', '.')) ?? 0;
+      final hourlyRate = double.tryParse(_hourlyRateControllers[i].text.replaceFirst(',', '.')) ?? 0;
+      return InvoiceItem(
+        serviceMonth: _serviceMonths[i],
+        serviceYear: _serviceYears[i],
+        hours: hours,
+        hourlyRate: hourlyRate,
+        serviceDescription: _serviceDescriptionControllers[i].text.trim(),
+      );
+    });
+
+    final subtotal = items.fold<double>(
+      0.0,
+      (sum, item) => sum + (item.hours * item.hourlyRate),
+    );
+    final discountAmount =
+        _discountType == DiscountType.percent ? subtotal * (discount / 100) : discount;
+    if (discountAmount > subtotal) {
+      return (null, 'Rabatt darf den Zwischensummenbetrag nicht übersteigen.');
+    }
     final id = widget.invoiceId ?? _loadedInvoice?.id ?? const Uuid().v4();
     final createdAt = _loadedInvoice?.createdAt ?? DateTime.now();
     final invoice = Invoice(
@@ -556,13 +642,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       ),
       invoiceDate: _invoiceDate!,
       paidOn: _paidOn,
-      invoiceItem: InvoiceItem(
-        serviceMonth: _serviceMonth,
-        serviceYear: _serviceYear,
-        hours: hours,
-        hourlyRate: rate,
-        serviceDescription: _serviceDescription.text.trim(),
-      ),
+      invoiceItemList: items,
       discountType: _discountType,
       discountValue: discount,
       dueDateType: _dueDateType,
