@@ -238,9 +238,10 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _senderPhone.text = d.sender.phoneNumber;
     _senderEmail.text = d.sender.email;
     _senderWebsite.text = d.sender.website;
-    _clientName.text = d.client.name;
-    _clientCompanyName.text = d.client.companyName;
-    _clientAddress.text = d.client.address;
+    // New invoices: do not prefill client fields (enter per invoice).
+    _clientName.clear();
+    _clientCompanyName.clear();
+    _clientAddress.clear();
     _contractNumber.text = d.contractNumber;
     if (d.bankDetails != null) {
       _accountHolder.text = d.bankDetails!.accountHolder;
