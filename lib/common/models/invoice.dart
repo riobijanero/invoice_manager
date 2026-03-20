@@ -33,6 +33,10 @@ class Invoice with _$Invoice {
     DateTime? customDueDate,
     DateTime? paidOn,
     @Default('') String jobDescription,
+    @Default(
+      'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:',
+    )
+    String introductoryText,
     required String serviceDescription,
   }) = _Invoice;
 

@@ -12,6 +12,7 @@ class InvoiceDetailFields extends StatelessWidget {
     required this.onInvoiceDateTap,
     required this.paidOn,
     required this.onPaidOnTap,
+    required this.introductoryTextController,
     required this.serviceMonth,
     required this.serviceYear,
     required this.onServiceMonthChanged,
@@ -33,6 +34,7 @@ class InvoiceDetailFields extends StatelessWidget {
   final VoidCallback onInvoiceDateTap;
   final DateTime? paidOn;
   final VoidCallback onPaidOnTap;
+  final TextEditingController introductoryTextController;
   final int serviceMonth;
   final int serviceYear;
   final ValueChanged<int> onServiceMonthChanged;
@@ -107,6 +109,17 @@ class InvoiceDetailFields extends StatelessWidget {
               paidOn != null ? DateFormat('dd.MM.yyyy').format(paidOn!) : 'Datum wählen',
             ),
           ),
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: introductoryTextController,
+          decoration: const InputDecoration(
+            labelText: 'Einleitungstext',
+            border: OutlineInputBorder(),
+            alignLabelWithHint: true,
+          ),
+          maxLines: 3,
+          validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
         ),
         const SizedBox(height: 16),
         Row(

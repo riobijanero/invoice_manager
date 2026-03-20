@@ -43,6 +43,7 @@ mixin _$Invoice {
   DateTime? get customDueDate => throw _privateConstructorUsedError;
   DateTime? get paidOn => throw _privateConstructorUsedError;
   String get jobDescription => throw _privateConstructorUsedError;
+  String get introductoryText => throw _privateConstructorUsedError;
   String get serviceDescription => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -75,6 +76,7 @@ abstract class $InvoiceCopyWith<$Res> {
       DateTime? customDueDate,
       DateTime? paidOn,
       String jobDescription,
+      String introductoryText,
       String serviceDescription});
 
   $SenderCopyWith<$Res> get sender;
@@ -114,6 +116,7 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
     Object? customDueDate = freezed,
     Object? paidOn = freezed,
     Object? jobDescription = null,
+    Object? introductoryText = null,
     Object? serviceDescription = null,
   }) {
     return _then(_value.copyWith(
@@ -193,6 +196,10 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
           ? _value.jobDescription
           : jobDescription // ignore: cast_nullable_to_non_nullable
               as String,
+      introductoryText: null == introductoryText
+          ? _value.introductoryText
+          : introductoryText // ignore: cast_nullable_to_non_nullable
+              as String,
       serviceDescription: null == serviceDescription
           ? _value.serviceDescription
           : serviceDescription // ignore: cast_nullable_to_non_nullable
@@ -252,6 +259,7 @@ abstract class _$$InvoiceImplCopyWith<$Res> implements $InvoiceCopyWith<$Res> {
       DateTime? customDueDate,
       DateTime? paidOn,
       String jobDescription,
+      String introductoryText,
       String serviceDescription});
 
   @override
@@ -292,6 +300,7 @@ class __$$InvoiceImplCopyWithImpl<$Res>
     Object? customDueDate = freezed,
     Object? paidOn = freezed,
     Object? jobDescription = null,
+    Object? introductoryText = null,
     Object? serviceDescription = null,
   }) {
     return _then(_$InvoiceImpl(
@@ -371,6 +380,10 @@ class __$$InvoiceImplCopyWithImpl<$Res>
           ? _value.jobDescription
           : jobDescription // ignore: cast_nullable_to_non_nullable
               as String,
+      introductoryText: null == introductoryText
+          ? _value.introductoryText
+          : introductoryText // ignore: cast_nullable_to_non_nullable
+              as String,
       serviceDescription: null == serviceDescription
           ? _value.serviceDescription
           : serviceDescription // ignore: cast_nullable_to_non_nullable
@@ -402,6 +415,8 @@ class _$InvoiceImpl implements _Invoice {
       this.customDueDate,
       this.paidOn,
       this.jobDescription = '',
+      this.introductoryText =
+          'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:',
       required this.serviceDescription});
 
   factory _$InvoiceImpl.fromJson(Map<String, dynamic> json) =>
@@ -455,11 +470,14 @@ class _$InvoiceImpl implements _Invoice {
   @JsonKey()
   final String jobDescription;
   @override
+  @JsonKey()
+  final String introductoryText;
+  @override
   final String serviceDescription;
 
   @override
   String toString() {
-    return 'Invoice(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, invoiceNumber: $invoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, invoiceDate: $invoiceDate, serviceMonth: $serviceMonth, serviceYear: $serviceYear, hours: $hours, hourlyRate: $hourlyRate, discountType: $discountType, discountValue: $discountValue, dueDateType: $dueDateType, customDueDate: $customDueDate, paidOn: $paidOn, jobDescription: $jobDescription, serviceDescription: $serviceDescription)';
+    return 'Invoice(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, invoiceNumber: $invoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, invoiceDate: $invoiceDate, serviceMonth: $serviceMonth, serviceYear: $serviceYear, hours: $hours, hourlyRate: $hourlyRate, discountType: $discountType, discountValue: $discountValue, dueDateType: $dueDateType, customDueDate: $customDueDate, paidOn: $paidOn, jobDescription: $jobDescription, introductoryText: $introductoryText, serviceDescription: $serviceDescription)';
   }
 
   @override
@@ -500,6 +518,8 @@ class _$InvoiceImpl implements _Invoice {
             (identical(other.paidOn, paidOn) || other.paidOn == paidOn) &&
             (identical(other.jobDescription, jobDescription) ||
                 other.jobDescription == jobDescription) &&
+            (identical(other.introductoryText, introductoryText) ||
+                other.introductoryText == introductoryText) &&
             (identical(other.serviceDescription, serviceDescription) ||
                 other.serviceDescription == serviceDescription));
   }
@@ -527,6 +547,7 @@ class _$InvoiceImpl implements _Invoice {
         customDueDate,
         paidOn,
         jobDescription,
+        introductoryText,
         serviceDescription
       ]);
 
@@ -565,6 +586,7 @@ abstract class _Invoice implements Invoice {
       final DateTime? customDueDate,
       final DateTime? paidOn,
       final String jobDescription,
+      final String introductoryText,
       required final String serviceDescription}) = _$InvoiceImpl;
 
   factory _Invoice.fromJson(Map<String, dynamic> json) = _$InvoiceImpl.fromJson;
@@ -609,6 +631,8 @@ abstract class _Invoice implements Invoice {
   DateTime? get paidOn;
   @override
   String get jobDescription;
+  @override
+  String get introductoryText;
   @override
   String get serviceDescription;
   @override

@@ -48,14 +48,9 @@ Future<Uint8List> generateInvoicePdf(Invoice invoice) async {
               periodText: periodText,
             ),
             pw.SizedBox(height: 48),
-            // Greeting
+            // Intro text comes from the invoice data model
             pw.Text(
-              'Sehr geehrte Damen und Herren,',
-              style: const pw.TextStyle(fontSize: fontSizeMain),
-            ),
-            pw.SizedBox(height: 2),
-            pw.Text(
-              'für das Erbringen meiner Dienstleistungen berechne ich Ihnen:',
+              invoice.introductoryText,
               style: const pw.TextStyle(fontSize: fontSizeMain),
             ),
             pw.SizedBox(height: 16),

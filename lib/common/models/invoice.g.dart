@@ -36,6 +36,8 @@ _$InvoiceImpl _$$InvoiceImplFromJson(Map<String, dynamic> json) =>
           ? null
           : DateTime.parse(json['paidOn'] as String),
       jobDescription: json['jobDescription'] as String? ?? '',
+      introductoryText: json['introductoryText'] as String? ??
+          'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:',
       serviceDescription: json['serviceDescription'] as String,
     );
 
@@ -60,6 +62,7 @@ Map<String, dynamic> _$$InvoiceImplToJson(_$InvoiceImpl instance) =>
       'customDueDate': instance.customDueDate?.toIso8601String(),
       'paidOn': instance.paidOn?.toIso8601String(),
       'jobDescription': instance.jobDescription,
+      'introductoryText': instance.introductoryText,
       'serviceDescription': instance.serviceDescription,
     };
 

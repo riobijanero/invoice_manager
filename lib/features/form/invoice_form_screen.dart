@@ -47,6 +47,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   late TextEditingController _hourlyRate;
   late TextEditingController _discountValue;
   late TextEditingController _jobDescription;
+  late TextEditingController _introductoryText;
   late TextEditingController _serviceDescription;
   late TextEditingController _ustId;
 
@@ -81,6 +82,9 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _hourlyRate = TextEditingController();
     _discountValue = TextEditingController(text: '0');
     _jobDescription = TextEditingController();
+    _introductoryText = TextEditingController(
+      text: 'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:',
+    );
     _serviceDescription = TextEditingController();
     _ustId = TextEditingController();
     _invoiceDate = DateTime.now();
@@ -106,6 +110,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _hourlyRate.dispose();
     _discountValue.dispose();
     _jobDescription.dispose();
+    _introductoryText.dispose();
     _serviceDescription.dispose();
     _ustId.dispose();
     super.dispose();
@@ -137,6 +142,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _dueDateType = inv.dueDateType;
     _customDueDate = inv.customDueDate;
     _jobDescription.text = inv.jobDescription;
+    _introductoryText.text = inv.introductoryText;
     _serviceDescription.text = inv.serviceDescription;
   }
 
@@ -168,6 +174,9 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _discountValue.text = d.discountValue.toString();
     _dueDateType = d.dueDateType;
     _jobDescription.text = d.sender.jobDescription;
+    // Prefill the invoice greeting text for new invoices.
+    _introductoryText.text =
+        'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:';
     if (d.serviceDescriptionTemplate.isNotEmpty) {
       final period = _periodPlaceholder();
       _serviceDescription.text = d.serviceDescriptionTemplate.replaceAll('{PERIOD}', period);
@@ -349,6 +358,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                           if (d != null) setState(() => _customDueDate = d);
                         },
                         serviceDescriptionController: _serviceDescription,
+                        introductoryTextController: _introductoryText,
                       );
 
                       final Widget clientFields = ClientFields(
@@ -538,6 +548,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       dueDateType: _dueDateType,
       customDueDate: _dueDateType == DueDateType.custom ? _customDueDate : null,
       jobDescription: _jobDescription.text.trim(),
+      introductoryText: _introductoryText.text.trim(),
       serviceDescription: _serviceDescription.text.trim(),
     );
     return (invoice, null);
