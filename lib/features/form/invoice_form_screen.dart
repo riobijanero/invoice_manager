@@ -51,6 +51,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   late TextEditingController _introductoryText;
   late TextEditingController _serviceDescription;
   late TextEditingController _ustId;
+  late TextEditingController _taxNumber;
 
   DateTime? _invoiceDate;
   DateTime? _paidOn;
@@ -89,6 +90,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     );
     _serviceDescription = TextEditingController();
     _ustId = TextEditingController();
+    _taxNumber = TextEditingController();
     _invoiceDate = DateTime.now();
     _paidOn = null;
   }
@@ -116,6 +118,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _introductoryText.dispose();
     _serviceDescription.dispose();
     _ustId.dispose();
+    _taxNumber.dispose();
     super.dispose();
   }
 
@@ -127,6 +130,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _senderEmail.text = inv.sender.email;
     _senderWebsite.text = inv.sender.website;
     _ustId.text = inv.sender.ustId;
+    _taxNumber.text = inv.sender.taxNumber;
     _clientName.text = inv.client.name;
     _clientCompanyName.text = inv.client.companyName;
     _clientAddress.text = inv.client.address;
@@ -189,6 +193,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       _serviceDescription.text = defaultServiceDescriptionTemplate.replaceAll('{PERIOD}', _periodPlaceholder());
     }
     _ustId.text = d.sender.ustId.isNotEmpty ? d.sender.ustId : d.ustId;
+    _taxNumber.text = d.sender.taxNumber;
   }
 
   String _periodPlaceholder() {
@@ -277,6 +282,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             senderEmailController: _senderEmail,
                             senderWebsiteController: _senderWebsite,
                             ustIdController: _ustId,
+                            taxNumberController: _taxNumber,
                           ),
                           const SizedBox(height: 20),
                           BankDetailsFields(
@@ -489,6 +495,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
         email: _senderEmail.text.trim(),
         website: _senderWebsite.text.trim(),
         ustId: _ustId.text.trim(),
+        taxNumber: _taxNumber.text.trim(),
       ),
       client: Client(
         companyName: _clientCompanyName.text.trim(),
@@ -532,6 +539,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
         email: _senderEmail.text.trim(),
         website: _senderWebsite.text.trim(),
         ustId: _ustId.text.trim(),
+        taxNumber: _taxNumber.text.trim(),
       ),
       client: Client(
         companyName: _clientCompanyName.text.trim(),

@@ -70,6 +70,8 @@ List<pw.Widget> senderBlock(Sender sender) {
   final websiteField = sender.website.trim().isNotEmpty ? _senderFieldRow(_senderLine(sender.website.trim())) : null;
   final vatTaxIdField =
       sender.ustId.trim().isNotEmpty ? _senderFieldRow(_senderLine('USt-ID: ${sender.ustId.trim()}')) : null;
+  final taxNumberField =
+      sender.taxNumber.trim().isNotEmpty ? _senderFieldRow(_senderLine('Steuernummer: ${sender.taxNumber.trim()}')) : null;
 
   // Add each field separately so you can reorder by moving lines.
   final result = <pw.Widget>[
@@ -89,5 +91,6 @@ List<pw.Widget> senderBlock(Sender sender) {
   if (websiteField != null) result.add(websiteField);
   result.add(pw.SizedBox(height: 4));
   if (vatTaxIdField != null) result.add(vatTaxIdField);
+  if (taxNumberField != null) result.add(taxNumberField);
   return result;
 }

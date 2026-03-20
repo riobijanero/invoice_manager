@@ -10,6 +10,7 @@ class SenderFields extends StatelessWidget {
     required this.senderEmailController,
     required this.senderWebsiteController,
     required this.ustIdController,
+    required this.taxNumberController,
   });
 
   final TextEditingController senderNameController;
@@ -19,6 +20,7 @@ class SenderFields extends StatelessWidget {
   final TextEditingController senderEmailController;
   final TextEditingController senderWebsiteController;
   final TextEditingController ustIdController;
+  final TextEditingController taxNumberController;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +89,15 @@ class SenderFields extends StatelessWidget {
         TextFormField(
           controller: ustIdController,
           decoration: const InputDecoration(
-            labelText: 'USt-ID (für PDF, aus Standardwerten)',
+            labelText: 'USt-ID (z.B: DE123456789)',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: taxNumberController,
+          decoration: const InputDecoration(
+            labelText: 'Steuernummer (z.B: 012/345/67890)',
             border: OutlineInputBorder(),
           ),
         ),

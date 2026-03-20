@@ -27,6 +27,7 @@ mixin _$Sender {
   String get email => throw _privateConstructorUsedError;
   String get website => throw _privateConstructorUsedError;
   String get ustId => throw _privateConstructorUsedError;
+  String get taxNumber => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -45,7 +46,8 @@ abstract class $SenderCopyWith<$Res> {
       String phoneNumber,
       String email,
       String website,
-      String ustId});
+      String ustId,
+      String taxNumber});
 }
 
 /// @nodoc
@@ -68,6 +70,7 @@ class _$SenderCopyWithImpl<$Res, $Val extends Sender>
     Object? email = null,
     Object? website = null,
     Object? ustId = null,
+    Object? taxNumber = null,
   }) {
     return _then(_value.copyWith(
       name: null == name
@@ -98,6 +101,10 @@ class _$SenderCopyWithImpl<$Res, $Val extends Sender>
           ? _value.ustId
           : ustId // ignore: cast_nullable_to_non_nullable
               as String,
+      taxNumber: null == taxNumber
+          ? _value.taxNumber
+          : taxNumber // ignore: cast_nullable_to_non_nullable
+              as String,
     ) as $Val);
   }
 }
@@ -116,7 +123,8 @@ abstract class _$$SenderImplCopyWith<$Res> implements $SenderCopyWith<$Res> {
       String phoneNumber,
       String email,
       String website,
-      String ustId});
+      String ustId,
+      String taxNumber});
 }
 
 /// @nodoc
@@ -137,6 +145,7 @@ class __$$SenderImplCopyWithImpl<$Res>
     Object? email = null,
     Object? website = null,
     Object? ustId = null,
+    Object? taxNumber = null,
   }) {
     return _then(_$SenderImpl(
       name: null == name
@@ -167,6 +176,10 @@ class __$$SenderImplCopyWithImpl<$Res>
           ? _value.ustId
           : ustId // ignore: cast_nullable_to_non_nullable
               as String,
+      taxNumber: null == taxNumber
+          ? _value.taxNumber
+          : taxNumber // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -181,7 +194,8 @@ class _$SenderImpl extends _Sender {
       this.phoneNumber = '',
       this.email = '',
       this.website = '',
-      this.ustId = ''})
+      this.ustId = '',
+      this.taxNumber = ''})
       : super._();
 
   factory _$SenderImpl.fromJson(Map<String, dynamic> json) =>
@@ -208,10 +222,13 @@ class _$SenderImpl extends _Sender {
   @override
   @JsonKey()
   final String ustId;
+  @override
+  @JsonKey()
+  final String taxNumber;
 
   @override
   String toString() {
-    return 'Sender(name: $name, jobDescription: $jobDescription, address: $address, phoneNumber: $phoneNumber, email: $email, website: $website, ustId: $ustId)';
+    return 'Sender(name: $name, jobDescription: $jobDescription, address: $address, phoneNumber: $phoneNumber, email: $email, website: $website, ustId: $ustId, taxNumber: $taxNumber)';
   }
 
   @override
@@ -227,13 +244,15 @@ class _$SenderImpl extends _Sender {
                 other.phoneNumber == phoneNumber) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.website, website) || other.website == website) &&
-            (identical(other.ustId, ustId) || other.ustId == ustId));
+            (identical(other.ustId, ustId) || other.ustId == ustId) &&
+            (identical(other.taxNumber, taxNumber) ||
+                other.taxNumber == taxNumber));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, name, jobDescription, address,
-      phoneNumber, email, website, ustId);
+      phoneNumber, email, website, ustId, taxNumber);
 
   @JsonKey(ignore: true)
   @override
@@ -257,7 +276,8 @@ abstract class _Sender extends Sender {
       final String phoneNumber,
       final String email,
       final String website,
-      final String ustId}) = _$SenderImpl;
+      final String ustId,
+      final String taxNumber}) = _$SenderImpl;
   const _Sender._() : super._();
 
   factory _Sender.fromJson(Map<String, dynamic> json) = _$SenderImpl.fromJson;
@@ -276,6 +296,8 @@ abstract class _Sender extends Sender {
   String get website;
   @override
   String get ustId;
+  @override
+  String get taxNumber;
   @override
   @JsonKey(ignore: true)
   _$$SenderImplCopyWith<_$SenderImpl> get copyWith =>

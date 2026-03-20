@@ -14,6 +14,7 @@ _$SenderImpl _$$SenderImplFromJson(Map<String, dynamic> json) => _$SenderImpl(
       email: json['email'] as String? ?? '',
       website: json['website'] as String? ?? '',
       ustId: json['ustId'] as String? ?? '',
+      taxNumber: json['taxNumber'] as String? ?? '',
     );
 
 Map<String, dynamic> _$$SenderImplToJson(_$SenderImpl instance) =>
@@ -25,4 +26,5 @@ Map<String, dynamic> _$$SenderImplToJson(_$SenderImpl instance) =>
       'email': instance.email,
       'website': instance.website,
       'ustId': instance.ustId,
+      'taxNumber': instance.taxNumber,
     };

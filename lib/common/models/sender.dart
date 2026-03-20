@@ -15,6 +15,7 @@ class Sender with _$Sender {
     @Default('') String email,
     @Default('') String website,
     @Default('') String ustId,
+    @Default('') String taxNumber,
   }) = _Sender;
 
   factory Sender.fromJson(Map<String, dynamic> json) =>
