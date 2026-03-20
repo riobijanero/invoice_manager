@@ -52,10 +52,10 @@ List<pw.Widget> invoiceTableBlock({
             pw.TableRow(
               children: [
                 cell(serviceDescriptions.length > i ? serviceDescriptions[i] : ''),
-                cell('Std.'),
-                cell(items[i].hours.toStringAsFixed(0)),
-                cell(formatCurrency(items[i].hourlyRate)),
-                cell(formatCurrency(items[i].hours * items[i].hourlyRate)),
+                cell(items[i].unitLabel),
+                cell(items[i].quantity.toStringAsFixed(0)),
+                cell(formatCurrency(items[i].unitPrice)),
+                cell(formatCurrency(items[i].itemTotal)),
               ],
             ),
       ],

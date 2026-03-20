@@ -15,17 +15,73 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 InvoiceItem _$InvoiceItemFromJson(Map<String, dynamic> json) {
-  return _InvoiceItem.fromJson(json);
+  switch (json['runtimeType']) {
+    case 'hourlyRateService':
+      return _HourlyRateServiceItem.fromJson(json);
+    case 'fixedPriceService':
+      return _FixedPriceServiceItem.fromJson(json);
+
+    default:
+      throw CheckedFromJsonException(json, 'runtimeType', 'InvoiceItem',
+          'Invalid union type "${json['runtimeType']}"!');
+  }
 }
 
 /// @nodoc
 mixin _$InvoiceItem {
   int get serviceMonth => throw _privateConstructorUsedError;
   int get serviceYear => throw _privateConstructorUsedError;
-  double get hours => throw _privateConstructorUsedError;
-  double get hourlyRate => throw _privateConstructorUsedError;
   String get serviceDescription => throw _privateConstructorUsedError;
-
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(int serviceMonth, int serviceYear, double hours,
+            double hourlyRate, String serviceDescription)
+        hourlyRateService,
+    required TResult Function(int serviceMonth, int serviceYear,
+            double fixedPrice, String serviceDescription)
+        fixedPriceService,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(int serviceMonth, int serviceYear, double hours,
+            double hourlyRate, String serviceDescription)?
+        hourlyRateService,
+    TResult? Function(int serviceMonth, int serviceYear, double fixedPrice,
+            String serviceDescription)?
+        fixedPriceService,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(int serviceMonth, int serviceYear, double hours,
+            double hourlyRate, String serviceDescription)?
+        hourlyRateService,
+    TResult Function(int serviceMonth, int serviceYear, double fixedPrice,
+            String serviceDescription)?
+        fixedPriceService,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_HourlyRateServiceItem value) hourlyRateService,
+    required TResult Function(_FixedPriceServiceItem value) fixedPriceService,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_HourlyRateServiceItem value)? hourlyRateService,
+    TResult? Function(_FixedPriceServiceItem value)? fixedPriceService,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_HourlyRateServiceItem value)? hourlyRateService,
+    TResult Function(_FixedPriceServiceItem value)? fixedPriceService,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $InvoiceItemCopyWith<InvoiceItem> get copyWith =>
@@ -38,12 +94,7 @@ abstract class $InvoiceItemCopyWith<$Res> {
           InvoiceItem value, $Res Function(InvoiceItem) then) =
       _$InvoiceItemCopyWithImpl<$Res, InvoiceItem>;
   @useResult
-  $Res call(
-      {int serviceMonth,
-      int serviceYear,
-      double hours,
-      double hourlyRate,
-      String serviceDescription});
+  $Res call({int serviceMonth, int serviceYear, String serviceDescription});
 }
 
 /// @nodoc
@@ -61,8 +112,6 @@ class _$InvoiceItemCopyWithImpl<$Res, $Val extends InvoiceItem>
   $Res call({
     Object? serviceMonth = null,
     Object? serviceYear = null,
-    Object? hours = null,
-    Object? hourlyRate = null,
     Object? serviceDescription = null,
   }) {
     return _then(_value.copyWith(
@@ -74,14 +123,6 @@ class _$InvoiceItemCopyWithImpl<$Res, $Val extends InvoiceItem>
           ? _value.serviceYear
           : serviceYear // ignore: cast_nullable_to_non_nullable
               as int,
-      hours: null == hours
-          ? _value.hours
-          : hours // ignore: cast_nullable_to_non_nullable
-              as double,
-      hourlyRate: null == hourlyRate
-          ? _value.hourlyRate
-          : hourlyRate // ignore: cast_nullable_to_non_nullable
-              as double,
       serviceDescription: null == serviceDescription
           ? _value.serviceDescription
           : serviceDescription // ignore: cast_nullable_to_non_nullable
@@ -91,11 +132,12 @@ class _$InvoiceItemCopyWithImpl<$Res, $Val extends InvoiceItem>
 }
 
 /// @nodoc
-abstract class _$$InvoiceItemImplCopyWith<$Res>
+abstract class _$$HourlyRateServiceItemImplCopyWith<$Res>
     implements $InvoiceItemCopyWith<$Res> {
-  factory _$$InvoiceItemImplCopyWith(
-          _$InvoiceItemImpl value, $Res Function(_$InvoiceItemImpl) then) =
-      __$$InvoiceItemImplCopyWithImpl<$Res>;
+  factory _$$HourlyRateServiceItemImplCopyWith(
+          _$HourlyRateServiceItemImpl value,
+          $Res Function(_$HourlyRateServiceItemImpl) then) =
+      __$$HourlyRateServiceItemImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -107,11 +149,11 @@ abstract class _$$InvoiceItemImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$InvoiceItemImplCopyWithImpl<$Res>
-    extends _$InvoiceItemCopyWithImpl<$Res, _$InvoiceItemImpl>
-    implements _$$InvoiceItemImplCopyWith<$Res> {
-  __$$InvoiceItemImplCopyWithImpl(
-      _$InvoiceItemImpl _value, $Res Function(_$InvoiceItemImpl) _then)
+class __$$HourlyRateServiceItemImplCopyWithImpl<$Res>
+    extends _$InvoiceItemCopyWithImpl<$Res, _$HourlyRateServiceItemImpl>
+    implements _$$HourlyRateServiceItemImplCopyWith<$Res> {
+  __$$HourlyRateServiceItemImplCopyWithImpl(_$HourlyRateServiceItemImpl _value,
+      $Res Function(_$HourlyRateServiceItemImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -123,7 +165,7 @@ class __$$InvoiceItemImplCopyWithImpl<$Res>
     Object? hourlyRate = null,
     Object? serviceDescription = null,
   }) {
-    return _then(_$InvoiceItemImpl(
+    return _then(_$HourlyRateServiceItemImpl(
       serviceMonth: null == serviceMonth
           ? _value.serviceMonth
           : serviceMonth // ignore: cast_nullable_to_non_nullable
@@ -150,16 +192,19 @@ class __$$InvoiceItemImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$InvoiceItemImpl implements _InvoiceItem {
-  const _$InvoiceItemImpl(
+class _$HourlyRateServiceItemImpl extends _HourlyRateServiceItem {
+  const _$HourlyRateServiceItemImpl(
       {required this.serviceMonth,
       required this.serviceYear,
       required this.hours,
       required this.hourlyRate,
-      required this.serviceDescription});
+      required this.serviceDescription,
+      final String? $type})
+      : $type = $type ?? 'hourlyRateService',
+        super._();
 
-  factory _$InvoiceItemImpl.fromJson(Map<String, dynamic> json) =>
-      _$$InvoiceItemImplFromJson(json);
+  factory _$HourlyRateServiceItemImpl.fromJson(Map<String, dynamic> json) =>
+      _$$HourlyRateServiceItemImplFromJson(json);
 
   @override
   final int serviceMonth;
@@ -172,16 +217,19 @@ class _$InvoiceItemImpl implements _InvoiceItem {
   @override
   final String serviceDescription;
 
+  @JsonKey(name: 'runtimeType')
+  final String $type;
+
   @override
   String toString() {
-    return 'InvoiceItem(serviceMonth: $serviceMonth, serviceYear: $serviceYear, hours: $hours, hourlyRate: $hourlyRate, serviceDescription: $serviceDescription)';
+    return 'InvoiceItem.hourlyRateService(serviceMonth: $serviceMonth, serviceYear: $serviceYear, hours: $hours, hourlyRate: $hourlyRate, serviceDescription: $serviceDescription)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$InvoiceItemImpl &&
+            other is _$HourlyRateServiceItemImpl &&
             (identical(other.serviceMonth, serviceMonth) ||
                 other.serviceMonth == serviceMonth) &&
             (identical(other.serviceYear, serviceYear) ||
@@ -201,40 +249,338 @@ class _$InvoiceItemImpl implements _InvoiceItem {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$InvoiceItemImplCopyWith<_$InvoiceItemImpl> get copyWith =>
-      __$$InvoiceItemImplCopyWithImpl<_$InvoiceItemImpl>(this, _$identity);
+  _$$HourlyRateServiceItemImplCopyWith<_$HourlyRateServiceItemImpl>
+      get copyWith => __$$HourlyRateServiceItemImplCopyWithImpl<
+          _$HourlyRateServiceItemImpl>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(int serviceMonth, int serviceYear, double hours,
+            double hourlyRate, String serviceDescription)
+        hourlyRateService,
+    required TResult Function(int serviceMonth, int serviceYear,
+            double fixedPrice, String serviceDescription)
+        fixedPriceService,
+  }) {
+    return hourlyRateService(
+        serviceMonth, serviceYear, hours, hourlyRate, serviceDescription);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(int serviceMonth, int serviceYear, double hours,
+            double hourlyRate, String serviceDescription)?
+        hourlyRateService,
+    TResult? Function(int serviceMonth, int serviceYear, double fixedPrice,
+            String serviceDescription)?
+        fixedPriceService,
+  }) {
+    return hourlyRateService?.call(
+        serviceMonth, serviceYear, hours, hourlyRate, serviceDescription);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(int serviceMonth, int serviceYear, double hours,
+            double hourlyRate, String serviceDescription)?
+        hourlyRateService,
+    TResult Function(int serviceMonth, int serviceYear, double fixedPrice,
+            String serviceDescription)?
+        fixedPriceService,
+    required TResult orElse(),
+  }) {
+    if (hourlyRateService != null) {
+      return hourlyRateService(
+          serviceMonth, serviceYear, hours, hourlyRate, serviceDescription);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_HourlyRateServiceItem value) hourlyRateService,
+    required TResult Function(_FixedPriceServiceItem value) fixedPriceService,
+  }) {
+    return hourlyRateService(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_HourlyRateServiceItem value)? hourlyRateService,
+    TResult? Function(_FixedPriceServiceItem value)? fixedPriceService,
+  }) {
+    return hourlyRateService?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_HourlyRateServiceItem value)? hourlyRateService,
+    TResult Function(_FixedPriceServiceItem value)? fixedPriceService,
+    required TResult orElse(),
+  }) {
+    if (hourlyRateService != null) {
+      return hourlyRateService(this);
+    }
+    return orElse();
+  }
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$InvoiceItemImplToJson(
+    return _$$HourlyRateServiceItemImplToJson(
       this,
     );
   }
 }
 
-abstract class _InvoiceItem implements InvoiceItem {
-  const factory _InvoiceItem(
+abstract class _HourlyRateServiceItem extends InvoiceItem {
+  const factory _HourlyRateServiceItem(
       {required final int serviceMonth,
       required final int serviceYear,
       required final double hours,
       required final double hourlyRate,
-      required final String serviceDescription}) = _$InvoiceItemImpl;
+      required final String serviceDescription}) = _$HourlyRateServiceItemImpl;
+  const _HourlyRateServiceItem._() : super._();
 
-  factory _InvoiceItem.fromJson(Map<String, dynamic> json) =
-      _$InvoiceItemImpl.fromJson;
+  factory _HourlyRateServiceItem.fromJson(Map<String, dynamic> json) =
+      _$HourlyRateServiceItemImpl.fromJson;
 
   @override
   int get serviceMonth;
   @override
   int get serviceYear;
-  @override
   double get hours;
-  @override
   double get hourlyRate;
   @override
   String get serviceDescription;
   @override
   @JsonKey(ignore: true)
-  _$$InvoiceItemImplCopyWith<_$InvoiceItemImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$HourlyRateServiceItemImplCopyWith<_$HourlyRateServiceItemImpl>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$FixedPriceServiceItemImplCopyWith<$Res>
+    implements $InvoiceItemCopyWith<$Res> {
+  factory _$$FixedPriceServiceItemImplCopyWith(
+          _$FixedPriceServiceItemImpl value,
+          $Res Function(_$FixedPriceServiceItemImpl) then) =
+      __$$FixedPriceServiceItemImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {int serviceMonth,
+      int serviceYear,
+      double fixedPrice,
+      String serviceDescription});
+}
+
+/// @nodoc
+class __$$FixedPriceServiceItemImplCopyWithImpl<$Res>
+    extends _$InvoiceItemCopyWithImpl<$Res, _$FixedPriceServiceItemImpl>
+    implements _$$FixedPriceServiceItemImplCopyWith<$Res> {
+  __$$FixedPriceServiceItemImplCopyWithImpl(_$FixedPriceServiceItemImpl _value,
+      $Res Function(_$FixedPriceServiceItemImpl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? serviceMonth = null,
+    Object? serviceYear = null,
+    Object? fixedPrice = null,
+    Object? serviceDescription = null,
+  }) {
+    return _then(_$FixedPriceServiceItemImpl(
+      serviceMonth: null == serviceMonth
+          ? _value.serviceMonth
+          : serviceMonth // ignore: cast_nullable_to_non_nullable
+              as int,
+      serviceYear: null == serviceYear
+          ? _value.serviceYear
+          : serviceYear // ignore: cast_nullable_to_non_nullable
+              as int,
+      fixedPrice: null == fixedPrice
+          ? _value.fixedPrice
+          : fixedPrice // ignore: cast_nullable_to_non_nullable
+              as double,
+      serviceDescription: null == serviceDescription
+          ? _value.serviceDescription
+          : serviceDescription // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$FixedPriceServiceItemImpl extends _FixedPriceServiceItem {
+  const _$FixedPriceServiceItemImpl(
+      {required this.serviceMonth,
+      required this.serviceYear,
+      required this.fixedPrice,
+      required this.serviceDescription,
+      final String? $type})
+      : $type = $type ?? 'fixedPriceService',
+        super._();
+
+  factory _$FixedPriceServiceItemImpl.fromJson(Map<String, dynamic> json) =>
+      _$$FixedPriceServiceItemImplFromJson(json);
+
+  @override
+  final int serviceMonth;
+  @override
+  final int serviceYear;
+  @override
+  final double fixedPrice;
+  @override
+  final String serviceDescription;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
+
+  @override
+  String toString() {
+    return 'InvoiceItem.fixedPriceService(serviceMonth: $serviceMonth, serviceYear: $serviceYear, fixedPrice: $fixedPrice, serviceDescription: $serviceDescription)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$FixedPriceServiceItemImpl &&
+            (identical(other.serviceMonth, serviceMonth) ||
+                other.serviceMonth == serviceMonth) &&
+            (identical(other.serviceYear, serviceYear) ||
+                other.serviceYear == serviceYear) &&
+            (identical(other.fixedPrice, fixedPrice) ||
+                other.fixedPrice == fixedPrice) &&
+            (identical(other.serviceDescription, serviceDescription) ||
+                other.serviceDescription == serviceDescription));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType, serviceMonth, serviceYear, fixedPrice, serviceDescription);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$FixedPriceServiceItemImplCopyWith<_$FixedPriceServiceItemImpl>
+      get copyWith => __$$FixedPriceServiceItemImplCopyWithImpl<
+          _$FixedPriceServiceItemImpl>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(int serviceMonth, int serviceYear, double hours,
+            double hourlyRate, String serviceDescription)
+        hourlyRateService,
+    required TResult Function(int serviceMonth, int serviceYear,
+            double fixedPrice, String serviceDescription)
+        fixedPriceService,
+  }) {
+    return fixedPriceService(
+        serviceMonth, serviceYear, fixedPrice, serviceDescription);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(int serviceMonth, int serviceYear, double hours,
+            double hourlyRate, String serviceDescription)?
+        hourlyRateService,
+    TResult? Function(int serviceMonth, int serviceYear, double fixedPrice,
+            String serviceDescription)?
+        fixedPriceService,
+  }) {
+    return fixedPriceService?.call(
+        serviceMonth, serviceYear, fixedPrice, serviceDescription);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(int serviceMonth, int serviceYear, double hours,
+            double hourlyRate, String serviceDescription)?
+        hourlyRateService,
+    TResult Function(int serviceMonth, int serviceYear, double fixedPrice,
+            String serviceDescription)?
+        fixedPriceService,
+    required TResult orElse(),
+  }) {
+    if (fixedPriceService != null) {
+      return fixedPriceService(
+          serviceMonth, serviceYear, fixedPrice, serviceDescription);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_HourlyRateServiceItem value) hourlyRateService,
+    required TResult Function(_FixedPriceServiceItem value) fixedPriceService,
+  }) {
+    return fixedPriceService(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_HourlyRateServiceItem value)? hourlyRateService,
+    TResult? Function(_FixedPriceServiceItem value)? fixedPriceService,
+  }) {
+    return fixedPriceService?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_HourlyRateServiceItem value)? hourlyRateService,
+    TResult Function(_FixedPriceServiceItem value)? fixedPriceService,
+    required TResult orElse(),
+  }) {
+    if (fixedPriceService != null) {
+      return fixedPriceService(this);
+    }
+    return orElse();
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$FixedPriceServiceItemImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _FixedPriceServiceItem extends InvoiceItem {
+  const factory _FixedPriceServiceItem(
+      {required final int serviceMonth,
+      required final int serviceYear,
+      required final double fixedPrice,
+      required final String serviceDescription}) = _$FixedPriceServiceItemImpl;
+  const _FixedPriceServiceItem._() : super._();
+
+  factory _FixedPriceServiceItem.fromJson(Map<String, dynamic> json) =
+      _$FixedPriceServiceItemImpl.fromJson;
+
+  @override
+  int get serviceMonth;
+  @override
+  int get serviceYear;
+  double get fixedPrice;
+  @override
+  String get serviceDescription;
+  @override
+  @JsonKey(ignore: true)
+  _$$FixedPriceServiceItemImplCopyWith<_$FixedPriceServiceItemImpl>
+      get copyWith => throw _privateConstructorUsedError;
 }

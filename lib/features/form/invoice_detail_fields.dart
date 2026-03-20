@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import 'package:invoice_manager/common/models/discount_type.dart';
 import 'package:invoice_manager/common/models/due_date_type.dart';
+import 'package:invoice_manager/common/models/invoice_item.dart';
 
 class InvoiceDetailFields extends StatelessWidget {
   const InvoiceDetailFields({
@@ -17,6 +18,9 @@ class InvoiceDetailFields extends StatelessWidget {
     required this.serviceYears,
     required this.hoursControllers,
     required this.hourlyRateControllers,
+    required this.itemTypes,
+    required this.fixedPriceControllers,
+    required this.onItemTypeChanged,
     required this.serviceDescriptionControllers,
     required this.onServiceMonthChanged,
     required this.onServiceYearChanged,
@@ -40,6 +44,9 @@ class InvoiceDetailFields extends StatelessWidget {
   final List<int> serviceYears;
   final List<TextEditingController> hoursControllers;
   final List<TextEditingController> hourlyRateControllers;
+  final List<InvoiceItemType> itemTypes;
+  final List<TextEditingController> fixedPriceControllers;
+  final void Function(int index, InvoiceItemType type) onItemTypeChanged;
   final List<TextEditingController> serviceDescriptionControllers;
   final void Function(int index, int value) onServiceMonthChanged;
   final void Function(int index, int value) onServiceYearChanged;
@@ -131,6 +138,23 @@ class InvoiceDetailFields extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
+          SegmentedButton<InvoiceItemType>(
+            segments: const [
+              ButtonSegment(
+                value: InvoiceItemType.hourlyRateService,
+                label: Text('Stunden'),
+              ),
+              ButtonSegment(
+                value: InvoiceItemType.fixedPriceService,
+                label: Text('Pauschal'),
+              ),
+            ],
+            selected: {itemTypes[i]},
+            onSelectionChanged: (s) {
+              onItemTypeChanged(i, s.first);
+            },
+          ),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
@@ -178,36 +202,54 @@ class InvoiceDetailFields extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          TextFormField(
-            controller: hoursControllers[i],
-            decoration: const InputDecoration(
-              labelText: 'Stunden',
-              border: OutlineInputBorder(),
+          if (itemTypes[i] == InvoiceItemType.hourlyRateService) ...[
+            TextFormField(
+              controller: hoursControllers[i],
+              decoration: const InputDecoration(
+                labelText: 'Stunden',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              validator: (v) {
+                if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
+                final n = double.tryParse(v.replaceFirst(',', '.'));
+                if (n == null || n < 0) return 'Ungültige Zahl';
+                return null;
+              },
             ),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
-              final n = double.tryParse(v.replaceFirst(',', '.'));
-              if (n == null || n < 0) return 'Ungültige Zahl';
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: hourlyRateControllers[i],
-            decoration: const InputDecoration(
-              labelText: 'Stundensatz (€)',
-              border: OutlineInputBorder(),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: hourlyRateControllers[i],
+              decoration: const InputDecoration(
+                labelText: 'Stundensatz (€)',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              validator: (v) {
+                if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
+                final n = double.tryParse(v.replaceFirst(',', '.'));
+                if (n == null || n < 0) return 'Ungültige Zahl';
+                return null;
+              },
             ),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
-              final n = double.tryParse(v.replaceFirst(',', '.'));
-              if (n == null || n < 0) return 'Ungültige Zahl';
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
+          ] else ...[
+            TextFormField(
+              controller: fixedPriceControllers[i],
+              decoration: const InputDecoration(
+                labelText: 'Festpreis (€)',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              validator: (v) {
+                if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
+                final n = double.tryParse(v.replaceFirst(',', '.'));
+                if (n == null || n < 0) return 'Ungültige Zahl';
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
           TextFormField(
             controller: serviceDescriptionControllers[i],
             decoration: const InputDecoration(

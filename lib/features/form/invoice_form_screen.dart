@@ -51,6 +51,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   late TextEditingController _jobDescription;
   late TextEditingController _introductoryText;
   late List<TextEditingController> _serviceDescriptionControllers;
+  late List<InvoiceItemType> _itemTypes;
+  late List<TextEditingController> _fixedPriceControllers;
   late TextEditingController _ustId;
   late TextEditingController _taxNumber;
 
@@ -90,6 +92,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       text: 'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:',
     );
     _serviceDescriptionControllers = [TextEditingController()];
+    _itemTypes = [InvoiceItemType.hourlyRateService];
+    _fixedPriceControllers = [TextEditingController(text: '0')];
     _ustId = TextEditingController();
     _taxNumber = TextEditingController();
     _invoiceDate = DateTime.now();
@@ -124,6 +128,9 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     for (final c in _serviceDescriptionControllers) {
       c.dispose();
     }
+    for (final c in _fixedPriceControllers) {
+      c.dispose();
+    }
     _ustId.dispose();
     _taxNumber.dispose();
     super.dispose();
@@ -151,7 +158,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     final items = inv.invoiceItemList.isNotEmpty
         ? inv.invoiceItemList
         : [
-            InvoiceItem(
+            InvoiceItem.hourlyRateService(
               serviceMonth: DateTime.now().month,
               serviceYear: DateTime.now().year,
               hours: 0,
@@ -172,6 +179,9 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     for (final c in _serviceDescriptionControllers) {
       c.dispose();
     }
+    for (final c in _fixedPriceControllers) {
+      c.dispose();
+    }
 
     _hoursControllers = items
         .map((e) => TextEditingController(text: e.hours.toString()))
@@ -181,6 +191,16 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
         .toList();
     _serviceDescriptionControllers = items
         .map((e) => TextEditingController(text: e.serviceDescription))
+        .toList();
+    _itemTypes = items.map((e) => e.type).toList();
+    _fixedPriceControllers = items
+        .map(
+          (e) => TextEditingController(
+            text: e.type == InvoiceItemType.fixedPriceService
+                ? e.fixedPrice.toString()
+                : '0',
+          ),
+        )
         .toList();
     _discountType = inv.discountType;
     _discountValue.text = inv.discountValue.toString();
@@ -195,6 +215,12 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     if (_loadedInvoice != null) return;
 
     _paidOn = null;
+    _itemTypes = [InvoiceItemType.hourlyRateService];
+    if (_fixedPriceControllers.isEmpty) {
+      _fixedPriceControllers = [TextEditingController(text: '0')];
+    } else {
+      _fixedPriceControllers[0].text = '0';
+    }
 
     // Prefill invoice number for "new invoice" screens:
     // lastInvoiceNumber + 1 (preserve possible prefix and zero-padding).
@@ -215,7 +241,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       _iban.text = d.bankDetails!.iban;
       _bic.text = d.bankDetails!.bic;
     }
-    _hourlyRateControllers[0].text = d.hourlyRate > 0 ? d.hourlyRate.toString() : '';
+    _hourlyRateControllers[0].text = d.hourlyRate > 0 ? d.hourlyRate.toString() : '0';
     _discountType = d.discountType;
     _discountValue.text = d.discountValue.toString();
     _dueDateType = d.dueDateType;
@@ -274,16 +300,47 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     final baseServiceDescriptionText = _serviceDescriptionControllers.isNotEmpty
         ? _serviceDescriptionControllers.last.text
         : '';
+    final baseType =
+        _itemTypes.isNotEmpty ? _itemTypes.last : InvoiceItemType.hourlyRateService;
+    final baseFixedPriceText = _fixedPriceControllers.isNotEmpty
+        ? _fixedPriceControllers.last.text
+        : '0';
 
     setState(() {
       _serviceMonths.add(baseMonth);
       _serviceYears.add(baseYear);
-      _hoursControllers.add(TextEditingController(text: baseHoursText));
-      _hourlyRateControllers.add(TextEditingController(text: baseHourlyRateText));
+      _itemTypes.add(baseType);
+      _hoursControllers.add(
+        TextEditingController(
+          text: baseType == InvoiceItemType.hourlyRateService ? baseHoursText : '0',
+        ),
+      );
+      _hourlyRateControllers.add(
+        TextEditingController(
+          text: baseType == InvoiceItemType.hourlyRateService ? baseHourlyRateText : '0',
+        ),
+      );
+      _fixedPriceControllers.add(
+        TextEditingController(
+          text: baseType == InvoiceItemType.fixedPriceService ? baseFixedPriceText : '0',
+        ),
+      );
       _serviceDescriptionControllers
           .add(TextEditingController(text: baseServiceDescriptionText));
       // The new item starts with the same month/year as the last one, so no
       // period replacement is needed until the user changes the month/year.
+    });
+  }
+
+  void _onItemTypeChanged(int index, InvoiceItemType type) {
+    setState(() {
+      _itemTypes[index] = type;
+      if (type == InvoiceItemType.hourlyRateService) {
+        _fixedPriceControllers[index].text = '0';
+      } else {
+        _hoursControllers[index].text = '0';
+        _hourlyRateControllers[index].text = '0';
+      }
     });
   }
 
@@ -408,6 +465,9 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                         serviceYears: _serviceYears,
                         hoursControllers: _hoursControllers,
                         hourlyRateControllers: _hourlyRateControllers,
+                        itemTypes: _itemTypes,
+                        fixedPriceControllers: _fixedPriceControllers,
+                        onItemTypeChanged: _onItemTypeChanged,
                         serviceDescriptionControllers: _serviceDescriptionControllers,
                         onServiceMonthChanged: (index, v) {
                           setState(() {
@@ -552,9 +612,13 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   Future<void> _updateDefaultsFromForm(WidgetRef ref) async {
     final defaultsRepo = ref.read(defaultsRepositoryProvider);
     final current = await defaultsRepo.load();
-    final rate = double.tryParse(
-      _hourlyRateControllers.isNotEmpty ? _hourlyRateControllers.first.text.replaceFirst(',', '.') : '',
-    ) ?? 0;
+    final hourlyIndex = _itemTypes.indexOf(InvoiceItemType.hourlyRateService);
+    final double rate = hourlyIndex >= 0 && hourlyIndex < _hourlyRateControllers.length
+        ? (double.tryParse(
+                _hourlyRateControllers[hourlyIndex].text.replaceFirst(',', '.'),
+              ) ??
+            0.0)
+        : 0.0;
     await defaultsRepo.save(current.copyWith(
       lastInvoiceNumber: widget.invoiceId == null ? _invoiceNumber.text.trim() : current.lastInvoiceNumber,
       sender: Sender(
@@ -591,20 +655,42 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     final discount = double.tryParse(_discountValue.text.replaceFirst(',', '.')) ?? 0;
 
     final items = List<InvoiceItem>.generate(_serviceMonths.length, (i) {
-      final hours = double.tryParse(_hoursControllers[i].text.replaceFirst(',', '.')) ?? 0;
-      final hourlyRate = double.tryParse(_hourlyRateControllers[i].text.replaceFirst(',', '.')) ?? 0;
-      return InvoiceItem(
+      final type = _itemTypes[i];
+      final serviceDescription = _serviceDescriptionControllers[i].text.trim();
+
+      if (type == InvoiceItemType.hourlyRateService) {
+        final hours = double.tryParse(
+              _hoursControllers[i].text.replaceFirst(',', '.'),
+            ) ??
+            0;
+        final hourlyRate = double.tryParse(
+              _hourlyRateControllers[i].text.replaceFirst(',', '.'),
+            ) ??
+            0;
+        return InvoiceItem.hourlyRateService(
+          serviceMonth: _serviceMonths[i],
+          serviceYear: _serviceYears[i],
+          hours: hours,
+          hourlyRate: hourlyRate,
+          serviceDescription: serviceDescription,
+        );
+      }
+
+      final fixedPrice = double.tryParse(
+            _fixedPriceControllers[i].text.replaceFirst(',', '.'),
+          ) ??
+          0;
+      return InvoiceItem.fixedPriceService(
         serviceMonth: _serviceMonths[i],
         serviceYear: _serviceYears[i],
-        hours: hours,
-        hourlyRate: hourlyRate,
-        serviceDescription: _serviceDescriptionControllers[i].text.trim(),
+        fixedPrice: fixedPrice,
+        serviceDescription: serviceDescription,
       );
     });
 
     final subtotal = items.fold<double>(
       0.0,
-      (sum, item) => sum + (item.hours * item.hourlyRate),
+      (sum, item) => sum + item.itemTotal,
     );
     final discountAmount =
         _discountType == DiscountType.percent ? subtotal * (discount / 100) : discount;

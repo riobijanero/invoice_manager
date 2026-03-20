@@ -36,37 +36,8 @@ class InvoiceDefaults with _$InvoiceDefaults {
     @Default('') String serviceDescriptionTemplate,
   }) = _InvoiceDefaults;
 
-  factory InvoiceDefaults.fromJson(Map<String, dynamic> json) => _$InvoiceDefaultsFromJson(_migrateDefaultsJson(json));
-
-  /// Supports legacy JSON with senderAddress/clientAddress strings.
-  static Map<String, dynamic> _migrateDefaultsJson(Map<String, dynamic> json) {
-    final out = Map<String, dynamic>.from(json);
-    if (out['sender'] == null && out['senderAddress'] != null) {
-      out['sender'] = _senderFromLegacyString(out['senderAddress'] as String? ?? '');
-    }
-    if (out['client'] == null && out['clientAddress'] != null) {
-      out['client'] = _clientFromLegacyString(out['clientAddress'] as String? ?? '');
-    }
-    return out;
-  }
-
-  static Map<String, dynamic> _senderFromLegacyString(String s) {
-    final lines = s.split(RegExp(r'[\r\n]+'));
-    if (lines.isEmpty) return const Sender().toJson();
-    return Sender(
-      name: lines.first.trim(),
-      address: lines.skip(1).join('\n').trim(),
-    ).toJson();
-  }
-
-  static Map<String, dynamic> _clientFromLegacyString(String s) {
-    final lines = s.split(RegExp(r'[\r\n]+'));
-    if (lines.isEmpty) return const Client().toJson();
-    return Client(
-      name: lines.first.trim(),
-      address: lines.skip(1).join('\n').trim(),
-    ).toJson();
-  }
+  factory InvoiceDefaults.fromJson(Map<String, dynamic> json) =>
+      _$InvoiceDefaultsFromJson(json);
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'lastInvoiceNumber': lastInvoiceNumber,
