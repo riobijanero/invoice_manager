@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:invoice_manager/common/layout/invoice_layout_breakpoints.dart';
 import 'package:invoice_manager/common/providers/providers.dart';
 import 'package:uuid/uuid.dart';
 
@@ -101,6 +102,20 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   }
 
   @override
+  void didUpdateWidget(InvoiceFormScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Without a route-level [ValueKey], the same State can be reused when
+    // switching invoices in the split layout; reset so [_applyInvoice] runs again.
+    if (widget.invoiceId != oldWidget.invoiceId) {
+      _initialized = false;
+      _loadedInvoice = null;
+      if (widget.invoiceId == null) {
+        _defaults = null;
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _invoiceNumber.dispose();
     _senderName.dispose();
@@ -183,22 +198,14 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       c.dispose();
     }
 
-    _hoursControllers = items
-        .map((e) => TextEditingController(text: e.hours.toString()))
-        .toList();
-    _hourlyRateControllers = items
-        .map((e) => TextEditingController(text: e.hourlyRate.toString()))
-        .toList();
-    _serviceDescriptionControllers = items
-        .map((e) => TextEditingController(text: e.serviceDescription))
-        .toList();
+    _hoursControllers = items.map((e) => TextEditingController(text: e.hours.toString())).toList();
+    _hourlyRateControllers = items.map((e) => TextEditingController(text: e.hourlyRate.toString())).toList();
+    _serviceDescriptionControllers = items.map((e) => TextEditingController(text: e.serviceDescription)).toList();
     _itemTypes = items.map((e) => e.type).toList();
     _fixedPriceControllers = items
         .map(
           (e) => TextEditingController(
-            text: e.type == InvoiceItemType.fixedPriceService
-                ? e.fixedPrice.toString()
-                : '0',
+            text: e.type == InvoiceItemType.fixedPriceService ? e.fixedPrice.toString() : '0',
           ),
         )
         .toList();
@@ -251,11 +258,9 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
         'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:';
     if (d.serviceDescriptionTemplate.isNotEmpty) {
       final period = _periodPlaceholderFor(_serviceMonths.first, _serviceYears.first);
-      _serviceDescriptionControllers[0].text =
-          d.serviceDescriptionTemplate.replaceAll('{PERIOD}', period);
+      _serviceDescriptionControllers[0].text = d.serviceDescriptionTemplate.replaceAll('{PERIOD}', period);
     } else {
-      _serviceDescriptionControllers[0].text =
-          defaultServiceDescriptionTemplate.replaceAll(
+      _serviceDescriptionControllers[0].text = defaultServiceDescriptionTemplate.replaceAll(
         '{PERIOD}',
         _periodPlaceholderFor(_serviceMonths.first, _serviceYears.first),
       );
@@ -278,15 +283,13 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     final t = _serviceDescriptionControllers[index].text;
     final newPeriod = _periodPlaceholderFor(_serviceMonths[index], _serviceYears[index]);
     if (t.contains('{PERIOD}')) {
-      _serviceDescriptionControllers[index].text =
-          t.replaceAll('{PERIOD}', newPeriod);
+      _serviceDescriptionControllers[index].text = t.replaceAll('{PERIOD}', newPeriod);
       return;
     }
     // Replace existing date range (e.g. "01.03.2026 - 31.03.2026") with new period
     final periodPattern = RegExp(r'\d{2}\.\d{2}\.\d{4}\s*-\s*\d{2}\.\d{2}\.\d{4}');
     if (periodPattern.hasMatch(t)) {
-      _serviceDescriptionControllers[index].text =
-          t.replaceFirst(periodPattern, newPeriod);
+      _serviceDescriptionControllers[index].text = t.replaceFirst(periodPattern, newPeriod);
     }
   }
 
@@ -295,16 +298,11 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     final baseYear = _serviceYears.isNotEmpty ? _serviceYears.last : DateTime.now().year;
 
     final baseHoursText = _hoursControllers.isNotEmpty ? _hoursControllers.last.text : '';
-    final baseHourlyRateText =
-        _hourlyRateControllers.isNotEmpty ? _hourlyRateControllers.last.text : '';
-    final baseServiceDescriptionText = _serviceDescriptionControllers.isNotEmpty
-        ? _serviceDescriptionControllers.last.text
-        : '';
-    final baseType =
-        _itemTypes.isNotEmpty ? _itemTypes.last : InvoiceItemType.hourlyRateService;
-    final baseFixedPriceText = _fixedPriceControllers.isNotEmpty
-        ? _fixedPriceControllers.last.text
-        : '0';
+    final baseHourlyRateText = _hourlyRateControllers.isNotEmpty ? _hourlyRateControllers.last.text : '';
+    final baseServiceDescriptionText =
+        _serviceDescriptionControllers.isNotEmpty ? _serviceDescriptionControllers.last.text : '';
+    final baseType = _itemTypes.isNotEmpty ? _itemTypes.last : InvoiceItemType.hourlyRateService;
+    final baseFixedPriceText = _fixedPriceControllers.isNotEmpty ? _fixedPriceControllers.last.text : '0';
 
     setState(() {
       _serviceMonths.add(baseMonth);
@@ -325,8 +323,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
           text: baseType == InvoiceItemType.fixedPriceService ? baseFixedPriceText : '0',
         ),
       );
-      _serviceDescriptionControllers
-          .add(TextEditingController(text: baseServiceDescriptionText));
+      _serviceDescriptionControllers.add(TextEditingController(text: baseServiceDescriptionText));
       // The new item starts with the same month/year as the last one, so no
       // period replacement is needed until the user changes the month/year.
     });
@@ -392,7 +389,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                 children: [
                   LayoutBuilder(
                     builder: (context, constraints) {
-                      const minColumnWidth = 400.0;
+                      const minColumnWidth = 300.0;
                       const gap = 24.0;
                       final maxWidth = constraints.maxWidth.isFinite ? constraints.maxWidth : 0.0;
 
@@ -606,7 +603,12 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     ref.invalidate(invoiceListProvider);
     ref.invalidate(invoiceDetailProvider(invoice.id));
     ref.invalidate(defaultsProvider);
-    if (context.mounted) context.push(pathPreview(invoice.id));
+    if (!context.mounted) return;
+    if (isWideInvoiceLayout(context)) {
+      context.go(pathPreview(invoice.id));
+    } else {
+      context.push(pathPreview(invoice.id));
+    }
   }
 
   Future<void> _updateDefaultsFromForm(WidgetRef ref) async {
@@ -615,8 +617,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     final hourlyIndex = _itemTypes.indexOf(InvoiceItemType.hourlyRateService);
     final double rate = hourlyIndex >= 0 && hourlyIndex < _hourlyRateControllers.length
         ? (double.tryParse(
-                _hourlyRateControllers[hourlyIndex].text.replaceFirst(',', '.'),
-              ) ??
+              _hourlyRateControllers[hourlyIndex].text.replaceFirst(',', '.'),
+            ) ??
             0.0)
         : 0.0;
     await defaultsRepo.save(current.copyWith(
@@ -692,8 +694,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       0.0,
       (sum, item) => sum + item.itemTotal,
     );
-    final discountAmount =
-        _discountType == DiscountType.percent ? subtotal * (discount / 100) : discount;
+    final discountAmount = _discountType == DiscountType.percent ? subtotal * (discount / 100) : discount;
     if (discountAmount > subtotal) {
       return (null, 'Rabatt darf den Zwischensummenbetrag nicht übersteigen.');
     }

@@ -13,11 +13,13 @@ class InvoiceListTile extends ConsumerWidget {
     required this.invoice,
     required this.onAction,
     required this.onTap,
+    this.selected = false,
   });
 
   final Invoice invoice;
   final ValueChanged<String> onAction;
   final VoidCallback onTap;
+  final bool selected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,7 +32,10 @@ class InvoiceListTile extends ConsumerWidget {
         ? '${_monthName(firstItem.serviceMonth)} ${firstItem.serviceYear}'
         : '-';
 
+    final theme = Theme.of(context);
     return ListTile(
+      selected: selected,
+      selectedTileColor: theme.colorScheme.surfaceContainerHighest,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,

@@ -3,11 +3,13 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:invoice_manager/common/layout/invoice_layout_breakpoints.dart';
 import 'package:invoice_manager/common/providers/providers.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 
 import '../../common/services/invoice_pdf_generator/invoice_pdf_generator.dart';
+import '../../routing/app_router.dart';
 import 'services/export_pdf_service.dart';
 
 class PreviewScreen extends ConsumerWidget {
@@ -24,7 +26,7 @@ class PreviewScreen extends ConsumerWidget {
         title: const Text('PDF-Vorschau'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: () => _backFromPreview(context),
           tooltip: 'Zurück',
         ),
         actions: [
@@ -83,7 +85,7 @@ class PreviewScreen extends ConsumerWidget {
               Text('Fehler: $err'),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => context.pop(),
+                onPressed: () => _backFromPreview(context),
                 child: const Text('Zurück'),
               ),
             ],
@@ -91,6 +93,14 @@ class PreviewScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  void _backFromPreview(BuildContext context) {
+    if (isWideInvoiceLayout(context)) {
+      context.go(pathEdit(invoiceId));
+    } else {
+      context.pop();
+    }
   }
 
   Future<void> _print(BuildContext context, WidgetRef ref) async {

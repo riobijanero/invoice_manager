@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:invoice_manager/common/layout/invoice_layout_breakpoints.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
 import 'package:invoice_manager/common/providers/providers.dart';
 import 'package:invoice_manager/features/list/widgets/invoice_list_tile.dart';
@@ -13,6 +14,8 @@ class InvoiceListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncInvoices = ref.watch(invoiceListProvider);
+    final selectedId = _selectedInvoiceId(context);
+    final wide = isWideInvoiceLayout(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Rechnungsliste'),
@@ -44,8 +47,11 @@ class InvoiceListScreen extends ConsumerWidget {
               final invoice = invoices[index];
               return InvoiceListTile(
                 invoice: invoice,
+                selected: selectedId == invoice.id,
                 onAction: (action) => _handleAction(context, ref, action, invoice),
-                onTap: () => context.push(pathEdit(invoice.id)),
+                onTap: () => wide
+                    ? context.go(pathEdit(invoice.id))
+                    : context.push(pathEdit(invoice.id)),
               );
             },
           );
@@ -131,8 +137,26 @@ class InvoiceListScreen extends ConsumerWidget {
     await repo.save(newInvoice);
     ref.invalidate(invoiceListProvider);
     if (context.mounted) {
-      context.push(pathEdit(newInvoice.id));
+      if (isWideInvoiceLayout(context)) {
+        context.go(pathEdit(newInvoice.id));
+      } else {
+        context.push(pathEdit(newInvoice.id));
+      }
     }
+  }
+
+  /// Current invoice id from the URL when viewing form or preview (wide layout selection).
+  String? _selectedInvoiceId(BuildContext context) {
+    final path = GoRouterState.of(context).uri.path;
+    if (path == '/invoice/new') return null;
+    final preview = RegExp(r'^/invoice/([^/]+)/preview$').firstMatch(path);
+    if (preview != null) return preview.group(1);
+    final edit = RegExp(r'^/invoice/([^/]+)$').firstMatch(path);
+    if (edit != null) {
+      final id = edit.group(1)!;
+      if (id != 'new') return id;
+    }
+    return null;
   }
 
   String _generateId() {
