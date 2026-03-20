@@ -186,6 +186,17 @@ class InvoiceDetailFields extends StatelessWidget {
           },
         ),
         const SizedBox(height: 16),
+        TextFormField(
+          controller: serviceDescriptionController,
+          decoration: const InputDecoration(
+            labelText: 'Leistungsbeschreibung',
+            border: OutlineInputBorder(),
+            alignLabelWithHint: true,
+          ),
+          maxLines: 5,
+          validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
+        ),
+        const SizedBox(height: 16),
         Row(
           children: [
             const Text('Rabatt: '),
@@ -248,17 +259,6 @@ class InvoiceDetailFields extends StatelessWidget {
             ),
           ),
         ],
-        const SizedBox(height: 16),
-        TextFormField(
-          controller: serviceDescriptionController,
-          decoration: const InputDecoration(
-            labelText: 'Leistungsbeschreibung',
-            border: OutlineInputBorder(),
-            alignLabelWithHint: true,
-          ),
-          maxLines: 5,
-          validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-        ),
       ],
     );
   }
