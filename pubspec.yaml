@@ -38,6 +38,7 @@ dependencies:
 
   # File save / selection & paths (file_picker supports Save As on desktop; file_selector needs SDK 3.7+)
   file_picker: ^8.1.6
+  file_selector: ^1.1.0
   path_provider: ^2.1.5
   path: ^1.9.0
 
