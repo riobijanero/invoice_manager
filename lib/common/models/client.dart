@@ -8,6 +8,7 @@ class Client with _$Client {
   const Client._();
 
   const factory Client({
+    @Default('') String companyName,
     @Default('') String name,
     @Default('') String address,
   }) = _Client;
@@ -17,10 +18,13 @@ class Client with _$Client {
 
   /// Multiline string for PDF (name then address).
   String toBlockString() {
+    final c = companyName.trim();
     final n = name.trim();
     final a = address.trim();
-    if (n.isEmpty) return a;
-    if (a.isEmpty) return n;
-    return '$n\n$a';
+    final lines = <String>[];
+    if (c.isNotEmpty) lines.add(c);
+    if (n.isNotEmpty) lines.add(n);
+    if (a.isNotEmpty) lines.addAll(a.split('\n').where((l) => l.trim().isNotEmpty));
+    return lines.join('\n');
   }
 }

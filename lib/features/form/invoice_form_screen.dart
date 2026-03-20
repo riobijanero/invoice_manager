@@ -37,6 +37,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   late TextEditingController _senderEmail;
   late TextEditingController _senderWebsite;
   late TextEditingController _clientName;
+  late TextEditingController _clientCompanyName;
   late TextEditingController _clientAddress;
   late TextEditingController _contractNumber;
   late TextEditingController _accountHolder;
@@ -72,6 +73,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _senderEmail = TextEditingController();
     _senderWebsite = TextEditingController();
     _clientName = TextEditingController();
+    _clientCompanyName = TextEditingController();
     _clientAddress = TextEditingController();
     _contractNumber = TextEditingController();
     _accountHolder = TextEditingController();
@@ -100,6 +102,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _senderEmail.dispose();
     _senderWebsite.dispose();
     _clientName.dispose();
+    _clientCompanyName.dispose();
     _clientAddress.dispose();
     _contractNumber.dispose();
     _accountHolder.dispose();
@@ -125,6 +128,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _senderWebsite.text = inv.sender.website;
     _ustId.text = inv.sender.ustId;
     _clientName.text = inv.client.name;
+    _clientCompanyName.text = inv.client.companyName;
     _clientAddress.text = inv.client.address;
     _contractNumber.text = inv.contractNumber;
     _accountHolder.text = inv.bankDetails.accountHolder;
@@ -161,6 +165,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _senderEmail.text = d.sender.email;
     _senderWebsite.text = d.sender.website;
     _clientName.text = d.client.name;
+    _clientCompanyName.text = d.client.companyName;
     _clientAddress.text = d.client.address;
     _contractNumber.text = d.contractNumber;
     if (d.bankDetails != null) {
@@ -362,6 +367,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                       );
 
                       final Widget clientFields = ClientFields(
+                        clientCompanyNameController: _clientCompanyName,
                         clientNameController: _clientName,
                         clientAddressController: _clientAddress,
                         contractNumberController: _contractNumber,
@@ -485,6 +491,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
         ustId: _ustId.text.trim(),
       ),
       client: Client(
+        companyName: _clientCompanyName.text.trim(),
         name: _clientName.text.trim(),
         address: _clientAddress.text.trim(),
       ),
@@ -527,6 +534,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
         ustId: _ustId.text.trim(),
       ),
       client: Client(
+        companyName: _clientCompanyName.text.trim(),
         name: _clientName.text.trim(),
         address: _clientAddress.text.trim(),
       ),
