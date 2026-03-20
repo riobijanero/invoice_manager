@@ -22,16 +22,23 @@ String diplayWithoutFirst(
   return parts.skip(lines).join('\n').trimLeft();
 }
 
-pw.Widget cell(String text, {bool bold = false}) {
+pw.Widget cell(String text, {bool bold = false, bool alignRight = false}) {
+  final child = pw.Text(
+    text,
+    textAlign: alignRight ? pw.TextAlign.right : pw.TextAlign.left,
+    style: pw.TextStyle(
+      fontSize: fontSizeSmall,
+      fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+    ),
+  );
   return pw.Padding(
     padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-    child: pw.Text(
-      text,
-      style: pw.TextStyle(
-        fontSize: fontSizeSmall,
-        fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
-      ),
-    ),
+    child: alignRight
+        ? pw.Align(
+            alignment: pw.Alignment.centerRight,
+            child: child,
+          )
+        : child,
   );
 }
 
