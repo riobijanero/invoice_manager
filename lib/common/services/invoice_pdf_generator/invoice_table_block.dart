@@ -19,18 +19,16 @@ List<pw.Widget> invoiceTableBlock({
     pw.Table(
       border: pw.TableBorder.all(width: 0.5, color: PdfColors.grey800),
       columnWidths: {
-        0: const pw.FixedColumnWidth(28),
-        1: const pw.FlexColumnWidth(1),
-        2: const pw.FixedColumnWidth(42),
-        3: const pw.FixedColumnWidth(38),
-        4: const pw.FixedColumnWidth(44),
-        5: const pw.FixedColumnWidth(52),
+        0: const pw.FlexColumnWidth(1), // Bezeichnung
+        1: const pw.FixedColumnWidth(42), // Einheit
+        2: const pw.FixedColumnWidth(38), // Menge
+        3: const pw.FixedColumnWidth(48), // Preis
+        4: const pw.FixedColumnWidth(65), // Gesamt
       },
       children: [
         pw.TableRow(
           decoration: const pw.BoxDecoration(color: PdfColors.grey300),
           children: [
-            cell('Pos.', bold: true),
             cell('Bezeichnung', bold: true),
             cell('Einheit', bold: true),
             cell('Menge', bold: true),
@@ -40,7 +38,6 @@ List<pw.Widget> invoiceTableBlock({
         ),
         pw.TableRow(
           children: [
-            cell('1'),
             cell(serviceDescription),
             cell('Std.'),
             cell(invoice.hours.toStringAsFixed(0)),
