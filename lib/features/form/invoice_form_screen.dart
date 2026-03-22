@@ -270,6 +270,16 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _taxNumber.text = d.sender.taxNumber;
   }
 
+  void _backFromForm(BuildContext context) {
+    if (isWideInvoiceLayout(context)) {
+      context.go('/');
+    } else if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/');
+    }
+  }
+
   String _periodPlaceholderFor(int month, int year) {
     final start = DateTime(year, month, 1);
     final end = DateTime(year, month + 1, 0);
@@ -379,7 +389,32 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isNew ? 'Neue Rechnung Nr ${_invoiceNumber.text}' : 'Rechnung (${_invoiceNumber.text}) bearbeiten'),
+        title: Text(isNew ? 'Neue Rechnung' : 'Rechnung bearbeiten'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => _backFromForm(context),
+          tooltip: 'Zurück',
+        ),
+        actions: [
+          TextButton.icon(
+            onPressed: () => _backFromForm(context),
+            icon: const Icon(Icons.close),
+            label: const Text('Abbrechen'),
+          ),
+          const SizedBox(width: 8),
+          TextButton.icon(
+            onPressed: () => _save(context, ref),
+            icon: const Icon(Icons.save_outlined),
+            label: const Text('Speichern'),
+          ),
+          const SizedBox(width: 8),
+          FilledButton.icon(
+            onPressed: () => _saveAndPreview(context, ref),
+            icon: const Icon(Icons.picture_as_pdf_outlined),
+            label: const Text('Vorschau'),
+          ),
+          const SizedBox(width: 16),
+        ],
       ),
       // Only block the form on the *initial* load. A refetch (e.g. invalidate)
       // would otherwise swap in a spinner and reset scroll.
@@ -417,26 +452,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             institutionController: _institution,
                             ibanController: _iban,
                             bicController: _bic,
-                          ),
-                        ],
-                      );
-
-                      final Widget actionButtonsRow = Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(
-                            onPressed: () => context.go('/'),
-                            child: const Text('abbrechen'),
-                          ),
-                          const SizedBox(width: 12),
-                          TextButton(
-                            onPressed: () => _save(context, ref),
-                            child: const Text('Speichern'),
-                          ),
-                          const SizedBox(width: 12),
-                          FilledButton(
-                            onPressed: () => _saveAndPreview(context, ref),
-                            child: const Text('Vorschau'),
                           ),
                         ],
                       );
@@ -517,12 +532,10 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                           clientFields,
                           const SizedBox(height: 30),
                           invoiceDetailFields,
-                          const SizedBox(height: 30),
-                          actionButtonsRow,
                         ],
                       );
 
-                      // 3-column layout: [Sender+Bank] | [Client] | [Invoice details+actions]
+                      // 3-column layout: [Sender+Bank] | [Client] | [Invoice details]
                       final bool sideBySideThree = maxWidth >= (minColumnWidth * 3 + gap * 2);
                       if (sideBySideThree) {
                         return Row(
@@ -552,8 +565,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
                                     invoiceDetailFields,
-                                    const SizedBox(height: 30),
-                                    actionButtonsRow,
                                   ],
                                 ),
                               ),
@@ -574,7 +585,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                                 child: leftColumn,
                               ),
                             ),
-                            SizedBox(width: gap),
+                            const SizedBox(width: gap),
                             Expanded(
                               child: ConstrainedBox(
                                 constraints: const BoxConstraints(minWidth: minColumnWidth),
