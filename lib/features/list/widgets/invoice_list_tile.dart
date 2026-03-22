@@ -7,6 +7,8 @@ import 'package:invoice_manager/common/providers/providers.dart';
 import 'package:invoice_manager/common/utils/currency_format.dart';
 import 'package:invoice_manager/common/utils/invoice_calculations.dart';
 
+import 'invoice_list_payment_badge.dart';
+
 class InvoiceListTile extends ConsumerWidget {
   const InvoiceListTile({
     super.key,
@@ -51,13 +53,7 @@ class InvoiceListTile extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          if (invoice.paidOn != null) const SizedBox(width: 4),
-          if (invoice.paidOn != null)
-            const Icon(
-              Icons.check_circle,
-              size: 16,
-              color: Colors.green,
-            ),
+          InvoiceListPaymentBadge(invoice: invoice),
         ],
       ),
       subtitle: Text(
