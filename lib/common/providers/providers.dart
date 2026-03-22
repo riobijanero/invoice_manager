@@ -15,7 +15,10 @@ final defaultsRepositoryProvider = Provider<DefaultsRepository>((ref) {
 
 final invoiceListProvider = FutureProvider<List<Invoice>>((ref) async {
   final repo = ref.watch(invoiceRepositoryProvider);
-  return repo.getAll();
+  final list = await repo.getAll();
+  // [getAll] already sorts; keep explicit so UI order never drifts.
+  sortInvoicesByCreatedAtNewestFirst(list);
+  return list;
 });
 
 final defaultsProvider = FutureProvider<InvoiceDefaults>((ref) async {

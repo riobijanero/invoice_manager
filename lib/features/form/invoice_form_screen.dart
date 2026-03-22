@@ -767,7 +767,10 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       return (null, 'Rabatt darf den Zwischensummenbetrag nicht übersteigen.');
     }
     final id = widget.invoiceId ?? _loadedInvoice?.id ?? const Uuid().v4();
-    final createdAt = _loadedInvoice?.createdAt ?? DateTime.now();
+    // Only use [DateTime.now] for brand-new invoices; never reset createdAt on edit.
+    final haveLoadedSnapshot = _loadedInvoice != null && _loadedInvoice!.id == id;
+    final createdAt =
+        haveLoadedSnapshot ? _loadedInvoice!.createdAt : DateTime.now();
     final invoice = Invoice(
       id: id,
       createdAt: createdAt,

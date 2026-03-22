@@ -8,7 +8,16 @@ import 'package:invoice_manager/common/models/invoice.dart';
 
 const String _invoicesFileName = 'invoices.json';
 
-/// File-based local storage for invoices. CRUD and list sorted by date (newest first).
+/// Newest [Invoice.createdAt] first; [id] breaks ties (stable order).
+void sortInvoicesByCreatedAtNewestFirst(List<Invoice> invoices) {
+  invoices.sort((Invoice a, Invoice b) {
+    final byCreated = b.createdAt.compareTo(a.createdAt);
+    if (byCreated != 0) return byCreated;
+    return b.id.compareTo(a.id);
+  });
+}
+
+/// File-based local storage for invoices. CRUD and list sorted by creation time (newest first).
 class InvoiceRepository {
   Future<String> _getFilePath() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -25,7 +34,7 @@ class InvoiceRepository {
     final invoices = list
         .map((e) => Invoice.fromJson(e as Map<String, dynamic>))
         .toList();
-    invoices.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    sortInvoicesByCreatedAtNewestFirst(invoices);
     return invoices;
   }
 
@@ -62,6 +71,7 @@ class InvoiceRepository {
     if (!await file.exists()) return;
     final all = await getAll();
     final filtered = all.where((i) => i.id != id).toList();
+    sortInvoicesByCreatedAtNewestFirst(filtered);
     if (filtered.isEmpty) {
       await file.writeAsString('[]');
     } else {
