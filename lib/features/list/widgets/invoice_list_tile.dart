@@ -75,6 +75,7 @@ class InvoiceListTile extends ConsumerWidget {
               if (date == null) return;
               await ref.read(invoiceRepositoryProvider).save(invoice.copyWith(paidOn: date));
               ref.invalidate(invoiceListProvider);
+              ref.invalidate(invoiceDetailProvider(invoice.id));
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

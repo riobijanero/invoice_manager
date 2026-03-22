@@ -396,10 +396,23 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
         invoiceDetailProvider(widget.invoiceId!),
         (prev, next) {
           next.whenData((inv) {
-            if (inv != null && inv != _loadedInvoice && !_initialized) {
-              _loadedInvoice = inv;
-              _applyInvoice(inv);
-              _initialized = true;
+            if (inv == null) return;
+            if (!_initialized) {
+              if (inv != _loadedInvoice) {
+                _loadedInvoice = inv;
+                _applyInvoice(inv);
+                _initialized = true;
+              }
+              return;
+            }
+            // Same invoice reloaded (e.g. "bezahlt am" updated from list in split layout).
+            if (_loadedInvoice != null &&
+                inv.id == _loadedInvoice!.id &&
+                inv != _loadedInvoice) {
+              setState(() {
+                _paidOn = inv.paidOn;
+                _loadedInvoice = inv;
+              });
             }
           });
         },
