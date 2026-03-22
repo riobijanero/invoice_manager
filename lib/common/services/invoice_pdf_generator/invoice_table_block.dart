@@ -168,7 +168,7 @@ List<pw.Widget> invoiceTableBlock({
             pw.Padding(
               padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
               child: pw.Text(
-                'Summe (netto)',
+                'Gesamtbetrag (netto)',
                 style: const pw.TextStyle(fontSize: fontSizeMain),
               ),
             ),
@@ -220,7 +220,7 @@ List<pw.Widget> invoiceTableBlock({
             pw.Padding(
               padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
               child: pw.Text(
-                'Summe (brutto)',
+                'Gesamtbetrag (brutto)',
                 style: pw.TextStyle(
                   fontSize: fontSizeMain,
                   fontWeight: pw.FontWeight.bold,

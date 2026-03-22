@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:invoice_manager/common/layout/invoice_layout_breakpoints.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
 import 'package:invoice_manager/common/providers/providers.dart';
+import 'package:invoice_manager/features/form/utils/utils.dart';
 import 'package:invoice_manager/features/list/widgets/invoice_list_tile.dart';
+import 'package:invoice_manager/features/list/widgets/new_invoice_draft_list_tile.dart';
 import '../../routing/app_router.dart';
 
 class InvoiceListScreen extends ConsumerWidget {
@@ -16,13 +18,15 @@ class InvoiceListScreen extends ConsumerWidget {
     final asyncInvoices = ref.watch(invoiceListProvider);
     final selectedId = _selectedInvoiceId(context);
     final wide = isWideInvoiceLayout(context);
+    final showNewDraftRow =
+        wide && GoRouterState.of(context).uri.path == '/invoice/new';
     return Scaffold(
       appBar: AppBar(
         title: const Text('Rechnungsliste'),
       ),
       body: asyncInvoices.when(
         data: (invoices) {
-          if (invoices.isEmpty) {
+          if (invoices.isEmpty && !showNewDraftRow) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -40,11 +44,18 @@ class InvoiceListScreen extends ConsumerWidget {
               ),
             );
           }
+          final itemCount = invoices.length + (showNewDraftRow ? 1 : 0);
           return ListView.builder(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: invoices.length,
+            itemCount: itemCount,
             itemBuilder: (context, index) {
-              final invoice = invoices[index];
+              if (showNewDraftRow && index == 0) {
+                return NewInvoiceDraftListTile(
+                  onTap: () => context.go('/invoice/new'),
+                );
+              }
+              final invoiceIndex = showNewDraftRow ? index - 1 : index;
+              final invoice = invoices[invoiceIndex];
               return InvoiceListTile(
                 invoice: invoice,
                 selected: selectedId == invoice.id,
@@ -128,14 +139,19 @@ class InvoiceListScreen extends ConsumerWidget {
     Invoice invoice,
   ) async {
     final repo = ref.read(invoiceRepositoryProvider);
+    final defaultsRepo = ref.read(defaultsRepositoryProvider);
+    final d = await defaultsRepo.load();
+    final newNumber = nextInvoiceNumber(d.lastInvoiceNumber);
     final newInvoice = invoice.copyWith(
       id: _generateId(),
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
-      invoiceNumber: '${invoice.invoiceNumber}-Kopie',
+      invoiceNumber: newNumber,
     );
     await repo.save(newInvoice);
+    await defaultsRepo.save(d.copyWith(lastInvoiceNumber: newNumber));
     ref.invalidate(invoiceListProvider);
+    ref.invalidate(defaultsProvider);
     if (context.mounted) {
       if (isWideInvoiceLayout(context)) {
         context.go(pathEdit(newInvoice.id));

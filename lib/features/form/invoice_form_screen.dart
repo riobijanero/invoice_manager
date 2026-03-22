@@ -381,7 +381,12 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       appBar: AppBar(
         title: Text(isNew ? 'Neue Rechnung Nr ${_invoiceNumber.text}' : 'Rechnung (${_invoiceNumber.text}) bearbeiten'),
       ),
-      body: asyncInvoice != null && asyncInvoice.isLoading && widget.invoiceId != null
+      // Only block the form on the *initial* load. A refetch (e.g. invalidate)
+      // would otherwise swap in a spinner and reset scroll.
+      body: asyncInvoice != null &&
+              widget.invoiceId != null &&
+              asyncInvoice.isLoading &&
+              asyncInvoice.valueOrNull == null
           ? const Center(child: CircularProgressIndicator())
           : Form(
               key: _formKey,
@@ -755,13 +760,21 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     await _updateDefaultsFromForm(ref);
     ref.invalidate(defaultsProvider);
     ref.invalidate(invoiceListProvider);
-    ref.invalidate(invoiceDetailProvider(invoice.id));
-    ref.invalidate(defaultsProvider);
+    // Do not invalidate invoiceDetailProvider here: that would put the watched
+    // provider into loading, replace the form with a spinner, and reset scroll.
+    // Controllers already hold the saved data; disk matches after save.
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Rechnung gespeichert')),
       );
-      context.go('/');
+      if (isWideInvoiceLayout(context)) {
+        final target = pathEdit(invoice.id);
+        if (GoRouterState.of(context).uri.path != target) {
+          context.go(target);
+        }
+      } else {
+        context.go('/');
+      }
     }
   }
 }
