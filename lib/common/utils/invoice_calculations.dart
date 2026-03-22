@@ -26,9 +26,11 @@ InvoiceTotals computeTotals(Invoice invoice) {
     0.0,
     (sum, item) => sum + item.itemTotal,
   );
-  final discountAmount = invoice.discountType == DiscountType.percent
+  final rawDiscount = invoice.discountType == DiscountType.percent
       ? subtotal * (invoice.discountValue / 100)
       : invoice.discountValue;
+  // Match form validation: discount cannot exceed subtotal.
+  final discountAmount = rawDiscount.clamp(0.0, subtotal);
   final net = (subtotal - discountAmount).clamp(0.0, double.infinity);
   final vat = net * InvoiceTotals.vatRate;
   final gross = net + vat;

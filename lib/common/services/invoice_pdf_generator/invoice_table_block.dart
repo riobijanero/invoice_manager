@@ -1,3 +1,4 @@
+import 'package:invoice_manager/common/models/discount_type.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
 import 'package:invoice_manager/common/models/invoice_item.dart';
 import 'package:invoice_manager/common/services/invoice_pdf_generator/config.dart';
@@ -62,6 +63,16 @@ List<pw.Widget> invoiceTableBlock({
 }) {
   final totals = computeTotals(invoice);
   final items = invoice.invoiceItemList;
+  final showDiscountBreakdown = totals.discountAmount > 0.0001;
+
+  String discountLabel() {
+    if (invoice.discountType == DiscountType.percent) {
+      final v = invoice.discountValue;
+      final pct = v == v.truncateToDouble() ? v.toInt().toString() : v.toString();
+      return 'Rabatt ($pct %)';
+    }
+    return 'Rabatt (Betrag)';
+  }
 
   return [
     pw.Column(
@@ -163,6 +174,60 @@ List<pw.Widget> invoiceTableBlock({
         1: pw.FixedColumnWidth(_kGesamtW),
       },
       children: [
+        if (showDiscountBreakdown) ...[
+          pw.TableRow(
+            children: [
+              pw.Padding(
+                padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                child: pw.Text(
+                  'Zwischensumme (netto)',
+                  style: const pw.TextStyle(fontSize: fontSizeMain),
+                ),
+              ),
+              pw.Container(
+                decoration: const pw.BoxDecoration(
+                  border: pw.Border(left: _tableBorderSide),
+                ),
+                child: pw.Padding(
+                  padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  child: pw.Align(
+                    alignment: pw.Alignment.centerRight,
+                    child: pw.Text(
+                      formatCurrency(totals.subtotal),
+                      style: const pw.TextStyle(fontSize: fontSizeMain),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          pw.TableRow(
+            children: [
+              pw.Padding(
+                padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                child: pw.Text(
+                  discountLabel(),
+                  style: const pw.TextStyle(fontSize: fontSizeMain),
+                ),
+              ),
+              pw.Container(
+                decoration: const pw.BoxDecoration(
+                  border: pw.Border(left: _tableBorderSide),
+                ),
+                child: pw.Padding(
+                  padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  child: pw.Align(
+                    alignment: pw.Alignment.centerRight,
+                    child: pw.Text(
+                      formatCurrency(-totals.discountAmount),
+                      style: const pw.TextStyle(fontSize: fontSizeMain),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
         pw.TableRow(
           children: [
             pw.Padding(

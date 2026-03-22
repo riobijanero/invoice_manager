@@ -279,6 +279,7 @@ class InvoiceDetailFields extends StatelessWidget {
           children: [
             const Text('Rabatt: '),
             SegmentedButton<DiscountType>(
+              showSelectedIcon: false,
               segments: const [
                 ButtonSegment(value: DiscountType.percent, label: Text('%')),
                 ButtonSegment(value: DiscountType.amount, label: Text('Betrag')),
