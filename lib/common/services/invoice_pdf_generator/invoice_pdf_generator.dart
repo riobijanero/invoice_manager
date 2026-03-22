@@ -10,6 +10,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import 'package:invoice_manager/common/models/invoice.dart';
+import 'package:invoice_manager/common/models/invoice_item.dart';
 import '../../utils/date_utils.dart';
 import '../../utils/invoice_calculations.dart';
 
@@ -25,31 +26,31 @@ Future<Uint8List> generateInvoicePdf(Invoice invoice) async {
   );
   final dueDate = computeDueDate(invoice);
   final itemList = invoice.invoiceItemList;
-  final firstItem = itemList.isNotEmpty ? itemList.first : null;
-  final lastItem = itemList.isNotEmpty ? itemList.last : null;
+  final itemsWithPeriod = itemList.where((InvoiceItem i) => i.hasServicePeriod).toList();
 
-  // Title: show a single period range across all items.
-  final periodStartDate = firstItem != null
-      ? periodStart(firstItem.serviceMonth, firstItem.serviceYear)
-      : DateTime.now();
-  final periodEndDate = lastItem != null
-      ? periodEnd(lastItem.serviceMonth, lastItem.serviceYear)
-      : DateTime.now();
-  final periodText =
-      '${formatDate(periodStartDate)} - ${formatDate(periodEndDate)}';
+  // Title: show Leistungszeitraum line only when at least one position has month+year.
+  final String? periodText;
+  if (itemsWithPeriod.isEmpty) {
+    periodText = null;
+  } else {
+    final firstItem = itemsWithPeriod.first;
+    final lastItem = itemsWithPeriod.last;
+    final periodStartDate = periodStart(firstItem.serviceMonth!, firstItem.serviceYear!);
+    final periodEndDate = periodEnd(lastItem.serviceMonth!, lastItem.serviceYear!);
+    periodText = '${formatDate(periodStartDate)} - ${formatDate(periodEndDate)}';
+  }
 
-  // One row per invoice item; each row gets its own {PERIOD} replacement.
-  final serviceDescriptionsForPdf = itemList
-      .map((item) {
-        final start = periodStart(item.serviceMonth, item.serviceYear);
-        final end = periodEnd(item.serviceMonth, item.serviceYear);
-        final itemPeriodText = '${formatDate(start)} - ${formatDate(end)}';
-        return item
-            .serviceDescription
-            .replaceAll('{PERIOD}', itemPeriodText)
-            .trim();
-      })
-      .toList();
+  // One row per invoice item; {PERIOD} replaced only when that line has a Zeitraum.
+  final serviceDescriptionsForPdf = itemList.map((InvoiceItem item) {
+    final desc = item.serviceDescription;
+    if (!item.hasServicePeriod) {
+      return desc.replaceAll('{PERIOD}', '').trim();
+    }
+    final start = periodStart(item.serviceMonth!, item.serviceYear!);
+    final end = periodEnd(item.serviceMonth!, item.serviceYear!);
+    final itemPeriodText = '${formatDate(start)} - ${formatDate(end)}';
+    return desc.replaceAll('{PERIOD}', itemPeriodText).trim();
+  }).toList();
 
   final doc = pw.Document();
   doc.addPage(
@@ -68,7 +69,7 @@ Future<Uint8List> generateInvoicePdf(Invoice invoice) async {
               invoice: invoice,
               periodText: periodText,
             ),
-            pw.SizedBox(height: 48),
+            pw.SizedBox(height: 30),
             // Intro text comes from the invoice data model
             pw.Text(
               invoice.introductoryText,

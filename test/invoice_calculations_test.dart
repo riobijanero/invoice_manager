@@ -105,5 +105,28 @@ void main() {
       expect(t.discountAmount, 100.0);
       expect(t.net, 0.0);
     });
+
+    test('includes lines without Leistungszeitraum in subtotal', () {
+      final inv = _minimalInvoice(
+        items: [
+          InvoiceItem.hourlyRateService(
+            serviceMonth: null,
+            serviceYear: null,
+            hours: 10,
+            hourlyRate: 100,
+            serviceDescription: 'a',
+          ),
+          InvoiceItem.hourlyRateService(
+            serviceMonth: 3,
+            serviceYear: 2024,
+            hours: 1,
+            hourlyRate: 100,
+            serviceDescription: 'b',
+          ),
+        ],
+      );
+      final t = computeTotals(inv);
+      expect(t.subtotal, 1100.0);
+    });
   });
 }

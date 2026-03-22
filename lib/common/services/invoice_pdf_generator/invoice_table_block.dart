@@ -30,7 +30,7 @@ pw.TableBorder _hourlyRowTableBorder({required bool top}) {
   );
 }
 
-/// Fixed-price row: no vertical lines between Bezeichnung and Gesamt except before Gesamt (drawn on Gesamt cell).
+/// Fixed-price row: no vertical lines between Beschreibung and Gesamt except before Gesamt (drawn on Gesamt cell).
 pw.TableBorder _fixedPriceRowTableBorder({required bool top}) {
   return pw.TableBorder(
     left: _tableBorderSide,
@@ -43,7 +43,7 @@ pw.TableBorder _fixedPriceRowTableBorder({required bool top}) {
 }
 
 const Map<int, pw.TableColumnWidth> _fiveColumnWidths = {
-  0: pw.FlexColumnWidth(1), // Bezeichnung
+  0: pw.FlexColumnWidth(1), // Beschreibung
   1: pw.FixedColumnWidth(_kEinheitW), // Einheit
   2: pw.FixedColumnWidth(_kMengeW), // Menge
   3: pw.FixedColumnWidth(_kPreisW), // Preis
@@ -51,7 +51,7 @@ const Map<int, pw.TableColumnWidth> _fiveColumnWidths = {
 };
 
 const Map<int, pw.TableColumnWidth> _fixedPriceThreeColumnWidths = {
-  0: pw.FlexColumnWidth(1), // Bezeichnung
+  0: pw.FlexColumnWidth(1), // Beschreibung
   1: pw.FixedColumnWidth(_kMergedEinheitMengePreisW), // merged empty
   2: pw.FixedColumnWidth(_kGesamtW), // Gesamt
 };
@@ -86,7 +86,7 @@ List<pw.Widget> invoiceTableBlock({
             pw.TableRow(
               decoration: const pw.BoxDecoration(color: PdfColors.grey300),
               children: [
-                cell('Bezeichnung', bold: true),
+                cell('Beschreibung', bold: true),
                 cell('Einheit', bold: true),
                 cell('Menge', bold: true),
                 cell('Preis', bold: true),

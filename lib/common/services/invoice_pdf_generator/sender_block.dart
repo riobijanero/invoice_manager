@@ -43,7 +43,7 @@ List<pw.Widget> senderBlock(Sender sender) {
   final nameField = _senderFieldRow(
     pw.Text(
       sender.name,
-      style: _senderTextStyle.copyWith(color: PdfColor.fromHex('#003366')),
+      style: _senderTextStyle.copyWith(fontSize: fontSizeLarge, color: PdfColor.fromHex('#003366')),
       textAlign: textAlignment,
     ),
   );
@@ -70,8 +70,9 @@ List<pw.Widget> senderBlock(Sender sender) {
   final websiteField = sender.website.trim().isNotEmpty ? _senderFieldRow(_senderLine(sender.website.trim())) : null;
   final vatTaxIdField =
       sender.ustId.trim().isNotEmpty ? _senderFieldRow(_senderLine('USt-ID: ${sender.ustId.trim()}')) : null;
-  final taxNumberField =
-      sender.taxNumber.trim().isNotEmpty ? _senderFieldRow(_senderLine('Steuernummer: ${sender.taxNumber.trim()}')) : null;
+  final taxNumberField = sender.taxNumber.trim().isNotEmpty
+      ? _senderFieldRow(_senderLine('Steuernummer: ${sender.taxNumber.trim()}'))
+      : null;
 
   // Add each field separately so you can reorder by moving lines.
   final result = <pw.Widget>[

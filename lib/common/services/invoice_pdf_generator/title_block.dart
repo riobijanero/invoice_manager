@@ -5,10 +5,13 @@ import 'package:invoice_manager/common/utils/date_utils.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 /// Title row: invoice title + contract + period on the left, meta table (date, number, USt-ID, contract) on the right.
+///
+/// When [periodText] is null or empty, the Leistungszeitraum line is omitted.
 List<pw.Widget> titleBlock({
   required Invoice invoice,
-  required String periodText,
+  String? periodText,
 }) {
+  final showPeriod = periodText != null && periodText.isNotEmpty;
   return [
     pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -24,11 +27,13 @@ List<pw.Widget> titleBlock({
                   fontWeight: pw.FontWeight.bold,
                 ),
               ),
-              pw.SizedBox(height: 8),
-              pw.Text(
-                'Leistungszeitraum: $periodText',
-                style: const pw.TextStyle(fontSize: fontSizeMain),
-              ),
+              if (showPeriod) ...[
+                pw.SizedBox(height: 8),
+                pw.Text(
+                  'Leistungszeitraum: $periodText',
+                  style: const pw.TextStyle(fontSize: fontSizeMain),
+                ),
+              ],
             ],
           ),
         ),

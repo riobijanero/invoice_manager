@@ -13,16 +13,16 @@ class InvoiceItem with _$InvoiceItem {
   const InvoiceItem._();
 
   const factory InvoiceItem.hourlyRateService({
-    required int serviceMonth,
-    required int serviceYear,
+    int? serviceMonth,
+    int? serviceYear,
     required double hours,
     required double hourlyRate,
     required String serviceDescription,
   }) = _HourlyRateServiceItem;
 
   const factory InvoiceItem.fixedPriceService({
-    required int serviceMonth,
-    required int serviceYear,
+    int? serviceMonth,
+    int? serviceYear,
     required double fixedPrice,
     required String serviceDescription,
   }) = _FixedPriceServiceItem;
@@ -30,13 +30,16 @@ class InvoiceItem with _$InvoiceItem {
   factory InvoiceItem.fromJson(Map<String, dynamic> json) =>
       _$InvoiceItemFromJson(json);
 
+  /// Both month and year set → line appears on the PDF and counts toward totals.
+  bool get hasServicePeriod => serviceMonth != null && serviceYear != null;
+
   // Common accessors so the rest of the app can stay readable.
-  int get serviceMonth => map(
+  int? get serviceMonth => map(
         hourlyRateService: (v) => v.serviceMonth,
         fixedPriceService: (v) => v.serviceMonth,
       );
 
-  int get serviceYear => map(
+  int? get serviceYear => map(
         hourlyRateService: (v) => v.serviceYear,
         fixedPriceService: (v) => v.serviceYear,
       );

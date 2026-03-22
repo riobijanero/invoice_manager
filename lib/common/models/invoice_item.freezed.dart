@@ -29,35 +29,35 @@ InvoiceItem _$InvoiceItemFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$InvoiceItem {
-  int get serviceMonth => throw _privateConstructorUsedError;
-  int get serviceYear => throw _privateConstructorUsedError;
+  int? get serviceMonth => throw _privateConstructorUsedError;
+  int? get serviceYear => throw _privateConstructorUsedError;
   String get serviceDescription => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(int serviceMonth, int serviceYear, double hours,
+    required TResult Function(int? serviceMonth, int? serviceYear, double hours,
             double hourlyRate, String serviceDescription)
         hourlyRateService,
-    required TResult Function(int serviceMonth, int serviceYear,
+    required TResult Function(int? serviceMonth, int? serviceYear,
             double fixedPrice, String serviceDescription)
         fixedPriceService,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(int serviceMonth, int serviceYear, double hours,
+    TResult? Function(int? serviceMonth, int? serviceYear, double hours,
             double hourlyRate, String serviceDescription)?
         hourlyRateService,
-    TResult? Function(int serviceMonth, int serviceYear, double fixedPrice,
+    TResult? Function(int? serviceMonth, int? serviceYear, double fixedPrice,
             String serviceDescription)?
         fixedPriceService,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(int serviceMonth, int serviceYear, double hours,
+    TResult Function(int? serviceMonth, int? serviceYear, double hours,
             double hourlyRate, String serviceDescription)?
         hourlyRateService,
-    TResult Function(int serviceMonth, int serviceYear, double fixedPrice,
+    TResult Function(int? serviceMonth, int? serviceYear, double fixedPrice,
             String serviceDescription)?
         fixedPriceService,
     required TResult orElse(),
@@ -94,7 +94,7 @@ abstract class $InvoiceItemCopyWith<$Res> {
           InvoiceItem value, $Res Function(InvoiceItem) then) =
       _$InvoiceItemCopyWithImpl<$Res, InvoiceItem>;
   @useResult
-  $Res call({int serviceMonth, int serviceYear, String serviceDescription});
+  $Res call({int? serviceMonth, int? serviceYear, String serviceDescription});
 }
 
 /// @nodoc
@@ -110,19 +110,19 @@ class _$InvoiceItemCopyWithImpl<$Res, $Val extends InvoiceItem>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? serviceMonth = null,
-    Object? serviceYear = null,
+    Object? serviceMonth = freezed,
+    Object? serviceYear = freezed,
     Object? serviceDescription = null,
   }) {
     return _then(_value.copyWith(
-      serviceMonth: null == serviceMonth
+      serviceMonth: freezed == serviceMonth
           ? _value.serviceMonth
           : serviceMonth // ignore: cast_nullable_to_non_nullable
-              as int,
-      serviceYear: null == serviceYear
+              as int?,
+      serviceYear: freezed == serviceYear
           ? _value.serviceYear
           : serviceYear // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       serviceDescription: null == serviceDescription
           ? _value.serviceDescription
           : serviceDescription // ignore: cast_nullable_to_non_nullable
@@ -141,8 +141,8 @@ abstract class _$$HourlyRateServiceItemImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int serviceMonth,
-      int serviceYear,
+      {int? serviceMonth,
+      int? serviceYear,
       double hours,
       double hourlyRate,
       String serviceDescription});
@@ -159,21 +159,21 @@ class __$$HourlyRateServiceItemImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? serviceMonth = null,
-    Object? serviceYear = null,
+    Object? serviceMonth = freezed,
+    Object? serviceYear = freezed,
     Object? hours = null,
     Object? hourlyRate = null,
     Object? serviceDescription = null,
   }) {
     return _then(_$HourlyRateServiceItemImpl(
-      serviceMonth: null == serviceMonth
+      serviceMonth: freezed == serviceMonth
           ? _value.serviceMonth
           : serviceMonth // ignore: cast_nullable_to_non_nullable
-              as int,
-      serviceYear: null == serviceYear
+              as int?,
+      serviceYear: freezed == serviceYear
           ? _value.serviceYear
           : serviceYear // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       hours: null == hours
           ? _value.hours
           : hours // ignore: cast_nullable_to_non_nullable
@@ -194,8 +194,8 @@ class __$$HourlyRateServiceItemImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$HourlyRateServiceItemImpl extends _HourlyRateServiceItem {
   const _$HourlyRateServiceItemImpl(
-      {required this.serviceMonth,
-      required this.serviceYear,
+      {this.serviceMonth,
+      this.serviceYear,
       required this.hours,
       required this.hourlyRate,
       required this.serviceDescription,
@@ -207,9 +207,9 @@ class _$HourlyRateServiceItemImpl extends _HourlyRateServiceItem {
       _$$HourlyRateServiceItemImplFromJson(json);
 
   @override
-  final int serviceMonth;
+  final int? serviceMonth;
   @override
-  final int serviceYear;
+  final int? serviceYear;
   @override
   final double hours;
   @override
@@ -256,10 +256,10 @@ class _$HourlyRateServiceItemImpl extends _HourlyRateServiceItem {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(int serviceMonth, int serviceYear, double hours,
+    required TResult Function(int? serviceMonth, int? serviceYear, double hours,
             double hourlyRate, String serviceDescription)
         hourlyRateService,
-    required TResult Function(int serviceMonth, int serviceYear,
+    required TResult Function(int? serviceMonth, int? serviceYear,
             double fixedPrice, String serviceDescription)
         fixedPriceService,
   }) {
@@ -270,10 +270,10 @@ class _$HourlyRateServiceItemImpl extends _HourlyRateServiceItem {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(int serviceMonth, int serviceYear, double hours,
+    TResult? Function(int? serviceMonth, int? serviceYear, double hours,
             double hourlyRate, String serviceDescription)?
         hourlyRateService,
-    TResult? Function(int serviceMonth, int serviceYear, double fixedPrice,
+    TResult? Function(int? serviceMonth, int? serviceYear, double fixedPrice,
             String serviceDescription)?
         fixedPriceService,
   }) {
@@ -284,10 +284,10 @@ class _$HourlyRateServiceItemImpl extends _HourlyRateServiceItem {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(int serviceMonth, int serviceYear, double hours,
+    TResult Function(int? serviceMonth, int? serviceYear, double hours,
             double hourlyRate, String serviceDescription)?
         hourlyRateService,
-    TResult Function(int serviceMonth, int serviceYear, double fixedPrice,
+    TResult Function(int? serviceMonth, int? serviceYear, double fixedPrice,
             String serviceDescription)?
         fixedPriceService,
     required TResult orElse(),
@@ -340,8 +340,8 @@ class _$HourlyRateServiceItemImpl extends _HourlyRateServiceItem {
 
 abstract class _HourlyRateServiceItem extends InvoiceItem {
   const factory _HourlyRateServiceItem(
-      {required final int serviceMonth,
-      required final int serviceYear,
+      {final int? serviceMonth,
+      final int? serviceYear,
       required final double hours,
       required final double hourlyRate,
       required final String serviceDescription}) = _$HourlyRateServiceItemImpl;
@@ -351,9 +351,9 @@ abstract class _HourlyRateServiceItem extends InvoiceItem {
       _$HourlyRateServiceItemImpl.fromJson;
 
   @override
-  int get serviceMonth;
+  int? get serviceMonth;
   @override
-  int get serviceYear;
+  int? get serviceYear;
   double get hours;
   double get hourlyRate;
   @override
@@ -374,8 +374,8 @@ abstract class _$$FixedPriceServiceItemImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int serviceMonth,
-      int serviceYear,
+      {int? serviceMonth,
+      int? serviceYear,
       double fixedPrice,
       String serviceDescription});
 }
@@ -391,20 +391,20 @@ class __$$FixedPriceServiceItemImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? serviceMonth = null,
-    Object? serviceYear = null,
+    Object? serviceMonth = freezed,
+    Object? serviceYear = freezed,
     Object? fixedPrice = null,
     Object? serviceDescription = null,
   }) {
     return _then(_$FixedPriceServiceItemImpl(
-      serviceMonth: null == serviceMonth
+      serviceMonth: freezed == serviceMonth
           ? _value.serviceMonth
           : serviceMonth // ignore: cast_nullable_to_non_nullable
-              as int,
-      serviceYear: null == serviceYear
+              as int?,
+      serviceYear: freezed == serviceYear
           ? _value.serviceYear
           : serviceYear // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       fixedPrice: null == fixedPrice
           ? _value.fixedPrice
           : fixedPrice // ignore: cast_nullable_to_non_nullable
@@ -421,8 +421,8 @@ class __$$FixedPriceServiceItemImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$FixedPriceServiceItemImpl extends _FixedPriceServiceItem {
   const _$FixedPriceServiceItemImpl(
-      {required this.serviceMonth,
-      required this.serviceYear,
+      {this.serviceMonth,
+      this.serviceYear,
       required this.fixedPrice,
       required this.serviceDescription,
       final String? $type})
@@ -433,9 +433,9 @@ class _$FixedPriceServiceItemImpl extends _FixedPriceServiceItem {
       _$$FixedPriceServiceItemImplFromJson(json);
 
   @override
-  final int serviceMonth;
+  final int? serviceMonth;
   @override
-  final int serviceYear;
+  final int? serviceYear;
   @override
   final double fixedPrice;
   @override
@@ -479,10 +479,10 @@ class _$FixedPriceServiceItemImpl extends _FixedPriceServiceItem {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(int serviceMonth, int serviceYear, double hours,
+    required TResult Function(int? serviceMonth, int? serviceYear, double hours,
             double hourlyRate, String serviceDescription)
         hourlyRateService,
-    required TResult Function(int serviceMonth, int serviceYear,
+    required TResult Function(int? serviceMonth, int? serviceYear,
             double fixedPrice, String serviceDescription)
         fixedPriceService,
   }) {
@@ -493,10 +493,10 @@ class _$FixedPriceServiceItemImpl extends _FixedPriceServiceItem {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(int serviceMonth, int serviceYear, double hours,
+    TResult? Function(int? serviceMonth, int? serviceYear, double hours,
             double hourlyRate, String serviceDescription)?
         hourlyRateService,
-    TResult? Function(int serviceMonth, int serviceYear, double fixedPrice,
+    TResult? Function(int? serviceMonth, int? serviceYear, double fixedPrice,
             String serviceDescription)?
         fixedPriceService,
   }) {
@@ -507,10 +507,10 @@ class _$FixedPriceServiceItemImpl extends _FixedPriceServiceItem {
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(int serviceMonth, int serviceYear, double hours,
+    TResult Function(int? serviceMonth, int? serviceYear, double hours,
             double hourlyRate, String serviceDescription)?
         hourlyRateService,
-    TResult Function(int serviceMonth, int serviceYear, double fixedPrice,
+    TResult Function(int? serviceMonth, int? serviceYear, double fixedPrice,
             String serviceDescription)?
         fixedPriceService,
     required TResult orElse(),
@@ -563,8 +563,8 @@ class _$FixedPriceServiceItemImpl extends _FixedPriceServiceItem {
 
 abstract class _FixedPriceServiceItem extends InvoiceItem {
   const factory _FixedPriceServiceItem(
-      {required final int serviceMonth,
-      required final int serviceYear,
+      {final int? serviceMonth,
+      final int? serviceYear,
       required final double fixedPrice,
       required final String serviceDescription}) = _$FixedPriceServiceItemImpl;
   const _FixedPriceServiceItem._() : super._();
@@ -573,9 +573,9 @@ abstract class _FixedPriceServiceItem extends InvoiceItem {
       _$FixedPriceServiceItemImpl.fromJson;
 
   @override
-  int get serviceMonth;
+  int? get serviceMonth;
   @override
-  int get serviceYear;
+  int? get serviceYear;
   double get fixedPrice;
   @override
   String get serviceDescription;

@@ -30,8 +30,8 @@ class InvoiceListTile extends ConsumerWidget {
     final dateFormat = DateFormat('dd.MM.yyyy');
     final firstItem =
         invoice.invoiceItemList.isNotEmpty ? invoice.invoiceItemList.first : null;
-    final periodLabel = firstItem != null
-        ? '${_monthName(firstItem.serviceMonth)} ${firstItem.serviceYear}'
+    final periodLabel = firstItem != null && firstItem.hasServicePeriod
+        ? '${_monthName(firstItem.serviceMonth!)} ${firstItem.serviceYear}'
         : '-';
 
     final theme = Theme.of(context);

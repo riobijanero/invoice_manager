@@ -59,8 +59,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
 
   DateTime? _invoiceDate;
   DateTime? _paidOn;
-  List<int> _serviceMonths = [DateTime.now().month];
-  List<int> _serviceYears = [DateTime.now().year];
+  List<int?> _serviceMonths = [null];
+  List<int?> _serviceYears = [null];
   DiscountType _discountType = DiscountType.percent;
   DueDateType _dueDateType = DueDateType.twoWeeks;
   DateTime? _customDueDate;
@@ -173,9 +173,9 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     final items = inv.invoiceItemList.isNotEmpty
         ? inv.invoiceItemList
         : [
-            InvoiceItem.hourlyRateService(
-              serviceMonth: DateTime.now().month,
-              serviceYear: DateTime.now().year,
+            const InvoiceItem.hourlyRateService(
+              serviceMonth: null,
+              serviceYear: null,
               hours: 0,
               hourlyRate: 0,
               serviceDescription: '',
@@ -257,14 +257,23 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     // Prefill the invoice greeting text for new invoices.
     _introductoryText.text =
         'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:';
+    final m0 = _serviceMonths.first;
+    final y0 = _serviceYears.first;
     if (d.serviceDescriptionTemplate.isNotEmpty) {
-      final period = _periodPlaceholderFor(_serviceMonths.first, _serviceYears.first);
-      _serviceDescriptionControllers[0].text = d.serviceDescriptionTemplate.replaceAll('{PERIOD}', period);
+      var text = d.serviceDescriptionTemplate;
+      if (m0 != null && y0 != null) {
+        text = text.replaceAll('{PERIOD}', _periodPlaceholderFor(m0, y0));
+      }
+      _serviceDescriptionControllers[0].text = text;
     } else {
-      _serviceDescriptionControllers[0].text = defaultServiceDescriptionTemplate.replaceAll(
-        '{PERIOD}',
-        _periodPlaceholderFor(_serviceMonths.first, _serviceYears.first),
-      );
+      if (m0 != null && y0 != null) {
+        _serviceDescriptionControllers[0].text = defaultServiceDescriptionTemplate.replaceAll(
+          '{PERIOD}',
+          _periodPlaceholderFor(m0, y0),
+        );
+      } else {
+        _serviceDescriptionControllers[0].text = defaultServiceDescriptionTemplate;
+      }
     }
     _ustId.text = d.sender.ustId.isNotEmpty ? d.sender.ustId : d.ustId;
     _taxNumber.text = d.sender.taxNumber;
@@ -287,12 +296,19 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     return '${fmt.format(start)} - ${fmt.format(end)}';
   }
 
+  bool _hasPeriodAt(int index) {
+    final m = _serviceMonths[index];
+    final y = _serviceYears[index];
+    return m != null && y != null;
+  }
+
   /// Updates the Leistungsbeschreibung so the date range matches the chosen
   /// Leistungszeitraum (month/year). Replaces {PERIOD} or any existing
   /// dd.MM.yyyy - dd.MM.yyyy range with the current period.
   void _updateItemPeriodInDescription(int index) {
+    if (!_hasPeriodAt(index)) return;
     final t = _serviceDescriptionControllers[index].text;
-    final newPeriod = _periodPlaceholderFor(_serviceMonths[index], _serviceYears[index]);
+    final newPeriod = _periodPlaceholderFor(_serviceMonths[index]!, _serviceYears[index]!);
     if (t.contains('{PERIOD}')) {
       _serviceDescriptionControllers[index].text = t.replaceAll('{PERIOD}', newPeriod);
       return;
@@ -305,9 +321,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   }
 
   void _addInvoiceItem() {
-    final baseMonth = _serviceMonths.isNotEmpty ? _serviceMonths.last : DateTime.now().month;
-    final baseYear = _serviceYears.isNotEmpty ? _serviceYears.last : DateTime.now().year;
-
     final baseHoursText = _hoursControllers.isNotEmpty ? _hoursControllers.last.text : '';
     final baseHourlyRateText = _hourlyRateControllers.isNotEmpty ? _hourlyRateControllers.last.text : '';
     final baseServiceDescriptionText =
@@ -316,8 +329,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     final baseFixedPriceText = _fixedPriceControllers.isNotEmpty ? _fixedPriceControllers.last.text : '0';
 
     setState(() {
-      _serviceMonths.add(baseMonth);
-      _serviceYears.add(baseYear);
+      _serviceMonths.add(null);
+      _serviceYears.add(null);
       _itemTypes.add(baseType);
       _hoursControllers.add(
         TextEditingController(
@@ -337,6 +350,26 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       _serviceDescriptionControllers.add(TextEditingController(text: baseServiceDescriptionText));
       // The new item starts with the same month/year as the last one, so no
       // period replacement is needed until the user changes the month/year.
+    });
+  }
+
+  void _removeInvoiceItem(int index) {
+    if (index < 0 || index >= _serviceMonths.length || _serviceMonths.length <= 1) {
+      return;
+    }
+    setState(() {
+      _hoursControllers[index].dispose();
+      _hourlyRateControllers[index].dispose();
+      _fixedPriceControllers[index].dispose();
+      _serviceDescriptionControllers[index].dispose();
+
+      _serviceMonths.removeAt(index);
+      _serviceYears.removeAt(index);
+      _itemTypes.removeAt(index);
+      _hoursControllers.removeAt(index);
+      _hourlyRateControllers.removeAt(index);
+      _fixedPriceControllers.removeAt(index);
+      _serviceDescriptionControllers.removeAt(index);
     });
   }
 
@@ -490,16 +523,21 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                         onServiceMonthChanged: (index, v) {
                           setState(() {
                             _serviceMonths[index] = v;
-                            _updateItemPeriodInDescription(index);
+                            if (_hasPeriodAt(index)) {
+                              _updateItemPeriodInDescription(index);
+                            }
                           });
                         },
                         onServiceYearChanged: (index, v) {
                           setState(() {
                             _serviceYears[index] = v;
-                            _updateItemPeriodInDescription(index);
+                            if (_hasPeriodAt(index)) {
+                              _updateItemPeriodInDescription(index);
+                            }
                           });
                         },
                         onAddInvoiceItem: _addInvoiceItem,
+                        onRemoveInvoiceItem: _removeInvoiceItem,
                         discountType: _discountType,
                         onDiscountTypeChanged: (v) => setState(() => _discountType = v),
                         discountValueController: _discountValue,

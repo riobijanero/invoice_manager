@@ -25,6 +25,7 @@ class InvoiceDetailFields extends StatelessWidget {
     required this.onServiceMonthChanged,
     required this.onServiceYearChanged,
     required this.onAddInvoiceItem,
+    required this.onRemoveInvoiceItem,
     required this.discountType,
     required this.onDiscountTypeChanged,
     required this.discountValueController,
@@ -40,17 +41,18 @@ class InvoiceDetailFields extends StatelessWidget {
   final DateTime? paidOn;
   final VoidCallback onPaidOnTap;
   final TextEditingController introductoryTextController;
-  final List<int> serviceMonths;
-  final List<int> serviceYears;
+  final List<int?> serviceMonths;
+  final List<int?> serviceYears;
   final List<TextEditingController> hoursControllers;
   final List<TextEditingController> hourlyRateControllers;
   final List<InvoiceItemType> itemTypes;
   final List<TextEditingController> fixedPriceControllers;
   final void Function(int index, InvoiceItemType type) onItemTypeChanged;
   final List<TextEditingController> serviceDescriptionControllers;
-  final void Function(int index, int value) onServiceMonthChanged;
-  final void Function(int index, int value) onServiceYearChanged;
+  final void Function(int index, int? value) onServiceMonthChanged;
+  final void Function(int index, int? value) onServiceYearChanged;
   final VoidCallback onAddInvoiceItem;
+  final void Function(int index) onRemoveInvoiceItem;
   final DiscountType discountType;
   final ValueChanged<DiscountType> onDiscountTypeChanged;
   final TextEditingController discountValueController;
@@ -133,9 +135,25 @@ class InvoiceDetailFields extends StatelessWidget {
         const SizedBox(height: 16),
         // Invoice item list (one block per invoice item / one table row in PDF).
         for (int i = 0; i < serviceMonths.length; i++) ...[
-          Text(
-            'Leistungsposition ${i + 1}',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  'Leistungsposition ${i + 1}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              if (serviceMonths.length > 1)
+                IconButton(
+                  onPressed: () => onRemoveInvoiceItem(i),
+                  icon: const Icon(Icons.remove_circle_outline),
+                  tooltip: 'Position entfernen',
+                  style: IconButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+            ],
           ),
           const SizedBox(height: 8),
           SegmentedButton<InvoiceItemType>(
@@ -158,45 +176,53 @@ class InvoiceDetailFields extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: DropdownButtonFormField<int>(
+                child: DropdownButtonFormField<int?>(
                   value: serviceMonths[i],
                   decoration: const InputDecoration(
                     labelText: 'Leistungszeitraum Monat',
                     border: OutlineInputBorder(),
                   ),
-                  items: List.generate(
-                    12,
-                    (j) => DropdownMenuItem(
-                      value: _months[j],
-                      child: Text(_monthLabels[j]),
+                  items: [
+                    const DropdownMenuItem<int?>(
+                      value: null,
+                      child: Text('—'),
                     ),
-                  ),
-                  onChanged: (v) {
-                    if (v != null) onServiceMonthChanged(i, v);
-                  },
+                    ...List.generate(
+                      12,
+                      (j) => DropdownMenuItem<int?>(
+                        value: _months[j],
+                        child: Text(_monthLabels[j]),
+                      ),
+                    ),
+                  ],
+                  onChanged: (v) => onServiceMonthChanged(i, v),
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: DropdownButtonFormField<int>(
+                child: DropdownButtonFormField<int?>(
                   value: serviceYears[i],
                   decoration: const InputDecoration(
                     labelText: 'Leistungszeitraum Jahr',
                     border: OutlineInputBorder(),
                   ),
-                  items: List.generate(
-                    5,
-                    (j) {
-                      final y = DateTime.now().year - 2 + j;
-                      return DropdownMenuItem(
-                        value: y,
-                        child: Text('$y'),
-                      );
-                    },
-                  ),
-                  onChanged: (v) {
-                    if (v != null) onServiceYearChanged(i, v);
-                  },
+                  items: [
+                    const DropdownMenuItem<int?>(
+                      value: null,
+                      child: Text('—'),
+                    ),
+                    ...List.generate(
+                      5,
+                      (j) {
+                        final y = DateTime.now().year - 2 + j;
+                        return DropdownMenuItem<int?>(
+                          value: y,
+                          child: Text('$y'),
+                        );
+                      },
+                    ),
+                  ],
+                  onChanged: (v) => onServiceYearChanged(i, v),
                 ),
               ),
             ],
