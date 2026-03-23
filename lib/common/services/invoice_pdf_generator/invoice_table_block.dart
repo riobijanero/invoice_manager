@@ -8,13 +8,13 @@ import 'package:invoice_manager/common/utils/invoice_calculations.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-const double _kEinheitW = 42;
-const double _kAnzahlW = 38;
-const double _kPreisW = 48;
-const double _kGesamtW = 65;
+const double _kEinheitWidth = 44;
+const double _kAnzahlWidth = 40;
+const double _kEinzelpreisWidth = 58;
+const double _kGesamtWidth = 65;
 
-/// Width of Einheit + Anzahl + Preis (merged for fixed-price rows).
-const double _kMergedEinheitAnzahlPreisW = _kEinheitW + _kAnzahlW + _kPreisW;
+/// Width of Einheit + Anzahl + Einzelpreis (merged for fixed-price rows).
+const double _kMergedEinheitAnzahlEinzelpreisWidth = _kEinheitWidth + _kAnzahlWidth + _kEinzelpreisWidth;
 
 const pw.BorderSide _tableBorderSide = pw.BorderSide(width: 0.5, color: PdfColors.grey800);
 
@@ -44,16 +44,16 @@ pw.TableBorder _fixedPriceRowTableBorder({required bool top}) {
 
 const Map<int, pw.TableColumnWidth> _fiveColumnWidths = {
   0: pw.FlexColumnWidth(1), // Beschreibung
-  1: pw.FixedColumnWidth(_kEinheitW), // Einheit
-  2: pw.FixedColumnWidth(_kAnzahlW), // Anzahl
-  3: pw.FixedColumnWidth(_kPreisW), // Preis
-  4: pw.FixedColumnWidth(_kGesamtW), // Gesamt
+  1: pw.FixedColumnWidth(_kEinheitWidth), // Einheit
+  2: pw.FixedColumnWidth(_kAnzahlWidth), // Anzahl
+  3: pw.FixedColumnWidth(_kEinzelpreisWidth), // Einzelpreis
+  4: pw.FixedColumnWidth(_kGesamtWidth), // Gesamt
 };
 
 const Map<int, pw.TableColumnWidth> _fixedPriceThreeColumnWidths = {
   0: pw.FlexColumnWidth(1), // Beschreibung
-  1: pw.FixedColumnWidth(_kMergedEinheitAnzahlPreisW), // merged empty
-  2: pw.FixedColumnWidth(_kGesamtW), // Gesamt
+  1: pw.FixedColumnWidth(_kMergedEinheitAnzahlEinzelpreisWidth), // merged empty
+  2: pw.FixedColumnWidth(_kGesamtWidth), // Gesamt
 };
 
 /// Main invoice table (line item + totals) used in the PDF body.
@@ -89,7 +89,7 @@ List<pw.Widget> invoiceTableBlock({
                 cell('Beschreibung', bold: true),
                 cell('Einheit', bold: true),
                 cell('Anzahl', bold: true),
-                cell('Preis', bold: true),
+                cell('Einzelpreis', bold: true),
                 cell('Gesamt', bold: true, alignRight: true),
               ],
             ),
@@ -171,7 +171,7 @@ List<pw.Widget> invoiceTableBlock({
       ),
       columnWidths: const {
         0: pw.FlexColumnWidth(1),
-        1: pw.FixedColumnWidth(_kGesamtW),
+        1: pw.FixedColumnWidth(_kGesamtWidth),
       },
       children: [
         if (showDiscountBreakdown) ...[

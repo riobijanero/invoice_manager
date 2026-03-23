@@ -14,6 +14,7 @@ const String _routePreview = '/invoice/:id/preview';
 
 String pathEdit(String id) => '/invoice/$id';
 String pathPreview(String id) => '/invoice/$id/preview';
+const leftPaneWidth = 450.0;
 
 final GoRouter appRouter = GoRouter(
   initialLocation: _routeHome,
@@ -44,7 +45,7 @@ final GoRouter appRouter = GoRouter(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(
-                    width: 450,
+                    width: leftPaneWidth,
                     child: InvoiceListScreen(),
                   ),
                   const VerticalDivider(width: 1),
