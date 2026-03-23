@@ -75,7 +75,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   DateTime? _customDueDate;
   Invoice? _loadedInvoice;
   InvoiceDefaults? _defaults;
-  String? _selectedExistingClientKey;
   final Set<String> _deletedClientKeys = <String>{};
   bool _initialized = false;
 
@@ -192,7 +191,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _clientPostalCode.text = inv.client.address.postalCode == 0 ? '' : inv.client.address.postalCode.toString();
     _clientTown.text = inv.client.address.town;
     _clientCountry.text = inv.client.address.country.isNotEmpty ? inv.client.address.country : 'Deutschland';
-    _selectedExistingClientKey = null;
     _contractNumber.text = inv.contractNumber;
     _accountHolder.text = inv.bankDetails.accountHolder;
     _institution.text = inv.bankDetails.institution;
@@ -278,7 +276,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _clientPostalCode.clear();
     _clientTown.clear();
     _clientCountry.text = 'Deutschland';
-    _selectedExistingClientKey = null;
     _contractNumber.text = d.contractNumber;
     if (d.bankDetails != null) {
       _accountHolder.text = d.bankDetails!.accountHolder;
@@ -678,15 +675,10 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
 
                           final Widget clientFields = ClientFields(
                             existingClients: existingClients,
-                            selectedClientKey: _selectedExistingClientKey,
-                            onSelectedClientKeyChanged: (key) => setState(() => _selectedExistingClientKey = key),
                             onExistingClientPicked: (client) => setState(() => _applySelectedClient(client)),
                             onDeleteClientKey: (key) {
                               setState(() {
                                 _deletedClientKeys.add(key);
-                                if (_selectedExistingClientKey == key) {
-                                  _selectedExistingClientKey = null;
-                                }
                               });
                             },
                             clientCompanyNameController: _clientCompanyName,

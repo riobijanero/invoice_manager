@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:invoice_manager/common/models/client.dart';
+import 'package:invoice_manager/features/form/ui/widgets/saved_client_picker_list.dart';
 
 class ClientFields extends StatelessWidget {
   const ClientFields({
     super.key,
     required this.existingClients,
-    required this.selectedClientKey,
-    required this.onSelectedClientKeyChanged,
     required this.onExistingClientPicked,
     required this.onDeleteClientKey,
     required this.clientCompanyNameController,
@@ -19,8 +18,6 @@ class ClientFields extends StatelessWidget {
   });
 
   final List<Client> existingClients;
-  final String? selectedClientKey;
-  final ValueChanged<String?> onSelectedClientKeyChanged;
   final ValueChanged<Client> onExistingClientPicked;
   final ValueChanged<String> onDeleteClientKey;
   final TextEditingController clientCompanyNameController;
@@ -33,10 +30,10 @@ class ClientFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final clientOptions = List<_ClientOption>.generate(
+    final clientOptions = List<SavedClientPickerEntry>.generate(
       existingClients.length,
-      (i) => _ClientOption(
-        key: _clientKey(existingClients[i]),
+      (i) => SavedClientPickerEntry(
+        clientKey: _clientKey(existingClients[i]),
         client: existingClients[i],
         label: _clientLabel(existingClients[i]),
       ),
@@ -50,81 +47,12 @@ class ClientFields extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          value: selectedClientKey,
-          isExpanded: true,
-          decoration: const InputDecoration(
-            labelText: 'aus vorhandenen Kunden wählen',
-            border: OutlineInputBorder(),
-          ),
-          selectedItemBuilder: (context) {
-            return [
-              const Text('Manuell eingeben', overflow: TextOverflow.ellipsis),
-              ...clientOptions.map((opt) => Text(opt.label, overflow: TextOverflow.ellipsis)),
-            ];
-          },
-          items: [
-            const DropdownMenuItem<String>(
-              value: '',
-              child: Text('Manuell eingeben'),
-            ),
-            ...clientOptions.map(
-              (opt) => DropdownMenuItem<String>(
-                value: opt.key,
-                child: ListTile(
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  minLeadingWidth: 0,
-                  title: Text(
-                    opt.label,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: IconButton(
-                    tooltip: 'Kunde entfernen',
-                    icon: const Icon(Icons.close, size: 18),
-                    onPressed: () {
-                      onDeleteClientKey(opt.key);
-                      if (selectedClientKey == opt.key) {
-                        onSelectedClientKeyChanged(null);
-                      }
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ),
-              ),
-            ),
-          ],
-          onChanged: (selected) {
-            final normalized = (selected == null || selected.isEmpty) ? null : selected;
-            onSelectedClientKeyChanged(normalized);
-            if (normalized == null) return;
-            Client? picked;
-            for (final opt in clientOptions) {
-              if (opt.key == normalized) {
-                picked = opt.client;
-                break;
-              }
-            }
-            if (picked != null) {
-              onExistingClientPicked(picked);
-            }
-          },
-        ),
-        const SizedBox(height: 12),
-        TextFormField(
+        _CompanyFieldWithClientPicker(
           controller: clientCompanyNameController,
-          decoration: const InputDecoration(
-            labelText: 'Firma (optional)',
-            border: OutlineInputBorder(),
-          ),
-          validator: (v) {
-            final company = v?.trim() ?? '';
-            final name = clientNameController.text.trim();
-            if (company.isEmpty && name.isEmpty) {
-              return 'Name oder Firma erforderlich';
-            }
-            return null;
-          },
+          clientNameController: clientNameController,
+          clientOptions: clientOptions,
+          onExistingClientPicked: onExistingClientPicked,
+          onDeleteClientKey: onDeleteClientKey,
         ),
         const SizedBox(height: 12),
         TextFormField(
@@ -216,14 +144,184 @@ String _clientKey(Client client) {
   ].join('|');
 }
 
-class _ClientOption {
-  const _ClientOption({
-    required this.key,
-    required this.client,
-    required this.label,
+/// Opens the saved-client list in an overlay aligned under the company field (dropdown-style).
+class _CompanyFieldWithClientPicker extends StatefulWidget {
+  const _CompanyFieldWithClientPicker({
+    required this.controller,
+    required this.clientNameController,
+    required this.clientOptions,
+    required this.onExistingClientPicked,
+    required this.onDeleteClientKey,
   });
 
-  final String key;
-  final Client client;
-  final String label;
+  final TextEditingController controller;
+  final TextEditingController clientNameController;
+  final List<SavedClientPickerEntry> clientOptions;
+  final ValueChanged<Client> onExistingClientPicked;
+  final ValueChanged<String> onDeleteClientKey;
+
+  @override
+  State<_CompanyFieldWithClientPicker> createState() => _CompanyFieldWithClientPickerState();
+}
+
+class _CompanyFieldWithClientPickerState extends State<_CompanyFieldWithClientPicker> {
+  final GlobalKey _fieldKey = GlobalKey();
+  OverlayEntry? _overlayEntry;
+  ScrollPosition? _scrollPositionLinked;
+
+  @override
+  void dispose() {
+    _tearDownOverlay();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant _CompanyFieldWithClientPicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_overlayEntry != null &&
+        (oldWidget.clientOptions.length != widget.clientOptions.length ||
+            !_sameOptionKeys(oldWidget.clientOptions, widget.clientOptions))) {
+      _overlayEntry!.markNeedsBuild();
+    }
+  }
+
+  bool _sameOptionKeys(List<SavedClientPickerEntry> a, List<SavedClientPickerEntry> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].clientKey != b[i].clientKey) return false;
+    }
+    return true;
+  }
+
+  void _tearDownOverlay() {
+    _scrollPositionLinked?.removeListener(_onScrollOrLayoutChanged);
+    _scrollPositionLinked = null;
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  void _onScrollOrLayoutChanged() {
+    _overlayEntry?.markNeedsBuild();
+  }
+
+  void _toggleClientOverlay() {
+    if (_overlayEntry != null) {
+      _tearDownOverlay();
+      return;
+    }
+
+    void insertWhenLaidOut() {
+      final fieldContext = _fieldKey.currentContext;
+      if (fieldContext == null || !fieldContext.mounted) return;
+
+      final fieldBox = fieldContext.findRenderObject() as RenderBox?;
+      if (fieldBox == null || !fieldBox.hasSize) return;
+
+      final overlayState = Overlay.maybeOf(fieldContext);
+      if (overlayState == null) return;
+
+      _overlayEntry = OverlayEntry(
+        builder: (overlayContext) {
+          final overlayRender = Overlay.of(overlayContext).context.findRenderObject() as RenderBox?;
+
+          final fc = _fieldKey.currentContext;
+          if (fc == null || !fc.mounted || overlayRender == null) {
+            return const SizedBox.shrink();
+          }
+          final fb = fc.findRenderObject() as RenderBox?;
+          if (fb == null || !fb.hasSize) {
+            return const SizedBox.shrink();
+          }
+
+          // Overlay-local coordinates — no CompositedTransformFollower / FollowerLayer.
+          final bottomLeft = fb.localToGlobal(Offset(0, fb.size.height), ancestor: overlayRender);
+
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: _tearDownOverlay,
+                ),
+              ),
+              Positioned(
+                left: bottomLeft.dx,
+                top: bottomLeft.dy + 2,
+                width: fb.size.width,
+                child: _buildMenuPanel(Theme.of(overlayContext)),
+              ),
+            ],
+          );
+        },
+      );
+
+      overlayState.insert(_overlayEntry!);
+
+      final scrollable = Scrollable.maybeOf(fieldContext);
+      _scrollPositionLinked = scrollable?.position;
+      _scrollPositionLinked?.addListener(_onScrollOrLayoutChanged);
+    }
+
+    insertWhenLaidOut();
+    if (_overlayEntry == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _overlayEntry != null) return;
+        insertWhenLaidOut();
+      });
+    }
+  }
+
+  Widget _buildMenuPanel(ThemeData theme) {
+    return Material(
+      elevation: 8,
+      borderRadius: BorderRadius.circular(4),
+      clipBehavior: Clip.antiAlias,
+      color: theme.colorScheme.surface,
+      child: widget.clientOptions.isEmpty
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Keine gespeicherten Kunden vorhanden.',
+                style: theme.textTheme.bodyMedium,
+              ),
+            )
+          : SavedClientPickerList(
+              entries: widget.clientOptions,
+              onClientSelected: (client) {
+                _tearDownOverlay();
+                widget.onExistingClientPicked(client);
+              },
+              onClientRemoveRequested: (clientKey) {
+                widget.onDeleteClientKey(clientKey);
+                _tearDownOverlay();
+              },
+            ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      key: _fieldKey,
+      controller: widget.controller,
+      decoration: InputDecoration(
+        labelText: 'Firma (optional)',
+        border: const OutlineInputBorder(),
+        suffixIcon: IconButton(
+          tooltip: 'Vorhandenen Kunden wählen',
+          icon: const Icon(Icons.arrow_drop_down),
+          onPressed: _toggleClientOverlay,
+        ),
+      ),
+      validator: (v) {
+        final company = v?.trim() ?? '';
+        final name = widget.clientNameController.text.trim();
+        if (company.isEmpty && name.isEmpty) {
+          return 'Name oder Firma erforderlich';
+        }
+        return null;
+      },
+    );
+  }
 }
