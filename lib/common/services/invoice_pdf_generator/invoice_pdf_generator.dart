@@ -54,57 +54,63 @@ Future<Uint8List> generateInvoicePdf(Invoice invoice) async {
 
   final doc = pw.Document();
   doc.addPage(
-    pw.Page(
+    pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
       theme: pw.ThemeData.withFont(base: baseFont, bold: boldFont),
       margin: const pw.EdgeInsets.symmetric(horizontal: 40, vertical: 40),
-      build: (pw.Context context) {
-        return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            ...invoiceHeader(invoice),
-            pw.SizedBox(height: 60),
-
-            ...titleBlock(
-              invoice: invoice,
-              periodText: periodText,
-            ),
-            pw.SizedBox(height: 30),
-            // Intro text comes from the invoice data model
-            pw.Text(
-              invoice.introductoryText,
-              style: const pw.TextStyle(fontSize: fontSizeMain),
-            ),
-            pw.SizedBox(height: 16),
-            ...invoiceTableBlock(
-              invoice: invoice,
-              serviceDescriptions: serviceDescriptionsForPdf,
-            ),
-            pw.SizedBox(height: 24),
-            // Payment sentence
-            pw.Text(
-              'Bitte überweisen Sie den Betrag unter Angabe der Rechnungsnummer bis zum ${formatDate(dueDate)} auf das folgende Konto:',
-              style: const pw.TextStyle(fontSize: fontSizeMain),
-            ),
-            pw.SizedBox(height: 10),
-            ...bankDetailsBlock(invoice.bankDetails),
-            pw.SizedBox(height: 20),
-            pw.Text(
-              'Mit freundlichen Grüßen',
-              style: const pw.TextStyle(fontSize: fontSizeMain),
-            ),
-            pw.SizedBox(height: 24),
-            pw.Text(
-              '____________________',
-              style: const pw.TextStyle(fontSize: fontSizeMain),
-            ),
-            pw.SizedBox(height: 4),
-            pw.Text(
-              invoice.bankDetails.accountHolder,
-              style: const pw.TextStyle(fontSize: fontSizeMain),
-            ),
-          ],
+      footer: (pw.Context context) {
+        return pw.Align(
+          alignment: pw.Alignment.centerRight,
+          child: pw.Text(
+            'Seite ${context.pageNumber} von ${context.pagesCount}',
+            style: const pw.TextStyle(fontSize: fontSizeXSmall),
+          ),
         );
+      },
+      build: (pw.Context context) {
+        return [
+          ...invoiceHeader(invoice),
+          pw.SizedBox(height: 60),
+
+          ...titleBlock(
+            invoice: invoice,
+            periodText: periodText,
+          ),
+          pw.SizedBox(height: 30),
+          // Intro text comes from the invoice data model
+          pw.Text(
+            invoice.introductoryText,
+            style: const pw.TextStyle(fontSize: fontSizeMain),
+          ),
+          pw.SizedBox(height: 16),
+          ...invoiceTableBlock(
+            invoice: invoice,
+            serviceDescriptions: serviceDescriptionsForPdf,
+          ),
+          pw.SizedBox(height: 24),
+          // Payment sentence
+          pw.Text(
+            'Bitte überweisen Sie den Betrag unter Angabe der Rechnungsnummer bis zum ${formatDate(dueDate)} auf das folgende Konto:',
+            style: const pw.TextStyle(fontSize: fontSizeMain),
+          ),
+          pw.SizedBox(height: 10),
+          ...bankDetailsBlock(invoice.bankDetails),
+          pw.SizedBox(height: 20),
+          pw.Text(
+            'Mit freundlichen Grüßen',
+            style: const pw.TextStyle(fontSize: fontSizeMain),
+          ),
+          pw.SizedBox(height: 24),
+          pw.Text(
+            '____________________',
+            style: const pw.TextStyle(fontSize: fontSizeMain),
+          ),
+          pw.SizedBox(height: 4),
+          pw.Text(
+            invoice.bankDetails.accountHolder,
+            style: const pw.TextStyle(fontSize: fontSizeMain),
+          ),
+        ];
       },
     ),
   );
