@@ -13,7 +13,10 @@ import 'package:invoice_manager/common/models/due_date_type.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
 import 'package:invoice_manager/common/models/invoice_defaults.dart';
 import 'package:invoice_manager/common/models/invoice_item.dart';
+import 'package:invoice_manager/common/models/adress.dart';
 import 'package:invoice_manager/common/models/sender.dart';
+import 'package:invoice_manager/common/utils.dart' as invoice_utils;
+import 'package:invoice_manager/features/form/ui/widgets/overdue_chip.dart';
 import 'package:invoice_manager/features/form/bank_details_fields.dart';
 import 'package:invoice_manager/features/form/client_fields.dart';
 import 'package:invoice_manager/features/form/invoice_detail_fields.dart';
@@ -34,13 +37,19 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _invoiceNumber;
   late TextEditingController _senderName;
-  late TextEditingController _senderAddress;
+  late TextEditingController _senderStreetNameAndNumber;
+  late TextEditingController _senderPostalCode;
+  late TextEditingController _senderTown;
+  late TextEditingController _senderCountry;
   late TextEditingController _senderPhone;
   late TextEditingController _senderEmail;
   late TextEditingController _senderWebsite;
   late TextEditingController _clientName;
   late TextEditingController _clientCompanyName;
-  late TextEditingController _clientAddress;
+  late TextEditingController _clientStreetNameAndNumber;
+  late TextEditingController _clientPostalCode;
+  late TextEditingController _clientTown;
+  late TextEditingController _clientCountry;
   late TextEditingController _contractNumber;
   late TextEditingController _accountHolder;
   late TextEditingController _institution;
@@ -73,13 +82,19 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     super.initState();
     _invoiceNumber = TextEditingController();
     _senderName = TextEditingController();
-    _senderAddress = TextEditingController();
+    _senderStreetNameAndNumber = TextEditingController();
+    _senderPostalCode = TextEditingController();
+    _senderTown = TextEditingController();
+    _senderCountry = TextEditingController(text: 'Deutschland');
     _senderPhone = TextEditingController();
     _senderEmail = TextEditingController();
     _senderWebsite = TextEditingController();
     _clientName = TextEditingController();
     _clientCompanyName = TextEditingController();
-    _clientAddress = TextEditingController();
+    _clientStreetNameAndNumber = TextEditingController();
+    _clientPostalCode = TextEditingController();
+    _clientTown = TextEditingController();
+    _clientCountry = TextEditingController(text: 'Deutschland');
     _contractNumber = TextEditingController();
     _accountHolder = TextEditingController();
     _institution = TextEditingController();
@@ -119,13 +134,19 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   void dispose() {
     _invoiceNumber.dispose();
     _senderName.dispose();
-    _senderAddress.dispose();
+    _senderStreetNameAndNumber.dispose();
+    _senderPostalCode.dispose();
+    _senderTown.dispose();
+    _senderCountry.dispose();
     _senderPhone.dispose();
     _senderEmail.dispose();
     _senderWebsite.dispose();
     _clientName.dispose();
     _clientCompanyName.dispose();
-    _clientAddress.dispose();
+    _clientStreetNameAndNumber.dispose();
+    _clientPostalCode.dispose();
+    _clientTown.dispose();
+    _clientCountry.dispose();
     _contractNumber.dispose();
     _accountHolder.dispose();
     _institution.dispose();
@@ -154,7 +175,10 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   void _applyInvoice(Invoice inv) {
     _invoiceNumber.text = inv.invoiceNumber;
     _senderName.text = inv.sender.name;
-    _senderAddress.text = inv.sender.address;
+    _senderStreetNameAndNumber.text = inv.sender.address.streetNameAndNumber;
+    _senderPostalCode.text = inv.sender.address.postalCode == 0 ? '' : inv.sender.address.postalCode.toString();
+    _senderTown.text = inv.sender.address.town;
+    _senderCountry.text = inv.sender.address.country.isNotEmpty ? inv.sender.address.country : 'Deutschland';
     _senderPhone.text = inv.sender.phoneNumber;
     _senderEmail.text = inv.sender.email;
     _senderWebsite.text = inv.sender.website;
@@ -162,7 +186,10 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _taxNumber.text = inv.sender.taxNumber;
     _clientName.text = inv.client.name;
     _clientCompanyName.text = inv.client.companyName;
-    _clientAddress.text = inv.client.address;
+    _clientStreetNameAndNumber.text = inv.client.address.streetNameAndNumber;
+    _clientPostalCode.text = inv.client.address.postalCode == 0 ? '' : inv.client.address.postalCode.toString();
+    _clientTown.text = inv.client.address.town;
+    _clientCountry.text = inv.client.address.country.isNotEmpty ? inv.client.address.country : 'Deutschland';
     _contractNumber.text = inv.contractNumber;
     _accountHolder.text = inv.bankDetails.accountHolder;
     _institution.text = inv.bankDetails.institution;
@@ -234,14 +261,20 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _invoiceNumber.text = nextInvoiceNumber(d.lastInvoiceNumber);
 
     _senderName.text = d.sender.name;
-    _senderAddress.text = d.sender.address;
+    _senderStreetNameAndNumber.text = d.sender.address.streetNameAndNumber;
+    _senderPostalCode.text = d.sender.address.postalCode == 0 ? '' : d.sender.address.postalCode.toString();
+    _senderTown.text = d.sender.address.town;
+    _senderCountry.text = d.sender.address.country.isNotEmpty ? d.sender.address.country : 'Deutschland';
     _senderPhone.text = d.sender.phoneNumber;
     _senderEmail.text = d.sender.email;
     _senderWebsite.text = d.sender.website;
     // New invoices: do not prefill client fields (enter per invoice).
     _clientName.clear();
     _clientCompanyName.clear();
-    _clientAddress.clear();
+    _clientStreetNameAndNumber.clear();
+    _clientPostalCode.clear();
+    _clientTown.clear();
+    _clientCountry.text = 'Deutschland';
     _contractNumber.text = d.contractNumber;
     if (d.bankDetails != null) {
       _accountHolder.text = d.bankDetails!.accountHolder;
@@ -287,6 +320,23 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     } else {
       context.go('/');
     }
+  }
+
+  bool _isOverdueInForm() {
+    if (widget.invoiceId == null) return false;
+    if (_invoiceDate == null) return false;
+    if (_loadedInvoice == null) return false;
+
+    // Build a snapshot invoice using the current form fields so the helper
+    // can compute the due date accurately (including custom due dates).
+    final snapshot = _loadedInvoice!.copyWith(
+      invoiceDate: _invoiceDate!,
+      paidOn: _paidOn,
+      dueDateType: _dueDateType,
+      customDueDate: _dueDateType == DueDateType.custom ? _customDueDate : null,
+    );
+
+    return invoice_utils.isOverdueUnpaid(snapshot);
   }
 
   String _periodPlaceholderFor(int month, int year) {
@@ -406,9 +456,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
               return;
             }
             // Same invoice reloaded (e.g. "bezahlt am" updated from list in split layout).
-            if (_loadedInvoice != null &&
-                inv.id == _loadedInvoice!.id &&
-                inv != _loadedInvoice) {
+            if (_loadedInvoice != null && inv.id == _loadedInvoice!.id && inv != _loadedInvoice) {
               setState(() {
                 _paidOn = inv.paidOn;
                 _loadedInvoice = inv;
@@ -435,7 +483,16 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isNew ? 'Neue Rechnung' : 'Rechnung bearbeiten'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(isNew ? 'Neue Rechnung' : 'Rechnung bearbeiten'),
+            if (!isNew && _isOverdueInForm()) ...[
+              const SizedBox(width: 12),
+              const OverdueChip(),
+            ],
+          ],
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => _backFromForm(context),
@@ -464,202 +521,206 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       ),
       // Only block the form on the *initial* load. A refetch (e.g. invalidate)
       // would otherwise swap in a spinner and reset scroll.
-      body: asyncInvoice != null &&
-              widget.invoiceId != null &&
-              asyncInvoice.isLoading &&
-              asyncInvoice.valueOrNull == null
-          ? const Center(child: CircularProgressIndicator())
-          : Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(24),
-                children: [
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      const minColumnWidth = 300.0;
-                      const gap = 24.0;
-                      final maxWidth = constraints.maxWidth.isFinite ? constraints.maxWidth : 0.0;
+      body:
+          asyncInvoice != null && widget.invoiceId != null && asyncInvoice.isLoading && asyncInvoice.valueOrNull == null
+              ? const Center(child: CircularProgressIndicator())
+              : Form(
+                  key: _formKey,
+                  child: ListView(
+                    padding: const EdgeInsets.all(24),
+                    children: [
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          const minColumnWidth = 300.0;
+                          const gap = 24.0;
+                          final maxWidth = constraints.maxWidth.isFinite ? constraints.maxWidth : 0.0;
 
-                      final Widget leftColumn = Column(
-                        children: [
-                          SenderFields(
-                            senderNameController: _senderName,
-                            jobDescriptionController: _jobDescription,
-                            senderAddressController: _senderAddress,
-                            senderPhoneController: _senderPhone,
-                            senderEmailController: _senderEmail,
-                            senderWebsiteController: _senderWebsite,
-                            ustIdController: _ustId,
-                            taxNumberController: _taxNumber,
-                          ),
-                          const SizedBox(height: 20),
-                          BankDetailsFields(
-                            accountHolderController: _accountHolder,
-                            institutionController: _institution,
-                            ibanController: _iban,
-                            bicController: _bic,
-                          ),
-                        ],
-                      );
-
-                      final Widget invoiceDetailFields = InvoiceDetailFields(
-                        invoiceNumberController: _invoiceNumber,
-                        invoiceDate: _invoiceDate,
-                        onInvoiceDateTap: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: _invoiceDate ?? DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2100),
-                          );
-                          if (date != null) setState(() => _invoiceDate = date);
-                        },
-                        paidOn: _paidOn,
-                        onPaidOnTap: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: _paidOn ?? _invoiceDate ?? DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2100),
-                          );
-                          if (date != null) setState(() => _paidOn = date);
-                        },
-                        onClearPaidOn: () => setState(() => _paidOn = null),
-                        introductoryTextController: _introductoryText,
-                        serviceMonths: _serviceMonths,
-                        serviceYears: _serviceYears,
-                        hoursControllers: _hoursControllers,
-                        hourlyRateControllers: _hourlyRateControllers,
-                        itemTypes: _itemTypes,
-                        fixedPriceControllers: _fixedPriceControllers,
-                        onItemTypeChanged: _onItemTypeChanged,
-                        serviceDescriptionControllers: _serviceDescriptionControllers,
-                        onServiceMonthChanged: (index, v) {
-                          setState(() {
-                            _serviceMonths[index] = v;
-                            if (_hasPeriodAt(index)) {
-                              _updateItemPeriodInDescription(index);
-                            }
-                          });
-                        },
-                        onServiceYearChanged: (index, v) {
-                          setState(() {
-                            _serviceYears[index] = v;
-                            if (_hasPeriodAt(index)) {
-                              _updateItemPeriodInDescription(index);
-                            }
-                          });
-                        },
-                        onAddInvoiceItem: _addInvoiceItem,
-                        onRemoveInvoiceItem: _removeInvoiceItem,
-                        discountType: _discountType,
-                        onDiscountTypeChanged: (v) => setState(() => _discountType = v),
-                        discountValueController: _discountValue,
-                        dueDateType: _dueDateType,
-                        onDueDateTypeChanged: (v) => setState(() => _dueDateType = v),
-                        customDueDate: _customDueDate,
-                        onCustomDueDateTap: () async {
-                          final d = await showDatePicker(
-                            context: context,
-                            initialDate:
-                                _customDueDate ?? _invoiceDate?.add(const Duration(days: 14)) ?? DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2100),
-                          );
-                          if (d != null) setState(() => _customDueDate = d);
-                        },
-                      );
-
-                      final Widget clientFields = ClientFields(
-                        clientCompanyNameController: _clientCompanyName,
-                        clientNameController: _clientName,
-                        clientAddressController: _clientAddress,
-                        contractNumberController: _contractNumber,
-                      );
-
-                      // Right column "stack" layout (current behavior for non-3-col screens).
-                      final Widget rightColumnStack = Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          clientFields,
-                          const SizedBox(height: 30),
-                          invoiceDetailFields,
-                        ],
-                      );
-
-                      // 3-column layout: [Sender+Bank] | [Client] | [Invoice details]
-                      final bool sideBySideThree = maxWidth >= (minColumnWidth * 3 + gap * 2);
-                      if (sideBySideThree) {
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(minWidth: minColumnWidth),
-                                child: leftColumn,
+                          final Widget leftColumn = Column(
+                            children: [
+                              SenderFields(
+                                senderNameController: _senderName,
+                                jobDescriptionController: _jobDescription,
+                                senderStreetNameAndNumberController: _senderStreetNameAndNumber,
+                                senderPostalCodeController: _senderPostalCode,
+                                senderTownController: _senderTown,
+                                senderCountryController: _senderCountry,
+                                senderPhoneController: _senderPhone,
+                                senderEmailController: _senderEmail,
+                                senderWebsiteController: _senderWebsite,
+                                ustIdController: _ustId,
+                                taxNumberController: _taxNumber,
                               ),
-                            ),
-                            const SizedBox(width: gap),
-                            Expanded(
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(minWidth: minColumnWidth),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [clientFields],
+                              const SizedBox(height: 20),
+                              BankDetailsFields(
+                                accountHolderController: _accountHolder,
+                                institutionController: _institution,
+                                ibanController: _iban,
+                                bicController: _bic,
+                              ),
+                            ],
+                          );
+
+                          final Widget invoiceDetailFields = InvoiceDetailFields(
+                            invoiceNumberController: _invoiceNumber,
+                            invoiceDate: _invoiceDate,
+                            onInvoiceDateTap: () async {
+                              final date = await showDatePicker(
+                                context: context,
+                                initialDate: _invoiceDate ?? DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                              );
+                              if (date != null) setState(() => _invoiceDate = date);
+                            },
+                            paidOn: _paidOn,
+                            onPaidOnTap: () async {
+                              final date = await showDatePicker(
+                                context: context,
+                                initialDate: _paidOn ?? _invoiceDate ?? DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                              );
+                              if (date != null) setState(() => _paidOn = date);
+                            },
+                            onClearPaidOn: () => setState(() => _paidOn = null),
+                            introductoryTextController: _introductoryText,
+                            serviceMonths: _serviceMonths,
+                            serviceYears: _serviceYears,
+                            hoursControllers: _hoursControllers,
+                            hourlyRateControllers: _hourlyRateControllers,
+                            itemTypes: _itemTypes,
+                            fixedPriceControllers: _fixedPriceControllers,
+                            onItemTypeChanged: _onItemTypeChanged,
+                            serviceDescriptionControllers: _serviceDescriptionControllers,
+                            onServiceMonthChanged: (index, v) {
+                              setState(() {
+                                _serviceMonths[index] = v;
+                                if (_hasPeriodAt(index)) {
+                                  _updateItemPeriodInDescription(index);
+                                }
+                              });
+                            },
+                            onServiceYearChanged: (index, v) {
+                              setState(() {
+                                _serviceYears[index] = v;
+                                if (_hasPeriodAt(index)) {
+                                  _updateItemPeriodInDescription(index);
+                                }
+                              });
+                            },
+                            onAddInvoiceItem: _addInvoiceItem,
+                            onRemoveInvoiceItem: _removeInvoiceItem,
+                            discountType: _discountType,
+                            onDiscountTypeChanged: (v) => setState(() => _discountType = v),
+                            discountValueController: _discountValue,
+                            dueDateType: _dueDateType,
+                            onDueDateTypeChanged: (v) => setState(() => _dueDateType = v),
+                            customDueDate: _customDueDate,
+                            onCustomDueDateTap: () async {
+                              final d = await showDatePicker(
+                                context: context,
+                                initialDate:
+                                    _customDueDate ?? _invoiceDate?.add(const Duration(days: 14)) ?? DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                              );
+                              if (d != null) setState(() => _customDueDate = d);
+                            },
+                          );
+
+                          final Widget clientFields = ClientFields(
+                            clientCompanyNameController: _clientCompanyName,
+                            clientNameController: _clientName,
+                            clientStreetNameAndNumberController: _clientStreetNameAndNumber,
+                            clientPostalCodeController: _clientPostalCode,
+                            clientTownController: _clientTown,
+                            clientCountryController: _clientCountry,
+                            contractNumberController: _contractNumber,
+                          );
+
+                          // Right column "stack" layout (current behavior for non-3-col screens).
+                          final Widget rightColumnStack = Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              clientFields,
+                              const SizedBox(height: 30),
+                              invoiceDetailFields,
+                            ],
+                          );
+
+                          // 3-column layout: [Sender+Bank] | [Client] | [Invoice details]
+                          final bool sideBySideThree = maxWidth >= (minColumnWidth * 3 + gap * 2);
+                          if (sideBySideThree) {
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(minWidth: minColumnWidth),
+                                    child: leftColumn,
+                                  ),
                                 ),
-                              ),
-                            ),
-                            const SizedBox(width: gap),
-                            Expanded(
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(minWidth: minColumnWidth),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    invoiceDetailFields,
-                                  ],
+                                const SizedBox(width: gap),
+                                Expanded(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(minWidth: minColumnWidth),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [clientFields],
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }
+                                const SizedBox(width: gap),
+                                Expanded(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(minWidth: minColumnWidth),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [
+                                        invoiceDetailFields,
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
 
-                      // 2-column layout: keep current behavior (InvoiceDetailFields under ClientFields).
-                      final bool sideBySideTwo = maxWidth >= (minColumnWidth * 2 + gap);
-                      if (sideBySideTwo) {
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(minWidth: minColumnWidth),
-                                child: leftColumn,
-                              ),
-                            ),
-                            const SizedBox(width: gap),
-                            Expanded(
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(minWidth: minColumnWidth),
-                                child: rightColumnStack,
-                              ),
-                            ),
-                          ],
-                        );
-                      }
+                          // 2-column layout: keep current behavior (InvoiceDetailFields under ClientFields).
+                          final bool sideBySideTwo = maxWidth >= (minColumnWidth * 2 + gap);
+                          if (sideBySideTwo) {
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(minWidth: minColumnWidth),
+                                    child: leftColumn,
+                                  ),
+                                ),
+                                const SizedBox(width: gap),
+                                Expanded(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(minWidth: minColumnWidth),
+                                    child: rightColumnStack,
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
 
-                      // Narrow window: use Wrap so the second column moves underneath the first.
-                      return Wrap(
-                        children: [
-                          SizedBox(width: maxWidth, child: leftColumn),
-                          SizedBox(width: maxWidth, child: rightColumnStack),
-                        ],
-                      );
-                    },
+                          // Narrow window: use Wrap so the second column moves underneath the first.
+                          return Wrap(
+                            children: [
+                              SizedBox(width: maxWidth, child: leftColumn),
+                              SizedBox(width: maxWidth, child: rightColumnStack),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
     );
   }
 
@@ -695,7 +756,12 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       sender: Sender(
         name: _senderName.text.trim(),
         jobDescription: _jobDescription.text.trim(),
-        address: _senderAddress.text.trim(),
+        address: Adress(
+          streetNameAndNumber: _senderStreetNameAndNumber.text.trim(),
+          town: _senderTown.text.trim(),
+          country: _senderCountry.text.trim(),
+          postalCode: int.tryParse(_senderPostalCode.text.trim()) ?? 0,
+        ),
         phoneNumber: _senderPhone.text.trim(),
         email: _senderEmail.text.trim(),
         website: _senderWebsite.text.trim(),
@@ -705,7 +771,12 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       client: Client(
         companyName: _clientCompanyName.text.trim(),
         name: _clientName.text.trim(),
-        address: _clientAddress.text.trim(),
+        address: Adress(
+          streetNameAndNumber: _clientStreetNameAndNumber.text.trim(),
+          town: _clientTown.text.trim(),
+          country: _clientCountry.text.trim(),
+          postalCode: int.tryParse(_clientPostalCode.text.trim()) ?? 0,
+        ),
       ),
       contractNumber: _contractNumber.text.trim(),
       bankDetails: BankDetails(
@@ -770,8 +841,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     final id = widget.invoiceId ?? _loadedInvoice?.id ?? const Uuid().v4();
     // Only use [DateTime.now] for brand-new invoices; never reset createdAt on edit.
     final haveLoadedSnapshot = _loadedInvoice != null && _loadedInvoice!.id == id;
-    final createdAt =
-        haveLoadedSnapshot ? _loadedInvoice!.createdAt : DateTime.now();
+    final createdAt = haveLoadedSnapshot ? _loadedInvoice!.createdAt : DateTime.now();
     final invoice = Invoice(
       id: id,
       createdAt: createdAt,
@@ -780,7 +850,12 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       sender: Sender(
         name: _senderName.text.trim(),
         jobDescription: _jobDescription.text.trim(),
-        address: _senderAddress.text.trim(),
+        address: Adress(
+          streetNameAndNumber: _senderStreetNameAndNumber.text.trim(),
+          town: _senderTown.text.trim(),
+          country: _senderCountry.text.trim(),
+          postalCode: int.tryParse(_senderPostalCode.text.trim()) ?? 0,
+        ),
         phoneNumber: _senderPhone.text.trim(),
         email: _senderEmail.text.trim(),
         website: _senderWebsite.text.trim(),
@@ -790,7 +865,12 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       client: Client(
         companyName: _clientCompanyName.text.trim(),
         name: _clientName.text.trim(),
-        address: _clientAddress.text.trim(),
+        address: Adress(
+          streetNameAndNumber: _clientStreetNameAndNumber.text.trim(),
+          town: _clientTown.text.trim(),
+          country: _clientCountry.text.trim(),
+          postalCode: int.tryParse(_clientPostalCode.text.trim()) ?? 0,
+        ),
       ),
       contractNumber: _contractNumber.text.trim(),
       bankDetails: BankDetails(

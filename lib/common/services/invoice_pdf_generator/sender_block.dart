@@ -36,8 +36,19 @@ pw.Widget _senderFieldRow(pw.Widget content) => pw.Row(
     );
 
 List<pw.Widget> senderBlock(Sender sender) {
-  final addressLines =
-      sender.address.split(RegExp(r'[\r\n]+')).map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+  final postal = sender.address.postalCode != 0 ? sender.address.postalCode.toString() : '';
+  final town = sender.address.town.trim();
+  final postalTown = [postal, town].where((v) => v.isNotEmpty).join(' ');
+  final country = sender.address.country.trim();
+
+  final addressLines = [
+    sender.address.streetNameAndNumber,
+    postalTown,
+    if (country.isNotEmpty && country.toLowerCase() != 'deutschland') country,
+  ]
+      .map((s) => s.trim())
+      .where((s) => s.isNotEmpty)
+      .toList();
 
   // One widget per sender field – reorder this list to change layout.
   final nameField = _senderFieldRow(

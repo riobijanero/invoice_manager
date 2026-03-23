@@ -22,7 +22,7 @@ Client _$ClientFromJson(Map<String, dynamic> json) {
 mixin _$Client {
   String get companyName => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
-  String get address => throw _privateConstructorUsedError;
+  Adress get address => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -34,7 +34,9 @@ abstract class $ClientCopyWith<$Res> {
   factory $ClientCopyWith(Client value, $Res Function(Client) then) =
       _$ClientCopyWithImpl<$Res, Client>;
   @useResult
-  $Res call({String companyName, String name, String address});
+  $Res call({String companyName, String name, Adress address});
+
+  $AdressCopyWith<$Res> get address;
 }
 
 /// @nodoc
@@ -66,8 +68,16 @@ class _$ClientCopyWithImpl<$Res, $Val extends Client>
       address: null == address
           ? _value.address
           : address // ignore: cast_nullable_to_non_nullable
-              as String,
+              as Adress,
     ) as $Val);
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $AdressCopyWith<$Res> get address {
+    return $AdressCopyWith<$Res>(_value.address, (value) {
+      return _then(_value.copyWith(address: value) as $Val);
+    });
   }
 }
 
@@ -78,7 +88,10 @@ abstract class _$$ClientImplCopyWith<$Res> implements $ClientCopyWith<$Res> {
       __$$ClientImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String companyName, String name, String address});
+  $Res call({String companyName, String name, Adress address});
+
+  @override
+  $AdressCopyWith<$Res> get address;
 }
 
 /// @nodoc
@@ -108,7 +121,7 @@ class __$$ClientImplCopyWithImpl<$Res>
       address: null == address
           ? _value.address
           : address // ignore: cast_nullable_to_non_nullable
-              as String,
+              as Adress,
     ));
   }
 }
@@ -116,7 +129,8 @@ class __$$ClientImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$ClientImpl extends _Client {
-  const _$ClientImpl({this.companyName = '', this.name = '', this.address = ''})
+  const _$ClientImpl(
+      {this.companyName = '', this.name = '', this.address = const Adress()})
       : super._();
 
   factory _$ClientImpl.fromJson(Map<String, dynamic> json) =>
@@ -130,7 +144,7 @@ class _$ClientImpl extends _Client {
   final String name;
   @override
   @JsonKey()
-  final String address;
+  final Adress address;
 
   @override
   String toString() {
@@ -170,7 +184,7 @@ abstract class _Client extends Client {
   const factory _Client(
       {final String companyName,
       final String name,
-      final String address}) = _$ClientImpl;
+      final Adress address}) = _$ClientImpl;
   const _Client._() : super._();
 
   factory _Client.fromJson(Map<String, dynamic> json) = _$ClientImpl.fromJson;
@@ -180,7 +194,7 @@ abstract class _Client extends Client {
   @override
   String get name;
   @override
-  String get address;
+  Adress get address;
   @override
   @JsonKey(ignore: true)
   _$$ClientImplCopyWith<_$ClientImpl> get copyWith =>

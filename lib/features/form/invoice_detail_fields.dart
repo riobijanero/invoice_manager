@@ -122,9 +122,7 @@ class InvoiceDetailFields extends StatelessWidget {
                 child: InkWell(
                   onTap: onPaidOnTap,
                   child: Text(
-                    paidOn != null
-                        ? DateFormat('dd.MM.yyyy').format(paidOn!)
-                        : 'Datum wählen',
+                    paidOn != null ? DateFormat('dd.MM.yyyy').format(paidOn!) : 'Datum wählen',
                   ),
                 ),
               ),
@@ -305,9 +303,7 @@ class InvoiceDetailFields extends StatelessWidget {
               alignLabelWithHint: true,
             ),
             maxLines: 5,
-            validator: (v) => (v == null || v.trim().isEmpty)
-                ? 'Pflichtfeld'
-                : null,
+            validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
           ),
           const SizedBox(height: 16),
         ],
@@ -325,6 +321,7 @@ class InvoiceDetailFields extends StatelessWidget {
         Row(
           children: [
             const Text('Rabatt: '),
+            const SizedBox(width: 4),
             SegmentedButton<DiscountType>(
               showSelectedIcon: false,
               segments: const [
@@ -335,8 +332,7 @@ class InvoiceDetailFields extends StatelessWidget {
               onSelectionChanged: (s) => onDiscountTypeChanged(s.first),
             ),
             const SizedBox(width: 16),
-            SizedBox(
-              width: 120,
+            Expanded(
               child: TextFormField(
                 controller: discountValueController,
                 decoration: const InputDecoration(

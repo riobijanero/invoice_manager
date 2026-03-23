@@ -30,8 +30,8 @@ class InvoiceListPaymentBadge extends StatelessWidget {
         const SizedBox(width: 4),
         if (paid)
           const Icon(
-            Icons.check_circle,
-            size: 16,
+            Icons.check_circle_outline,
+            size: 18,
             color: Colors.green,
           )
         else

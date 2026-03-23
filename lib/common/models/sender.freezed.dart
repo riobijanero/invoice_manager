@@ -22,7 +22,7 @@ Sender _$SenderFromJson(Map<String, dynamic> json) {
 mixin _$Sender {
   String get name => throw _privateConstructorUsedError;
   String get jobDescription => throw _privateConstructorUsedError;
-  String get address => throw _privateConstructorUsedError;
+  Adress get address => throw _privateConstructorUsedError;
   String get phoneNumber => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
   String get website => throw _privateConstructorUsedError;
@@ -42,12 +42,14 @@ abstract class $SenderCopyWith<$Res> {
   $Res call(
       {String name,
       String jobDescription,
-      String address,
+      Adress address,
       String phoneNumber,
       String email,
       String website,
       String ustId,
       String taxNumber});
+
+  $AdressCopyWith<$Res> get address;
 }
 
 /// @nodoc
@@ -84,7 +86,7 @@ class _$SenderCopyWithImpl<$Res, $Val extends Sender>
       address: null == address
           ? _value.address
           : address // ignore: cast_nullable_to_non_nullable
-              as String,
+              as Adress,
       phoneNumber: null == phoneNumber
           ? _value.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
@@ -107,6 +109,14 @@ class _$SenderCopyWithImpl<$Res, $Val extends Sender>
               as String,
     ) as $Val);
   }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $AdressCopyWith<$Res> get address {
+    return $AdressCopyWith<$Res>(_value.address, (value) {
+      return _then(_value.copyWith(address: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -119,12 +129,15 @@ abstract class _$$SenderImplCopyWith<$Res> implements $SenderCopyWith<$Res> {
   $Res call(
       {String name,
       String jobDescription,
-      String address,
+      Adress address,
       String phoneNumber,
       String email,
       String website,
       String ustId,
       String taxNumber});
+
+  @override
+  $AdressCopyWith<$Res> get address;
 }
 
 /// @nodoc
@@ -159,7 +172,7 @@ class __$$SenderImplCopyWithImpl<$Res>
       address: null == address
           ? _value.address
           : address // ignore: cast_nullable_to_non_nullable
-              as String,
+              as Adress,
       phoneNumber: null == phoneNumber
           ? _value.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
@@ -190,7 +203,7 @@ class _$SenderImpl extends _Sender {
   const _$SenderImpl(
       {this.name = '',
       this.jobDescription = '',
-      this.address = '',
+      this.address = const Adress(),
       this.phoneNumber = '',
       this.email = '',
       this.website = '',
@@ -209,7 +222,7 @@ class _$SenderImpl extends _Sender {
   final String jobDescription;
   @override
   @JsonKey()
-  final String address;
+  final Adress address;
   @override
   @JsonKey()
   final String phoneNumber;
@@ -272,7 +285,7 @@ abstract class _Sender extends Sender {
   const factory _Sender(
       {final String name,
       final String jobDescription,
-      final String address,
+      final Adress address,
       final String phoneNumber,
       final String email,
       final String website,
@@ -287,7 +300,7 @@ abstract class _Sender extends Sender {
   @override
   String get jobDescription;
   @override
-  String get address;
+  Adress get address;
   @override
   String get phoneNumber;
   @override

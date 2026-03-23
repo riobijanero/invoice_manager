@@ -9,7 +9,9 @@ part of 'sender.dart';
 _$SenderImpl _$$SenderImplFromJson(Map<String, dynamic> json) => _$SenderImpl(
       name: json['name'] as String? ?? '',
       jobDescription: json['jobDescription'] as String? ?? '',
-      address: json['address'] as String? ?? '',
+      address: json['address'] == null
+          ? const Adress()
+          : Adress.fromJson(json['address'] as Map<String, dynamic>),
       phoneNumber: json['phoneNumber'] as String? ?? '',
       email: json['email'] as String? ?? '',
       website: json['website'] as String? ?? '',

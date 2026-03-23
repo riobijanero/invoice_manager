@@ -26,7 +26,13 @@ class InvoiceListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final totals = computeTotals(invoice);
-    final clientLine = invoice.client.name.isNotEmpty ? invoice.client.name : _firstLine(invoice.client.address);
+    final clientLine = invoice.client.name.isNotEmpty
+        ? invoice.client.name
+        : (invoice.client.address.streetNameAndNumber.isNotEmpty
+            ? invoice.client.address.streetNameAndNumber
+            : (invoice.client.address.postalCode != 0
+                ? invoice.client.address.postalCode.toString()
+                : invoice.client.address.town));
     final dateFormat = DateFormat('dd.MM.yyyy');
     final firstItem = invoice.invoiceItemList.isNotEmpty ? invoice.invoiceItemList.first : null;
     final periodLabel = firstItem != null && firstItem.hasServicePeriod
@@ -88,14 +94,18 @@ class InvoiceListTile extends ConsumerWidget {
                   ),
                   Text(
                     invoice.paidOn != null ? dateFormat.format(invoice.paidOn!) : '-',
-                    style: const TextStyle(fontSize: 13),
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ],
               ),
             ),
           ),
-          SizedBox(width: 8),
-          InvoiceListPaymentBadge(invoice: invoice),
+          const SizedBox(width: 8),
+          // Reserve space so the popup button doesn't shift when the badge is hidden.
+          SizedBox(
+            width: 24,
+            child: InvoiceListPaymentBadge(invoice: invoice),
+          ),
           PopupMenuButton<String>(
             onSelected: onAction,
             itemBuilder: (context) => [

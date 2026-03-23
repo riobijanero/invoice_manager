@@ -29,9 +29,9 @@ class DefaultsRepository {
         serviceDescriptionTemplate: defaultServiceDescriptionTemplate,
       );
     }
-    return InvoiceDefaults.fromJson(
-      jsonDecode(content) as Map<String, dynamic>,
-    );
+    final raw = jsonDecode(content) as Map<String, dynamic>;
+    final normalized = _normalizeDefaultsJson(raw);
+    return InvoiceDefaults.fromJson(normalized);
   }
 
   Future<void> save(InvoiceDefaults defaults) async {
@@ -43,4 +43,47 @@ class DefaultsRepository {
       const JsonEncoder.withIndent('  ').convert(defaults.toJson()),
     );
   }
+}
+
+Map<String, dynamic> _normalizeDefaultsJson(Map<String, dynamic> raw) {
+  final normalized = Map<String, dynamic>.from(raw);
+  normalized['sender'] = _normalizePartyJson(raw['sender']);
+  normalized['client'] = _normalizePartyJson(raw['client']);
+  return normalized;
+}
+
+Map<String, dynamic> _normalizePartyJson(Object? value) {
+  if (value is! Map<String, dynamic>) return <String, dynamic>{};
+  final party = Map<String, dynamic>.from(value);
+  party['address'] = _normalizeAddressJson(party['address']);
+  return party;
+}
+
+Map<String, dynamic> _normalizeAddressJson(Object? value) {
+  // Legacy format: plain string address.
+  if (value is String) {
+    return <String, dynamic>{
+      'streetNameAndNumber': value,
+      'postalCode': 0,
+      'town': '',
+      'country': '',
+    };
+  }
+  if (value is! Map<String, dynamic>) {
+    return <String, dynamic>{
+      'streetNameAndNumber': '',
+      'postalCode': 0,
+      'town': '',
+      'country': '',
+    };
+  }
+  final map = Map<String, dynamic>.from(value);
+  final postalRaw = map['postalCode'];
+  final postal = postalRaw is int ? postalRaw : int.tryParse('$postalRaw') ?? 0;
+  return <String, dynamic>{
+    'streetNameAndNumber': map['streetNameAndNumber'] ?? '',
+    'postalCode': postal,
+    'town': map['town'] ?? '',
+    'country': map['country'] ?? '',
+  };
 }

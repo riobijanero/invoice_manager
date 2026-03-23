@@ -13,10 +13,18 @@ const pw.TextStyle _clientTextStyle = pw.TextStyle(
 );
 
 List<pw.Widget> clientBlock(Client client, Sender sender) {
+  final street = sender.address.streetNameAndNumber.trim();
+  final postal = sender.address.postalCode != 0 ? sender.address.postalCode.toString() : '';
+  final town = sender.address.town.trim();
+  final postalTown = [postal, town].where((s) => s.isNotEmpty).join(' ');
+
+  final addressSummary = postalTown.isNotEmpty
+      ? (street.isNotEmpty ? '$street | $postalTown' : postalTown)
+      : street;
   return [
     pw.Row(children: [
       pw.Text(
-        '${sender.name} | ${sender.address.split('\n').first} | ${sender.address.split('\n').skip(1).join('\n')} ',
+        '${sender.name} | $addressSummary ',
         style: _senderOneLineTextStyle,
       ),
     ]),

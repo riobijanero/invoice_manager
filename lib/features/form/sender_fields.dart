@@ -5,7 +5,10 @@ class SenderFields extends StatelessWidget {
     super.key,
     required this.senderNameController,
     required this.jobDescriptionController,
-    required this.senderAddressController,
+    required this.senderStreetNameAndNumberController,
+    required this.senderPostalCodeController,
+    required this.senderTownController,
+    required this.senderCountryController,
     required this.senderPhoneController,
     required this.senderEmailController,
     required this.senderWebsiteController,
@@ -15,7 +18,10 @@ class SenderFields extends StatelessWidget {
 
   final TextEditingController senderNameController;
   final TextEditingController jobDescriptionController;
-  final TextEditingController senderAddressController;
+  final TextEditingController senderStreetNameAndNumberController;
+  final TextEditingController senderPostalCodeController;
+  final TextEditingController senderTownController;
+  final TextEditingController senderCountryController;
   final TextEditingController senderPhoneController;
   final TextEditingController senderEmailController;
   final TextEditingController senderWebsiteController;
@@ -51,13 +57,44 @@ class SenderFields extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         TextFormField(
-          controller: senderAddressController,
+          controller: senderStreetNameAndNumberController,
           decoration: const InputDecoration(
-            labelText: 'Adresse',
+            labelText: 'Straße und Nr.',
             border: OutlineInputBorder(),
-            alignLabelWithHint: true,
           ),
-          maxLines: 3,
+          validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
+        ),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: senderPostalCodeController,
+          decoration: const InputDecoration(
+            labelText: 'PLZ',
+            border: OutlineInputBorder(),
+          ),
+          keyboardType: TextInputType.number,
+          validator: (v) {
+            if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
+            final n = int.tryParse(v.trim());
+            if (n == null || n <= 0) return 'Ungültige PLZ';
+            return null;
+          },
+        ),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: senderTownController,
+          decoration: const InputDecoration(
+            labelText: 'Ort',
+            border: OutlineInputBorder(),
+          ),
+          validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
+        ),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: senderCountryController,
+          decoration: const InputDecoration(
+            labelText: 'Land',
+            border: OutlineInputBorder(),
+          ),
           validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
         ),
         const SizedBox(height: 12),

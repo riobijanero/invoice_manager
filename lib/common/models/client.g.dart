@@ -9,7 +9,9 @@ part of 'client.dart';
 _$ClientImpl _$$ClientImplFromJson(Map<String, dynamic> json) => _$ClientImpl(
       companyName: json['companyName'] as String? ?? '',
       name: json['name'] as String? ?? '',
-      address: json['address'] as String? ?? '',
+      address: json['address'] == null
+          ? const Adress()
+          : Adress.fromJson(json['address'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$ClientImplToJson(_$ClientImpl instance) =>

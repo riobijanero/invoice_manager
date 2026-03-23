@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:invoice_manager/common/models/bank_details.dart';
 import 'package:invoice_manager/common/models/client.dart';
+import 'package:invoice_manager/common/models/adress.dart';
 import 'package:invoice_manager/common/models/discount_type.dart';
 import 'package:invoice_manager/common/models/due_date_type.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
@@ -22,14 +23,14 @@ Invoice _minimalInvoice({
     sender: Sender(
       name: 'S',
       jobDescription: '',
-      address: '',
+      address: const Adress(),
       phoneNumber: '',
       email: '',
       website: '',
       ustId: '',
       taxNumber: '',
     ),
-    client: Client(companyName: '', name: 'C', address: ''),
+    client: Client(companyName: '', name: 'C', address: const Adress()),
     bankDetails: BankDetails(
       accountHolder: 'x',
       institution: 'y',
