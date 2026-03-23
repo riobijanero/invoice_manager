@@ -8,29 +8,29 @@ import 'package:invoice_manager/common/utils/invoice_calculations.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-const double _kEinheitWidth = 44;
-const double _kAnzahlWidth = 40;
+const double _kEinheitWidth = 48;
+const double _kAnzahlWidth = 48;
 const double _kEinzelpreisWidth = 58;
-const double _kGesamtWidth = 65;
+const double _kGesamtWidth = 62;
 
 /// Width of Einheit + Anzahl + Einzelpreis (merged for fixed-price rows).
 const double _kMergedEinheitAnzahlEinzelpreisWidth = _kEinheitWidth + _kAnzahlWidth + _kEinzelpreisWidth;
 
 const pw.BorderSide _tableBorderSide = pw.BorderSide(width: 0.5, color: PdfColors.grey800);
 
-/// Outer + internal borders for 5-column hourly rows (same as [pw.TableBorder.all]).
+/// Outer + horizontal borders for 5-column hourly rows (no vertical lines between columns).
 pw.TableBorder _hourlyRowTableBorder({required bool top}) {
   return pw.TableBorder(
     left: _tableBorderSide,
     right: _tableBorderSide,
     bottom: _tableBorderSide,
     top: top ? _tableBorderSide : pw.BorderSide.none,
-    verticalInside: _tableBorderSide,
+    verticalInside: pw.BorderSide.none,
     horizontalInside: _tableBorderSide,
   );
 }
 
-/// Fixed-price row: no vertical lines between Beschreibung and Gesamt except before Gesamt (drawn on Gesamt cell).
+/// Fixed-price row: no vertical lines between columns.
 pw.TableBorder _fixedPriceRowTableBorder({required bool top}) {
   return pw.TableBorder(
     left: _tableBorderSide,
@@ -87,9 +87,9 @@ List<pw.Widget> invoiceTableBlock({
               decoration: const pw.BoxDecoration(color: PdfColors.grey300),
               children: [
                 cell('Beschreibung', bold: true),
-                cell('Einheit', bold: true),
-                cell('Anzahl', bold: true),
-                cell('Einzelpreis', bold: true),
+                cell('Einheit', bold: true, alignRight: true),
+                cell('Anzahl', bold: true, alignRight: true),
+                cell('Einzelpreis', bold: true, alignRight: true),
                 cell('Gesamt', bold: true, alignRight: true),
               ],
             ),
@@ -123,15 +123,10 @@ List<pw.Widget> invoiceTableBlock({
                           cell(
                             serviceDescriptions.length > i ? serviceDescriptions[i] : '',
                           ),
-                          cell(''),
-                          pw.Container(
-                            decoration: const pw.BoxDecoration(
-                              border: pw.Border(left: _tableBorderSide),
-                            ),
-                            child: cell(
-                              formatCurrency(items[i].itemTotal),
-                              alignRight: true,
-                            ),
+                          cell('', alignRight: true),
+                          cell(
+                            formatCurrency(items[i].itemTotal),
+                            alignRight: true,
                           ),
                         ],
                       ),
@@ -146,9 +141,9 @@ List<pw.Widget> invoiceTableBlock({
                           cell(
                             serviceDescriptions.length > i ? serviceDescriptions[i] : '',
                           ),
-                          cell(items[i].unitLabel),
-                          cell(items[i].quantity.toStringAsFixed(0)),
-                          cell(formatCurrency(items[i].unitPrice)),
+                          cell(items[i].unitLabel, alignRight: true),
+                          cell(items[i].quantity.toStringAsFixed(0), alignRight: true),
+                          cell(formatCurrency(items[i].unitPrice), alignRight: true),
                           cell(
                             formatCurrency(items[i].itemTotal),
                             alignRight: true,
@@ -184,18 +179,13 @@ List<pw.Widget> invoiceTableBlock({
                   style: const pw.TextStyle(fontSize: fontSizeMain),
                 ),
               ),
-              pw.Container(
-                decoration: const pw.BoxDecoration(
-                  border: pw.Border(left: _tableBorderSide),
-                ),
-                child: pw.Padding(
-                  padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                  child: pw.Align(
-                    alignment: pw.Alignment.centerRight,
-                    child: pw.Text(
-                      formatCurrency(totals.subtotal),
-                      style: const pw.TextStyle(fontSize: fontSizeMain),
-                    ),
+              pw.Padding(
+                padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                child: pw.Align(
+                  alignment: pw.Alignment.centerRight,
+                  child: pw.Text(
+                    formatCurrency(totals.subtotal),
+                    style: const pw.TextStyle(fontSize: fontSizeMain),
                   ),
                 ),
               ),
@@ -210,18 +200,13 @@ List<pw.Widget> invoiceTableBlock({
                   style: const pw.TextStyle(fontSize: fontSizeMain),
                 ),
               ),
-              pw.Container(
-                decoration: const pw.BoxDecoration(
-                  border: pw.Border(left: _tableBorderSide),
-                ),
-                child: pw.Padding(
-                  padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                  child: pw.Align(
-                    alignment: pw.Alignment.centerRight,
-                    child: pw.Text(
-                      formatCurrency(-totals.discountAmount),
-                      style: const pw.TextStyle(fontSize: fontSizeMain),
-                    ),
+              pw.Padding(
+                padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                child: pw.Align(
+                  alignment: pw.Alignment.centerRight,
+                  child: pw.Text(
+                    formatCurrency(-totals.discountAmount),
+                    style: const pw.TextStyle(fontSize: fontSizeMain),
                   ),
                 ),
               ),
@@ -237,18 +222,13 @@ List<pw.Widget> invoiceTableBlock({
                 style: const pw.TextStyle(fontSize: fontSizeMain),
               ),
             ),
-            pw.Container(
-              decoration: const pw.BoxDecoration(
-                border: pw.Border(left: _tableBorderSide),
-              ),
-              child: pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                child: pw.Align(
-                  alignment: pw.Alignment.centerRight,
-                  child: pw.Text(
-                    formatCurrency(totals.net),
-                    style: const pw.TextStyle(fontSize: fontSizeMain),
-                  ),
+            pw.Padding(
+              padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+              child: pw.Align(
+                alignment: pw.Alignment.centerRight,
+                child: pw.Text(
+                  formatCurrency(totals.net),
+                  style: const pw.TextStyle(fontSize: fontSizeMain),
                 ),
               ),
             ),
@@ -263,18 +243,13 @@ List<pw.Widget> invoiceTableBlock({
                 style: const pw.TextStyle(fontSize: fontSizeMain),
               ),
             ),
-            pw.Container(
-              decoration: const pw.BoxDecoration(
-                border: pw.Border(left: _tableBorderSide),
-              ),
-              child: pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                child: pw.Align(
-                  alignment: pw.Alignment.centerRight,
-                  child: pw.Text(
-                    formatCurrency(totals.vat),
-                    style: const pw.TextStyle(fontSize: fontSizeMain),
-                  ),
+            pw.Padding(
+              padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+              child: pw.Align(
+                alignment: pw.Alignment.centerRight,
+                child: pw.Text(
+                  formatCurrency(totals.vat),
+                  style: const pw.TextStyle(fontSize: fontSizeMain),
                 ),
               ),
             ),
@@ -292,20 +267,15 @@ List<pw.Widget> invoiceTableBlock({
                 ),
               ),
             ),
-            pw.Container(
-              decoration: const pw.BoxDecoration(
-                border: pw.Border(left: _tableBorderSide),
-              ),
-              child: pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                child: pw.Align(
-                  alignment: pw.Alignment.centerRight,
-                  child: pw.Text(
-                    formatCurrency(totals.gross),
-                    style: pw.TextStyle(
-                      fontSize: fontSizeMain,
-                      fontWeight: pw.FontWeight.bold,
-                    ),
+            pw.Padding(
+              padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+              child: pw.Align(
+                alignment: pw.Alignment.centerRight,
+                child: pw.Text(
+                  formatCurrency(totals.gross),
+                  style: pw.TextStyle(
+                    fontSize: fontSizeMain,
+                    fontWeight: pw.FontWeight.bold,
                   ),
                 ),
               ),
