@@ -248,34 +248,43 @@ class InvoiceDetailFields extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           if (itemTypes[i] == InvoiceItemType.hourlyRateService) ...[
-            TextFormField(
-              controller: hoursControllers[i],
-              decoration: const InputDecoration(
-                labelText: 'Stunden',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
-                final n = double.tryParse(v.replaceFirst(',', '.'));
-                if (n == null || n < 0) return 'Ungültige Zahl';
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: hourlyRateControllers[i],
-              decoration: const InputDecoration(
-                labelText: 'Stundensatz (€)',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
-                final n = double.tryParse(v.replaceFirst(',', '.'));
-                if (n == null || n < 0) return 'Ungültige Zahl';
-                return null;
-              },
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: hoursControllers[i],
+                    decoration: const InputDecoration(
+                      labelText: 'Stunden',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
+                      final n = double.tryParse(v.replaceFirst(',', '.'));
+                      if (n == null || n < 0) return 'Ungültige Zahl';
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: TextFormField(
+                    controller: hourlyRateControllers[i],
+                    decoration: const InputDecoration(
+                      labelText: 'Stundensatz (€)',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
+                      final n = double.tryParse(v.replaceFirst(',', '.'));
+                      if (n == null || n < 0) return 'Ungültige Zahl';
+                      return null;
+                    },
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
           ] else ...[
