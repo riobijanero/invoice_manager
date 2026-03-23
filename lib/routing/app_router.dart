@@ -44,7 +44,7 @@ final GoRouter appRouter = GoRouter(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(
-                    width: 400,
+                    width: 450,
                     child: InvoiceListScreen(),
                   ),
                   const VerticalDivider(width: 1),

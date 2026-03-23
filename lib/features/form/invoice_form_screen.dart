@@ -524,6 +524,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                           );
                           if (date != null) setState(() => _paidOn = date);
                         },
+                        onClearPaidOn: () => setState(() => _paidOn = null),
                         introductoryTextController: _introductoryText,
                         serviceMonths: _serviceMonths,
                         serviceYears: _serviceYears,

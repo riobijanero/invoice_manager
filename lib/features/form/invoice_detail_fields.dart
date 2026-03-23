@@ -13,6 +13,7 @@ class InvoiceDetailFields extends StatelessWidget {
     required this.onInvoiceDateTap,
     required this.paidOn,
     required this.onPaidOnTap,
+    required this.onClearPaidOn,
     required this.introductoryTextController,
     required this.serviceMonths,
     required this.serviceYears,
@@ -40,6 +41,7 @@ class InvoiceDetailFields extends StatelessWidget {
   final VoidCallback onInvoiceDateTap;
   final DateTime? paidOn;
   final VoidCallback onPaidOnTap;
+  final VoidCallback onClearPaidOn;
   final TextEditingController introductoryTextController;
   final List<int?> serviceMonths;
   final List<int?> serviceYears;
@@ -109,16 +111,35 @@ class InvoiceDetailFields extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        InkWell(
-          onTap: onPaidOnTap,
-          child: InputDecorator(
-            decoration: const InputDecoration(
-              labelText: 'Bezahlt am (optional)',
-              border: OutlineInputBorder(),
-            ),
-            child: Text(
-              paidOn != null ? DateFormat('dd.MM.yyyy').format(paidOn!) : 'Datum wählen',
-            ),
+        InputDecorator(
+          decoration: const InputDecoration(
+            labelText: 'Bezahlt am (optional)',
+            border: OutlineInputBorder(),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: onPaidOnTap,
+                  child: Text(
+                    paidOn != null
+                        ? DateFormat('dd.MM.yyyy').format(paidOn!)
+                        : 'Datum wählen',
+                  ),
+                ),
+              ),
+              if (paidOn != null)
+                IconButton(
+                  onPressed: onClearPaidOn,
+                  icon: const Icon(Icons.close),
+                  tooltip: 'Datum entfernen',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  style: IconButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+            ],
           ),
         ),
         const SizedBox(height: 16),

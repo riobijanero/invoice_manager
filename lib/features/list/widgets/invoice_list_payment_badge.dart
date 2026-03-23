@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:invoice_manager/common/layout/invoice_layout_breakpoints.dart';
+import 'package:invoice_manager/common/utils.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
-import 'package:invoice_manager/common/utils/invoice_calculations.dart';
 
 /// Paid ([Icons.check_circle]) or overdue indicator for [InvoiceListTile].
 ///
-/// On wide (split) layout: red [Icons.error_outline] with tooltip.
-/// On narrow layout: red „überfällig“ [Chip].
+/// On overdue (unpaid): red [Icons.error_outline] with tooltip.
 /// Returns [SizedBox.shrink] when unpaid and not overdue.
 class InvoiceListPaymentBadge extends StatelessWidget {
   const InvoiceListPaymentBadge({
@@ -16,16 +14,6 @@ class InvoiceListPaymentBadge extends StatelessWidget {
   });
 
   final Invoice invoice;
-
-  /// Unpaid and calendar due date strictly before today.
-  static bool isOverdueUnpaid(Invoice invoice) {
-    if (invoice.paidOn != null) return false;
-    final due = computeDueDate(invoice);
-    final dueDay = DateTime(due.year, due.month, due.day);
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    return dueDay.isBefore(today);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +24,6 @@ class InvoiceListPaymentBadge extends StatelessWidget {
     }
 
     final theme = Theme.of(context);
-    final wide = isWideInvoiceLayout(context);
-
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -48,7 +34,7 @@ class InvoiceListPaymentBadge extends StatelessWidget {
             size: 16,
             color: Colors.green,
           )
-        else if (wide)
+        else
           Tooltip(
             message: 'überfällig',
             child: Icon(
@@ -57,21 +43,6 @@ class InvoiceListPaymentBadge extends StatelessWidget {
               semanticLabel: 'überfällig',
               color: theme.colorScheme.error,
             ),
-          )
-        else
-          Chip(
-            label: const Text('überfällig'),
-            labelStyle: const TextStyle(
-              fontSize: 10,
-              height: 1.1,
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-            backgroundColor: theme.colorScheme.error,
-            side: BorderSide.none,
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            visualDensity: VisualDensity.compact,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
       ],
     );

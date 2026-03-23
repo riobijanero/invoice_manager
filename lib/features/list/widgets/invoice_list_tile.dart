@@ -28,8 +28,7 @@ class InvoiceListTile extends ConsumerWidget {
     final totals = computeTotals(invoice);
     final clientLine = invoice.client.name.isNotEmpty ? invoice.client.name : _firstLine(invoice.client.address);
     final dateFormat = DateFormat('dd.MM.yyyy');
-    final firstItem =
-        invoice.invoiceItemList.isNotEmpty ? invoice.invoiceItemList.first : null;
+    final firstItem = invoice.invoiceItemList.isNotEmpty ? invoice.invoiceItemList.first : null;
     final periodLabel = firstItem != null && firstItem.hasServicePeriod
         ? '${_monthName(firstItem.serviceMonth!)} ${firstItem.serviceYear}'
         : '-';
@@ -53,11 +52,11 @@ class InvoiceListTile extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          InvoiceListPaymentBadge(invoice: invoice),
+          // InvoiceListPaymentBadge(invoice: invoice),
         ],
       ),
       subtitle: Text(
-        '${dateFormat.format(invoice.invoiceDate)} · $periodLabel · ${formatCurrency(totals.gross)}',
+        '${dateFormat.format(invoice.invoiceDate)} · $periodLabel\n${formatCurrency(totals.gross)}',
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -84,7 +83,7 @@ class InvoiceListTile extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   const Text(
-                    'bezahlt am',
+                    'Bezahlt am',
                     style: TextStyle(fontSize: 12, color: Colors.black54),
                   ),
                   Text(
@@ -95,6 +94,8 @@ class InvoiceListTile extends ConsumerWidget {
               ),
             ),
           ),
+          SizedBox(width: 8),
+          InvoiceListPaymentBadge(invoice: invoice),
           PopupMenuButton<String>(
             onSelected: onAction,
             itemBuilder: (context) => [
