@@ -9,12 +9,12 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 const double _kEinheitW = 42;
-const double _kMengeW = 38;
+const double _kAnzahlW = 38;
 const double _kPreisW = 48;
 const double _kGesamtW = 65;
 
-/// Width of Einheit + Menge + Preis (merged for fixed-price rows).
-const double _kMergedEinheitMengePreisW = _kEinheitW + _kMengeW + _kPreisW;
+/// Width of Einheit + Anzahl + Preis (merged for fixed-price rows).
+const double _kMergedEinheitAnzahlPreisW = _kEinheitW + _kAnzahlW + _kPreisW;
 
 const pw.BorderSide _tableBorderSide = pw.BorderSide(width: 0.5, color: PdfColors.grey800);
 
@@ -45,14 +45,14 @@ pw.TableBorder _fixedPriceRowTableBorder({required bool top}) {
 const Map<int, pw.TableColumnWidth> _fiveColumnWidths = {
   0: pw.FlexColumnWidth(1), // Beschreibung
   1: pw.FixedColumnWidth(_kEinheitW), // Einheit
-  2: pw.FixedColumnWidth(_kMengeW), // Menge
+  2: pw.FixedColumnWidth(_kAnzahlW), // Anzahl
   3: pw.FixedColumnWidth(_kPreisW), // Preis
   4: pw.FixedColumnWidth(_kGesamtW), // Gesamt
 };
 
 const Map<int, pw.TableColumnWidth> _fixedPriceThreeColumnWidths = {
   0: pw.FlexColumnWidth(1), // Beschreibung
-  1: pw.FixedColumnWidth(_kMergedEinheitMengePreisW), // merged empty
+  1: pw.FixedColumnWidth(_kMergedEinheitAnzahlPreisW), // merged empty
   2: pw.FixedColumnWidth(_kGesamtW), // Gesamt
 };
 
@@ -88,7 +88,7 @@ List<pw.Widget> invoiceTableBlock({
               children: [
                 cell('Beschreibung', bold: true),
                 cell('Einheit', bold: true),
-                cell('Menge', bold: true),
+                cell('Anzahl', bold: true),
                 cell('Preis', bold: true),
                 cell('Gesamt', bold: true, alignRight: true),
               ],

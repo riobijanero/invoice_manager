@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:invoice_manager/common/layout/invoice_layout_breakpoints.dart';
 import 'package:invoice_manager/common/providers/providers.dart';
+import 'package:invoice_manager/common/utils/date_utils.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:invoice_manager/common/models/bank_details.dart';
@@ -15,7 +16,6 @@ import 'package:invoice_manager/common/models/invoice_defaults.dart';
 import 'package:invoice_manager/common/models/invoice_item.dart';
 import 'package:invoice_manager/common/models/adress.dart';
 import 'package:invoice_manager/common/models/sender.dart';
-import 'package:invoice_manager/common/utils.dart' as invoice_utils;
 import 'package:invoice_manager/features/form/ui/widgets/overdue_chip.dart';
 import 'package:invoice_manager/features/form/bank_details_fields.dart';
 import 'package:invoice_manager/features/form/client_fields.dart';
@@ -75,6 +75,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   DateTime? _customDueDate;
   Invoice? _loadedInvoice;
   InvoiceDefaults? _defaults;
+  String? _selectedExistingClientKey;
+  final Set<String> _deletedClientKeys = <String>{};
   bool _initialized = false;
 
   @override
@@ -190,6 +192,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _clientPostalCode.text = inv.client.address.postalCode == 0 ? '' : inv.client.address.postalCode.toString();
     _clientTown.text = inv.client.address.town;
     _clientCountry.text = inv.client.address.country.isNotEmpty ? inv.client.address.country : 'Deutschland';
+    _selectedExistingClientKey = null;
     _contractNumber.text = inv.contractNumber;
     _accountHolder.text = inv.bankDetails.accountHolder;
     _institution.text = inv.bankDetails.institution;
@@ -275,6 +278,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _clientPostalCode.clear();
     _clientTown.clear();
     _clientCountry.text = 'Deutschland';
+    _selectedExistingClientKey = null;
     _contractNumber.text = d.contractNumber;
     if (d.bankDetails != null) {
       _accountHolder.text = d.bankDetails!.accountHolder;
@@ -336,7 +340,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       customDueDate: _dueDateType == DueDateType.custom ? _customDueDate : null,
     );
 
-    return invoice_utils.isOverdueUnpaid(snapshot);
+    return isOverdueUnpaid(snapshot);
   }
 
   String _periodPlaceholderFor(int month, int year) {
@@ -435,11 +439,55 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     });
   }
 
+  List<Client> _existingClientsFromInvoices(List<Invoice> invoices) {
+    final seen = <String>{};
+    final clients = <Client>[];
+    for (final invoice in invoices) {
+      final c = invoice.client;
+      final dedupeKey = [
+        c.companyName.trim().toLowerCase(),
+        c.name.trim().toLowerCase(),
+        c.address.streetNameAndNumber.trim().toLowerCase(),
+        c.address.postalCode.toString(),
+        c.address.town.trim().toLowerCase(),
+        c.address.country.trim().toLowerCase(),
+      ].join('|');
+      if (seen.add(dedupeKey)) {
+        clients.add(c);
+      }
+    }
+    return clients;
+  }
+
+  String _clientKey(Client c) {
+    return [
+      c.companyName.trim().toLowerCase(),
+      c.name.trim().toLowerCase(),
+      c.address.streetNameAndNumber.trim().toLowerCase(),
+      c.address.postalCode.toString(),
+      c.address.town.trim().toLowerCase(),
+      c.address.country.trim().toLowerCase(),
+    ].join('|');
+  }
+
+  void _applySelectedClient(Client client) {
+    _clientCompanyName.text = client.companyName;
+    _clientName.text = client.name;
+    _clientStreetNameAndNumber.text = client.address.streetNameAndNumber;
+    _clientPostalCode.text = client.address.postalCode == 0 ? '' : client.address.postalCode.toString();
+    _clientTown.text = client.address.town;
+    _clientCountry.text = client.address.country.isNotEmpty ? client.address.country : 'Deutschland';
+  }
+
   @override
   Widget build(BuildContext context) {
     final isNew = widget.invoiceId == null;
     final asyncInvoice = widget.invoiceId != null ? ref.watch(invoiceDetailProvider(widget.invoiceId!)) : null;
     final asyncDefaults = ref.watch(defaultsProvider);
+    final asyncInvoiceList = ref.watch(invoiceListProvider);
+    final allExistingClients =
+        asyncInvoiceList.hasValue ? _existingClientsFromInvoices(asyncInvoiceList.value!) : <Client>[];
+    final existingClients = allExistingClients.where((c) => !_deletedClientKeys.contains(_clientKey(c))).toList();
 
     if (widget.invoiceId != null) {
       ref.listen<AsyncValue<Invoice?>>(
@@ -629,6 +677,18 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                           );
 
                           final Widget clientFields = ClientFields(
+                            existingClients: existingClients,
+                            selectedClientKey: _selectedExistingClientKey,
+                            onSelectedClientKeyChanged: (key) => setState(() => _selectedExistingClientKey = key),
+                            onExistingClientPicked: (client) => setState(() => _applySelectedClient(client)),
+                            onDeleteClientKey: (key) {
+                              setState(() {
+                                _deletedClientKeys.add(key);
+                                if (_selectedExistingClientKey == key) {
+                                  _selectedExistingClientKey = null;
+                                }
+                              });
+                            },
                             clientCompanyNameController: _clientCompanyName,
                             clientNameController: _clientName,
                             clientStreetNameAndNumberController: _clientStreetNameAndNumber,

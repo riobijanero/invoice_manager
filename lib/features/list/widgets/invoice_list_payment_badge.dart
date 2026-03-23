@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:invoice_manager/common/utils.dart';
+import 'package:invoice_manager/common/utils/date_utils.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
 
 /// Paid ([Icons.check_circle]) or overdue indicator for [InvoiceListTile].
