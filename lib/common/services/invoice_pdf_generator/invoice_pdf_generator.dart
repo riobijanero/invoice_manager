@@ -70,13 +70,13 @@ Future<Uint8List> generateInvoicePdf(Invoice invoice) async {
       build: (pw.Context context) {
         return [
           ...invoiceHeader(invoice),
-          pw.SizedBox(height: 60),
+          pw.SizedBox(height: 80),
 
           ...titleBlock(
             invoice: invoice,
             periodText: periodText,
           ),
-          pw.SizedBox(height: 30),
+          pw.SizedBox(height: 50),
           // Intro text comes from the invoice data model
           pw.Text(
             invoice.introductoryText,
@@ -95,17 +95,12 @@ Future<Uint8List> generateInvoicePdf(Invoice invoice) async {
           ),
           pw.SizedBox(height: 10),
           ...bankDetailsBlock(invoice.bankDetails),
-          pw.SizedBox(height: 20),
+          pw.SizedBox(height: 40),
           pw.Text(
             'Mit freundlichen Grüßen',
             style: const pw.TextStyle(fontSize: fontSizeMain),
           ),
-          pw.SizedBox(height: 24),
-          pw.Text(
-            '____________________',
-            style: const pw.TextStyle(fontSize: fontSizeMain),
-          ),
-          pw.SizedBox(height: 4),
+          pw.SizedBox(height: 2),
           pw.Text(
             invoice.bankDetails.accountHolder,
             style: const pw.TextStyle(fontSize: fontSizeMain),
