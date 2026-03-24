@@ -65,7 +65,7 @@ class ClientFields extends StatelessWidget {
             final name = v?.trim() ?? '';
             final company = clientCompanyNameController.text.trim();
             if (name.isEmpty && company.isEmpty) {
-              return 'Name oder Firma erforderlich';
+              return 'Firma oder Name erforderlich';
             }
             return null;
           },
@@ -306,10 +306,10 @@ class _CompanyFieldWithClientPickerState extends State<_CompanyFieldWithClientPi
       key: _fieldKey,
       controller: widget.controller,
       decoration: InputDecoration(
-        labelText: 'Firma (optional)',
+        labelText: 'Firma',
         border: const OutlineInputBorder(),
         suffixIcon: IconButton(
-          tooltip: 'Vorhandenen Kunden wählen',
+          tooltip: 'Aus vorhandenen Kunden wählen',
           icon: const Icon(Icons.arrow_drop_down),
           onPressed: _toggleClientOverlay,
         ),
@@ -318,7 +318,7 @@ class _CompanyFieldWithClientPickerState extends State<_CompanyFieldWithClientPi
         final company = v?.trim() ?? '';
         final name = widget.clientNameController.text.trim();
         if (company.isEmpty && name.isEmpty) {
-          return 'Name oder Firma erforderlich';
+          return 'Firma oder Name erforderlich';
         }
         return null;
       },
