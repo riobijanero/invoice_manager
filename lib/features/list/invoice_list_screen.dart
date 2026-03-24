@@ -82,29 +82,33 @@ class InvoiceListScreen extends ConsumerWidget {
         ),
       ),
       floatingActionButton: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          FloatingActionButton.extended(
-            heroTag: 'import_data_fab',
-            onPressed: () => CsvImportService.importIntoRepository(
-              context: context,
-              repository: ref.read(invoiceRepositoryProvider),
-              onDataChanged: () => ref.invalidate(invoiceListProvider),
-            ),
-            icon: const Icon(Icons.upload_file_outlined),
-            label: const Text('importieren'),
+          Row(
+            children: [
+              SizedBox(width: 30),
+              FloatingActionButton(
+                tooltip: 'Rechnungen importieren',
+                heroTag: 'import_data_fab',
+                onPressed: () => CsvImportService.importIntoRepository(
+                  context: context,
+                  repository: ref.read(invoiceRepositoryProvider),
+                  onDataChanged: () => ref.invalidate(invoiceListProvider),
+                ),
+                child: const Icon(Icons.upload_file_outlined),
+              ),
+              const SizedBox(width: 12),
+              FloatingActionButton(
+                tooltip: 'Rechnungen exportieren',
+                heroTag: 'export_data_fab',
+                onPressed: () => CsvExportService.exportFromRepository(
+                  context: context,
+                  repository: ref.read(invoiceRepositoryProvider),
+                ),
+                child: const Icon(Icons.download_outlined),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          FloatingActionButton.extended(
-            heroTag: 'export_data_fab',
-            onPressed: () => CsvExportService.exportFromRepository(
-              context: context,
-              repository: ref.read(invoiceRepositoryProvider),
-            ),
-            icon: const Icon(Icons.download_outlined),
-            label: const Text('exportieren'),
-          ),
-          const SizedBox(width: 12),
           FloatingActionButton.extended(
             heroTag: 'new_invoice_fab',
             onPressed: () => context.go('/invoice/new'),
