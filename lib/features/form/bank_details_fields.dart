@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:invoice_manager/features/form/ui/widgets/expandable_form_section.dart';
+
 class BankDetailsFields extends StatelessWidget {
   const BankDetailsFields({
     super.key,
@@ -74,42 +76,37 @@ class BankDetailsFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Bankdaten (Absender)',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        const SizedBox(height: 8),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final twoCols = constraints.maxWidth >= _minColumnWidth * 2 + _columnGap;
-            if (twoCols) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _fieldRow(_accountHolderField(), _institutionField()),
-                  const SizedBox(height: 12),
-                  _fieldRow(_ibanField(), _bicField()),
-                ],
-              );
-            }
+    return ExpandableFormSection(
+      title: 'Bankdaten (Absender)',
+      expandTooltip: 'Bankdaten ausklappen',
+      collapseTooltip: 'Bankdaten einklappen',
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final twoCols = constraints.maxWidth >= _minColumnWidth * 2 + _columnGap;
+          if (twoCols) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _accountHolderField(),
+                _fieldRow(_accountHolderField(), _institutionField()),
                 const SizedBox(height: 12),
-                _institutionField(),
-                const SizedBox(height: 12),
-                _ibanField(),
-                const SizedBox(height: 12),
-                _bicField(),
+                _fieldRow(_ibanField(), _bicField()),
               ],
             );
-          },
-        ),
-      ],
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _accountHolderField(),
+              const SizedBox(height: 12),
+              _institutionField(),
+              const SizedBox(height: 12),
+              _ibanField(),
+              const SizedBox(height: 12),
+              _bicField(),
+            ],
+          );
+        },
+      ),
     );
   }
 }

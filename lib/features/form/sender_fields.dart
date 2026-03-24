@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:invoice_manager/features/form/ui/widgets/expandable_form_section.dart';
+
 class SenderFields extends StatelessWidget {
   const SenderFields({
     super.key,
@@ -165,69 +167,68 @@ class SenderFields extends StatelessWidget {
     );
   }
 
+  Widget _fieldsBody() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxW = constraints.maxWidth;
+        final twoCols = maxW >= _minColumnWidth * 2 + _columnGap;
+
+        if (twoCols) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _fieldRow(_nameField(), _jobField()),
+              const SizedBox(height: 12),
+              _fieldRow(_streetField(), _plzField()),
+              const SizedBox(height: 12),
+              _fieldRow(_townField(), _countryField()),
+              const SizedBox(height: 12),
+              _fieldRow(_phoneField(), _emailField()),
+              const SizedBox(height: 12),
+              _fieldRow(_websiteField(), _ustField()),
+              const SizedBox(height: 12),
+              _taxField(),
+            ],
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _nameField(),
+            const SizedBox(height: 8),
+            _jobField(),
+            const SizedBox(height: 12),
+            _streetField(),
+            const SizedBox(height: 12),
+            _plzField(),
+            const SizedBox(height: 12),
+            _townField(),
+            const SizedBox(height: 12),
+            _countryField(),
+            const SizedBox(height: 12),
+            _phoneField(),
+            const SizedBox(height: 12),
+            _emailField(),
+            const SizedBox(height: 12),
+            _websiteField(),
+            const SizedBox(height: 12),
+            _ustField(),
+            const SizedBox(height: 12),
+            _taxField(),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Absender',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        const SizedBox(height: 8),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final maxW = constraints.maxWidth;
-            final twoCols = maxW >= _minColumnWidth * 2 + _columnGap;
-
-            if (twoCols) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _fieldRow(_nameField(), _jobField()),
-                  const SizedBox(height: 12),
-                  _fieldRow(_streetField(), _plzField()),
-                  const SizedBox(height: 12),
-                  _fieldRow(_townField(), _countryField()),
-                  const SizedBox(height: 12),
-                  _fieldRow(_phoneField(), _emailField()),
-                  const SizedBox(height: 12),
-                  _fieldRow(_websiteField(), _ustField()),
-                  const SizedBox(height: 12),
-                  _fieldRow(_taxField(), const SizedBox.shrink()),
-                ],
-              );
-            }
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _nameField(),
-                const SizedBox(height: 8),
-                _jobField(),
-                const SizedBox(height: 12),
-                _streetField(),
-                const SizedBox(height: 12),
-                _plzField(),
-                const SizedBox(height: 12),
-                _townField(),
-                const SizedBox(height: 12),
-                _countryField(),
-                const SizedBox(height: 12),
-                _phoneField(),
-                const SizedBox(height: 12),
-                _emailField(),
-                const SizedBox(height: 12),
-                _websiteField(),
-                const SizedBox(height: 12),
-                _ustField(),
-                const SizedBox(height: 12),
-                _taxField(),
-              ],
-            );
-          },
-        ),
-      ],
+    return ExpandableFormSection(
+      title: 'Absender',
+      expandTooltip: 'Absender ausklappen',
+      collapseTooltip: 'Absender einklappen',
+      child: _fieldsBody(),
     );
   }
 }

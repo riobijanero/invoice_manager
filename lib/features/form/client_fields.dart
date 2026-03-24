@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:invoice_manager/common/models/client.dart';
+import 'package:invoice_manager/features/form/ui/widgets/expandable_form_section.dart';
 import 'package:invoice_manager/features/form/ui/widgets/saved_client_picker_list.dart';
 
 class ClientFields extends StatelessWidget {
@@ -153,54 +154,49 @@ class ClientFields extends StatelessWidget {
       ),
     );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Kunde',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        const SizedBox(height: 8),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final twoCols = constraints.maxWidth >= _minColumnWidth * 2 + _columnGap;
-            if (twoCols) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _fieldRow(_companyPicker(clientOptions), _nameField()),
-                  const SizedBox(height: 12),
-                  _fieldRow(_streetField(), _plzField()),
-                  const SizedBox(height: 12),
-                  _fieldRow(_townField(), _countryField()),
-                  const SizedBox(height: 12),
-                  _fieldRow(_contractField(), _clientIdField()),
-                ],
-              );
-            }
+    return ExpandableFormSection(
+      title: 'Kunde',
+      expandTooltip: 'Kunde ausklappen',
+      collapseTooltip: 'Kunde einklappen',
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final twoCols = constraints.maxWidth >= _minColumnWidth * 2 + _columnGap;
+          if (twoCols) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _companyPicker(clientOptions),
+                _fieldRow(_companyPicker(clientOptions), _nameField()),
                 const SizedBox(height: 12),
-                _nameField(),
+                _fieldRow(_streetField(), _plzField()),
                 const SizedBox(height: 12),
-                _streetField(),
+                _fieldRow(_townField(), _countryField()),
                 const SizedBox(height: 12),
-                _plzField(),
-                const SizedBox(height: 12),
-                _townField(),
-                const SizedBox(height: 12),
-                _countryField(),
-                const SizedBox(height: 12),
-                _contractField(),
-                const SizedBox(height: 12),
-                _clientIdField(),
+                _fieldRow(_contractField(), _clientIdField()),
               ],
             );
-          },
-        ),
-      ],
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _companyPicker(clientOptions),
+              const SizedBox(height: 12),
+              _nameField(),
+              const SizedBox(height: 12),
+              _streetField(),
+              const SizedBox(height: 12),
+              _plzField(),
+              const SizedBox(height: 12),
+              _townField(),
+              const SizedBox(height: 12),
+              _countryField(),
+              const SizedBox(height: 12),
+              _contractField(),
+              const SizedBox(height: 12),
+              _clientIdField(),
+            ],
+          );
+        },
+      ),
     );
   }
 }
