@@ -583,38 +583,52 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                   child: ListView(
                     padding: const EdgeInsets.all(24),
                     children: [
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          const minColumnWidth = 300.0;
-                          const gap = 24.0;
-                          final maxWidth = constraints.maxWidth.isFinite ? constraints.maxWidth : 0.0;
-
-                          final Widget leftColumn = Column(
-                            children: [
-                              SenderFields(
-                                senderNameController: _senderName,
-                                jobDescriptionController: _jobDescription,
-                                senderStreetNameAndNumberController: _senderStreetNameAndNumber,
-                                senderPostalCodeController: _senderPostalCode,
-                                senderTownController: _senderTown,
-                                senderCountryController: _senderCountry,
-                                senderPhoneController: _senderPhone,
-                                senderEmailController: _senderEmail,
-                                senderWebsiteController: _senderWebsite,
-                                ustIdController: _ustId,
-                                taxNumberController: _taxNumber,
-                              ),
-                              const SizedBox(height: 20),
-                              BankDetailsFields(
-                                accountHolderController: _accountHolder,
-                                institutionController: _institution,
-                                ibanController: _iban,
-                                bicController: _bic,
-                              ),
-                            ],
-                          );
-
-                          final Widget invoiceDetailFields = InvoiceDetailFields(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Zeile 1: Absender + Bankverbindung
+                          SenderFields(
+                            senderNameController: _senderName,
+                            jobDescriptionController: _jobDescription,
+                            senderStreetNameAndNumberController: _senderStreetNameAndNumber,
+                            senderPostalCodeController: _senderPostalCode,
+                            senderTownController: _senderTown,
+                            senderCountryController: _senderCountry,
+                            senderPhoneController: _senderPhone,
+                            senderEmailController: _senderEmail,
+                            senderWebsiteController: _senderWebsite,
+                            ustIdController: _ustId,
+                            taxNumberController: _taxNumber,
+                          ),
+                          const SizedBox(height: 20),
+                          BankDetailsFields(
+                            accountHolderController: _accountHolder,
+                            institutionController: _institution,
+                            ibanController: _iban,
+                            bicController: _bic,
+                          ),
+                          const SizedBox(height: 30),
+                          // Zeile 2: Kunde
+                          ClientFields(
+                            existingClients: existingClients,
+                            onExistingClientPicked: (client) => setState(() => _applySelectedClient(client)),
+                            onDeleteClientKey: (key) {
+                              setState(() {
+                                _deletedClientKeys.add(key);
+                              });
+                            },
+                            clientCompanyNameController: _clientCompanyName,
+                            clientNameController: _clientName,
+                            clientStreetNameAndNumberController: _clientStreetNameAndNumber,
+                            clientPostalCodeController: _clientPostalCode,
+                            clientTownController: _clientTown,
+                            clientCountryController: _clientCountry,
+                            clientIdController: _clientId,
+                            contractNumberController: _contractNumber,
+                          ),
+                          const SizedBox(height: 30),
+                          // Zeile 3: Rechnungsdetails
+                          InvoiceDetailFields(
                             invoiceNumberController: _invoiceNumber,
                             invoiceDate: _invoiceDate,
                             onInvoiceDateTap: () async {
@@ -682,105 +696,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                               );
                               if (d != null) setState(() => _customDueDate = d);
                             },
-                          );
-
-                          final Widget clientFields = ClientFields(
-                            existingClients: existingClients,
-                            onExistingClientPicked: (client) => setState(() => _applySelectedClient(client)),
-                            onDeleteClientKey: (key) {
-                              setState(() {
-                                _deletedClientKeys.add(key);
-                              });
-                            },
-                            clientCompanyNameController: _clientCompanyName,
-                            clientNameController: _clientName,
-                            clientStreetNameAndNumberController: _clientStreetNameAndNumber,
-                            clientPostalCodeController: _clientPostalCode,
-                            clientTownController: _clientTown,
-                            clientCountryController: _clientCountry,
-                            clientIdController: _clientId,
-                            contractNumberController: _contractNumber,
-                          );
-
-                          // Right column "stack" layout (current behavior for non-3-col screens).
-                          final Widget rightColumnStack = Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              clientFields,
-                              const SizedBox(height: 30),
-                              invoiceDetailFields,
-                            ],
-                          );
-
-                          // 3-column layout: [Sender+Bank] | [Client] | [Invoice details]
-                          final bool sideBySideThree = maxWidth >= (minColumnWidth * 3 + gap * 2);
-                          if (sideBySideThree) {
-                            return Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: ConstrainedBox(
-                                    constraints: const BoxConstraints(minWidth: minColumnWidth),
-                                    child: leftColumn,
-                                  ),
-                                ),
-                                const SizedBox(width: gap),
-                                Expanded(
-                                  child: ConstrainedBox(
-                                    constraints: const BoxConstraints(minWidth: minColumnWidth),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      children: [clientFields],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: gap),
-                                Expanded(
-                                  child: ConstrainedBox(
-                                    constraints: const BoxConstraints(minWidth: minColumnWidth),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      children: [
-                                        invoiceDetailFields,
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          }
-
-                          // 2-column layout: keep current behavior (InvoiceDetailFields under ClientFields).
-                          final bool sideBySideTwo = maxWidth >= (minColumnWidth * 2 + gap);
-                          if (sideBySideTwo) {
-                            return Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: ConstrainedBox(
-                                    constraints: const BoxConstraints(minWidth: minColumnWidth),
-                                    child: leftColumn,
-                                  ),
-                                ),
-                                const SizedBox(width: gap),
-                                Expanded(
-                                  child: ConstrainedBox(
-                                    constraints: const BoxConstraints(minWidth: minColumnWidth),
-                                    child: rightColumnStack,
-                                  ),
-                                ),
-                              ],
-                            );
-                          }
-
-                          // Narrow window: use Wrap so the second column moves underneath the first.
-                          return Wrap(
-                            children: [
-                              SizedBox(width: maxWidth, child: leftColumn),
-                              SizedBox(width: maxWidth, child: rightColumnStack),
-                            ],
-                          );
-                        },
+                          ),
+                        ],
                       ),
                     ],
                   ),
