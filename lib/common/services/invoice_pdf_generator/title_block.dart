@@ -43,6 +43,7 @@ List<pw.Widget> titleBlock({
             children: [
               tableRow('Datum:', formatDate(invoice.invoiceDate)),
               tableRow('Rechnungsnr.:', invoice.invoiceNumber),
+              if (invoice.client.clientId.trim().isNotEmpty) tableRow('Kundennr:', invoice.client.clientId.trim()),
               if (invoice.contractNumber.isNotEmpty) tableRow('Kontraktnr.:', invoice.contractNumber),
             ],
           ),

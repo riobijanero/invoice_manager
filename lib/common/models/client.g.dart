@@ -7,6 +7,7 @@ part of 'client.dart';
 // **************************************************************************
 
 _$ClientImpl _$$ClientImplFromJson(Map<String, dynamic> json) => _$ClientImpl(
+      clientId: json['clientId'] as String? ?? '',
       companyName: json['companyName'] as String? ?? '',
       name: json['name'] as String? ?? '',
       address: json['address'] == null
@@ -16,6 +17,7 @@ _$ClientImpl _$$ClientImplFromJson(Map<String, dynamic> json) => _$ClientImpl(
 
 Map<String, dynamic> _$$ClientImplToJson(_$ClientImpl instance) =>
     <String, dynamic>{
+      'clientId': instance.clientId,
       'companyName': instance.companyName,
       'name': instance.name,
       'address': instance.address,

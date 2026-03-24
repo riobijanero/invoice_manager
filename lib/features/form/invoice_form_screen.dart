@@ -50,6 +50,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   late TextEditingController _clientPostalCode;
   late TextEditingController _clientTown;
   late TextEditingController _clientCountry;
+  late TextEditingController _clientId;
   late TextEditingController _contractNumber;
   late TextEditingController _accountHolder;
   late TextEditingController _institution;
@@ -96,6 +97,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _clientPostalCode = TextEditingController();
     _clientTown = TextEditingController();
     _clientCountry = TextEditingController(text: 'Deutschland');
+    _clientId = TextEditingController();
     _contractNumber = TextEditingController();
     _accountHolder = TextEditingController();
     _institution = TextEditingController();
@@ -148,6 +150,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _clientPostalCode.dispose();
     _clientTown.dispose();
     _clientCountry.dispose();
+    _clientId.dispose();
     _contractNumber.dispose();
     _accountHolder.dispose();
     _institution.dispose();
@@ -191,6 +194,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _clientPostalCode.text = inv.client.address.postalCode == 0 ? '' : inv.client.address.postalCode.toString();
     _clientTown.text = inv.client.address.town;
     _clientCountry.text = inv.client.address.country.isNotEmpty ? inv.client.address.country : 'Deutschland';
+    _clientId.text = inv.client.clientId;
     _contractNumber.text = inv.contractNumber;
     _accountHolder.text = inv.bankDetails.accountHolder;
     _institution.text = inv.bankDetails.institution;
@@ -276,6 +280,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _clientPostalCode.clear();
     _clientTown.clear();
     _clientCountry.text = 'Deutschland';
+    _clientId.clear();
     _contractNumber.text = d.contractNumber;
     if (d.bankDetails != null) {
       _accountHolder.text = d.bankDetails!.accountHolder;
@@ -474,6 +479,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _clientPostalCode.text = client.address.postalCode == 0 ? '' : client.address.postalCode.toString();
     _clientTown.text = client.address.town;
     _clientCountry.text = client.address.country.isNotEmpty ? client.address.country : 'Deutschland';
+    _clientId.text = client.clientId;
   }
 
   @override
@@ -687,6 +693,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             clientPostalCodeController: _clientPostalCode,
                             clientTownController: _clientTown,
                             clientCountryController: _clientCountry,
+                            clientIdController: _clientId,
                             contractNumberController: _contractNumber,
                           );
 
@@ -821,6 +828,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
         taxNumber: _taxNumber.text.trim(),
       ),
       client: Client(
+        clientId: _clientId.text.trim(),
         companyName: _clientCompanyName.text.trim(),
         name: _clientName.text.trim(),
         address: Adress(
@@ -915,6 +923,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
         taxNumber: _taxNumber.text.trim(),
       ),
       client: Client(
+        clientId: _clientId.text.trim(),
         companyName: _clientCompanyName.text.trim(),
         name: _clientName.text.trim(),
         address: Adress(

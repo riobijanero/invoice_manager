@@ -14,6 +14,7 @@ class ClientFields extends StatelessWidget {
     required this.clientPostalCodeController,
     required this.clientTownController,
     required this.clientCountryController,
+    required this.clientIdController,
     required this.contractNumberController,
   });
 
@@ -26,6 +27,7 @@ class ClientFields extends StatelessWidget {
   final TextEditingController clientPostalCodeController;
   final TextEditingController clientTownController;
   final TextEditingController clientCountryController;
+  final TextEditingController clientIdController;
   final TextEditingController contractNumberController;
 
   @override
@@ -117,6 +119,14 @@ class ClientFields extends StatelessWidget {
           controller: contractNumberController,
           decoration: const InputDecoration(
             labelText: 'Vertragsnummer (optional)',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: clientIdController,
+          decoration: const InputDecoration(
+            labelText: 'Kundennummer (optional)',
             border: OutlineInputBorder(),
           ),
         ),

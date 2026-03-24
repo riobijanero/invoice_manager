@@ -10,6 +10,7 @@ class Client with _$Client {
   const Client._();
 
   const factory Client({
+    @Default('') String clientId,
     @Default('') String companyName,
     @Default('') String name,
     @Default(Adress()) Adress address,

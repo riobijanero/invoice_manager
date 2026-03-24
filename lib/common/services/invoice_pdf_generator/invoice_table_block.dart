@@ -41,7 +41,7 @@ const pw.TableBorder _kInvoiceItemRowBorder = pw.TableBorder(
 
 /// Pos. | Beschreibung | Einheit | Anzahl | Einzelpreis | Gesamt
 const Map<int, pw.TableColumnWidth> _sixColumnWidths = {
-  0: pw.FixedColumnWidth(_kPosWidth),
+  0: pw.FixedColumnWidth(_kPosWidth), // Pos.
   1: pw.FlexColumnWidth(1), // Beschreibung
   2: pw.FixedColumnWidth(_kEinheitWidth),
   3: pw.FixedColumnWidth(_kAnzahlWidth),
