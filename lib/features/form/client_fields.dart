@@ -30,6 +30,118 @@ class ClientFields extends StatelessWidget {
   final TextEditingController clientIdController;
   final TextEditingController contractNumberController;
 
+  static const double _minColumnWidth = 280;
+  static const double _columnGap = 24;
+
+  Widget _companyPicker(List<SavedClientPickerEntry> clientOptions) {
+    return _CompanyFieldWithClientPicker(
+      controller: clientCompanyNameController,
+      clientNameController: clientNameController,
+      clientOptions: clientOptions,
+      onExistingClientPicked: onExistingClientPicked,
+      onDeleteClientKey: onDeleteClientKey,
+    );
+  }
+
+  Widget _nameField() {
+    return TextFormField(
+      controller: clientNameController,
+      decoration: const InputDecoration(
+        labelText: 'Name',
+        border: OutlineInputBorder(),
+      ),
+      validator: (v) {
+        final name = v?.trim() ?? '';
+        final company = clientCompanyNameController.text.trim();
+        if (name.isEmpty && company.isEmpty) {
+          return 'Firma oder Name erforderlich';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _streetField() {
+    return TextFormField(
+      controller: clientStreetNameAndNumberController,
+      decoration: const InputDecoration(
+        labelText: 'Straße und Nr.',
+        border: OutlineInputBorder(),
+      ),
+      validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
+    );
+  }
+
+  Widget _plzField() {
+    return TextFormField(
+      controller: clientPostalCodeController,
+      decoration: const InputDecoration(
+        labelText: 'PLZ',
+        border: OutlineInputBorder(),
+      ),
+      keyboardType: TextInputType.number,
+      validator: (v) {
+        if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
+        final n = int.tryParse(v.trim());
+        if (n == null || n <= 0) return 'Ungültige PLZ';
+        return null;
+      },
+    );
+  }
+
+  Widget _townField() {
+    return TextFormField(
+      controller: clientTownController,
+      decoration: const InputDecoration(
+        labelText: 'Ort',
+        border: OutlineInputBorder(),
+      ),
+      validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
+    );
+  }
+
+  Widget _countryField() {
+    return TextFormField(
+      controller: clientCountryController,
+      decoration: const InputDecoration(
+        labelText: 'Land',
+        border: OutlineInputBorder(),
+      ),
+      validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
+    );
+  }
+
+  Widget _contractField() {
+    return TextFormField(
+      controller: contractNumberController,
+      decoration: const InputDecoration(
+        labelText: 'Vertragsnummer (optional)',
+        border: OutlineInputBorder(),
+      ),
+    );
+  }
+
+  Widget _clientIdField() {
+    return TextFormField(
+      controller: clientIdController,
+      decoration: const InputDecoration(
+        labelText: 'Kundennummer (optional)',
+        border: OutlineInputBorder(),
+      ),
+    );
+  }
+
+  Widget _fieldRow(Widget left, Widget right) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: left),
+        const SizedBox(width: _columnGap),
+        Expanded(child: right),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final clientOptions = List<SavedClientPickerEntry>.generate(
@@ -49,86 +161,44 @@ class ClientFields extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         const SizedBox(height: 8),
-        _CompanyFieldWithClientPicker(
-          controller: clientCompanyNameController,
-          clientNameController: clientNameController,
-          clientOptions: clientOptions,
-          onExistingClientPicked: onExistingClientPicked,
-          onDeleteClientKey: onDeleteClientKey,
-        ),
-        const SizedBox(height: 12),
-        TextFormField(
-          controller: clientNameController,
-          decoration: const InputDecoration(
-            labelText: 'Name',
-            border: OutlineInputBorder(),
-          ),
-          validator: (v) {
-            final name = v?.trim() ?? '';
-            final company = clientCompanyNameController.text.trim();
-            if (name.isEmpty && company.isEmpty) {
-              return 'Firma oder Name erforderlich';
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final twoCols = constraints.maxWidth >= _minColumnWidth * 2 + _columnGap;
+            if (twoCols) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _fieldRow(_companyPicker(clientOptions), _nameField()),
+                  const SizedBox(height: 12),
+                  _fieldRow(_streetField(), _plzField()),
+                  const SizedBox(height: 12),
+                  _fieldRow(_townField(), _countryField()),
+                  const SizedBox(height: 12),
+                  _fieldRow(_contractField(), _clientIdField()),
+                ],
+              );
             }
-            return null;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _companyPicker(clientOptions),
+                const SizedBox(height: 12),
+                _nameField(),
+                const SizedBox(height: 12),
+                _streetField(),
+                const SizedBox(height: 12),
+                _plzField(),
+                const SizedBox(height: 12),
+                _townField(),
+                const SizedBox(height: 12),
+                _countryField(),
+                const SizedBox(height: 12),
+                _contractField(),
+                const SizedBox(height: 12),
+                _clientIdField(),
+              ],
+            );
           },
-        ),
-        const SizedBox(height: 12),
-        TextFormField(
-          controller: clientStreetNameAndNumberController,
-          decoration: const InputDecoration(
-            labelText: 'Straße und Nr.',
-            border: OutlineInputBorder(),
-          ),
-          validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-        ),
-        const SizedBox(height: 12),
-        TextFormField(
-          controller: clientPostalCodeController,
-          decoration: const InputDecoration(
-            labelText: 'PLZ',
-            border: OutlineInputBorder(),
-          ),
-          keyboardType: TextInputType.number,
-          validator: (v) {
-            if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
-            final n = int.tryParse(v.trim());
-            if (n == null || n <= 0) return 'Ungültige PLZ';
-            return null;
-          },
-        ),
-        const SizedBox(height: 12),
-        TextFormField(
-          controller: clientTownController,
-          decoration: const InputDecoration(
-            labelText: 'Ort',
-            border: OutlineInputBorder(),
-          ),
-          validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-        ),
-        const SizedBox(height: 12),
-        TextFormField(
-          controller: clientCountryController,
-          decoration: const InputDecoration(
-            labelText: 'Land',
-            border: OutlineInputBorder(),
-          ),
-          validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-        ),
-        const SizedBox(height: 12),
-        TextFormField(
-          controller: contractNumberController,
-          decoration: const InputDecoration(
-            labelText: 'Vertragsnummer (optional)',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 12),
-        TextFormField(
-          controller: clientIdController,
-          decoration: const InputDecoration(
-            labelText: 'Kundennummer (optional)',
-            border: OutlineInputBorder(),
-          ),
         ),
       ],
     );

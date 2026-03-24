@@ -538,11 +538,16 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(isNew ? 'Neue Rechnung' : 'Rechnung bearbeiten'),
+            Expanded(
+              child: Text(
+                isNew ? 'Neue Rechnung' : 'Rechnung bearbeiten',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             if (!isNew && _isOverdueInForm()) ...[
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               const OverdueChip(),
             ],
           ],
