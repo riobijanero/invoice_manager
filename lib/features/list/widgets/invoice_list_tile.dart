@@ -104,6 +104,16 @@ class InvoiceListTile extends ConsumerWidget {
             onSelected: onAction,
             itemBuilder: (context) => [
               const PopupMenuItem(
+                value: 'preview',
+                child: Row(
+                  children: [
+                    Icon(Icons.picture_as_pdf_outlined),
+                    SizedBox(width: 8),
+                    Text('Vorschau'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
                 value: 'duplicate',
                 child: Row(
                   children: [

@@ -130,6 +130,16 @@ class InvoiceListScreen extends ConsumerWidget {
       _confirmDelete(context, ref, invoice);
     } else if (action == 'duplicate') {
       _duplicateInvoice(context, ref, invoice);
+    } else if (action == 'preview') {
+      _openPreview(context, invoice);
+    }
+  }
+
+  void _openPreview(BuildContext context, Invoice invoice) {
+    if (isWideInvoiceLayout(context)) {
+      context.go(pathPreview(invoice.id));
+    } else {
+      context.push(pathPreview(invoice.id));
     }
   }
 
