@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path/path.dart' as path;
 
 import 'package:invoice_manager/common/layout/invoice_layout_breakpoints.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
 import 'package:invoice_manager/common/providers/providers.dart';
+import 'package:invoice_manager/features/exportData/services/csv_export_service.dart';
 import 'package:invoice_manager/features/form/utils/utils.dart';
 import 'package:invoice_manager/features/list/widgets/invoice_list_tile.dart';
 import 'package:invoice_manager/features/list/widgets/new_invoice_draft_list_tile.dart';
@@ -82,12 +84,44 @@ class InvoiceListScreen extends ConsumerWidget {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go('/invoice/new'),
-        icon: const Icon(Icons.add),
-        label: const Text('Neue Rechnung'),
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'export_data_fab',
+            onPressed: () => _exportData(context, ref),
+            icon: const Icon(Icons.download_outlined),
+            label: const Text('Daten exportieren'),
+          ),
+          const SizedBox(width: 12),
+          FloatingActionButton.extended(
+            heroTag: 'new_invoice_fab',
+            onPressed: () => context.go('/invoice/new'),
+            icon: const Icon(Icons.add),
+            label: const Text('Neue Rechnung'),
+          ),
+        ],
       ),
     );
+  }
+
+  Future<void> _exportData(BuildContext context, WidgetRef ref) async {
+    try {
+      final invoices = await ref.read(invoiceRepositoryProvider).getAll();
+      final savedPath = await CsvExportService.exportInvoices(invoices: invoices);
+      if (savedPath == null) return;
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('CSV exportiert: ${path.basename(savedPath)}'),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Export fehlgeschlagen: $e')),
+      );
+    }
   }
 
   void _handleAction(
