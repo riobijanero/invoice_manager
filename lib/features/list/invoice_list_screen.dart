@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path/path.dart' as path;
 
 import 'package:invoice_manager/common/layout/invoice_layout_breakpoints.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
 import 'package:invoice_manager/common/providers/providers.dart';
 import 'package:invoice_manager/features/exportData/services/csv_export_service.dart';
+import 'package:invoice_manager/features/exportData/services/csv_import_service.dart';
 import 'package:invoice_manager/features/form/utils/utils.dart';
 import 'package:invoice_manager/features/list/widgets/invoice_list_tile.dart';
 import 'package:invoice_manager/features/list/widgets/new_invoice_draft_list_tile.dart';
@@ -20,8 +20,7 @@ class InvoiceListScreen extends ConsumerWidget {
     final asyncInvoices = ref.watch(invoiceListProvider);
     final selectedId = _selectedInvoiceId(context);
     final wide = isWideInvoiceLayout(context);
-    final showNewDraftRow =
-        wide && GoRouterState.of(context).uri.path == '/invoice/new';
+    final showNewDraftRow = wide && GoRouterState.of(context).uri.path == '/invoice/new';
     return Scaffold(
       appBar: AppBar(
         title: const Text('Rechnungsliste'),
@@ -62,9 +61,7 @@ class InvoiceListScreen extends ConsumerWidget {
                 invoice: invoice,
                 selected: selectedId == invoice.id,
                 onAction: (action) => _handleAction(context, ref, action, invoice),
-                onTap: () => wide
-                    ? context.go(pathEdit(invoice.id))
-                    : context.push(pathEdit(invoice.id)),
+                onTap: () => wide ? context.go(pathEdit(invoice.id)) : context.push(pathEdit(invoice.id)),
               );
             },
           );
@@ -88,10 +85,24 @@ class InvoiceListScreen extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           FloatingActionButton.extended(
+            heroTag: 'import_data_fab',
+            onPressed: () => CsvImportService.importIntoRepository(
+              context: context,
+              repository: ref.read(invoiceRepositoryProvider),
+              onDataChanged: () => ref.invalidate(invoiceListProvider),
+            ),
+            icon: const Icon(Icons.upload_file_outlined),
+            label: const Text('importieren'),
+          ),
+          const SizedBox(width: 12),
+          FloatingActionButton.extended(
             heroTag: 'export_data_fab',
-            onPressed: () => _exportData(context, ref),
+            onPressed: () => CsvExportService.exportFromRepository(
+              context: context,
+              repository: ref.read(invoiceRepositoryProvider),
+            ),
             icon: const Icon(Icons.download_outlined),
-            label: const Text('Daten exportieren'),
+            label: const Text('exportieren'),
           ),
           const SizedBox(width: 12),
           FloatingActionButton.extended(
@@ -103,25 +114,6 @@ class InvoiceListScreen extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  Future<void> _exportData(BuildContext context, WidgetRef ref) async {
-    try {
-      final invoices = await ref.read(invoiceRepositoryProvider).getAll();
-      final savedPath = await CsvExportService.exportInvoices(invoices: invoices);
-      if (savedPath == null) return;
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('CSV exportiert: ${path.basename(savedPath)}'),
-        ),
-      );
-    } catch (e) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Export fehlgeschlagen: $e')),
-      );
-    }
   }
 
   void _handleAction(
@@ -214,4 +206,3 @@ class InvoiceListScreen extends ConsumerWidget {
     return '${DateTime.now().millisecondsSinceEpoch}-${DateTime.now().microsecond}';
   }
 }
-

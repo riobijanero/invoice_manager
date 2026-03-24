@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/material.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
 import 'package:invoice_manager/common/utils/invoice_calculations.dart';
+import 'package:invoice_manager/repositories/invoice_repository.dart';
+import 'package:path/path.dart' as path;
 
 /// Exports invoices as CSV (one row per invoice).
 ///
@@ -10,6 +14,28 @@ import 'package:invoice_manager/common/utils/invoice_calculations.dart';
 /// later for CSV import.
 class CsvExportService {
   const CsvExportService._();
+
+  static Future<void> exportFromRepository({
+    required BuildContext context,
+    required InvoiceRepository repository,
+  }) async {
+    try {
+      final invoices = await repository.getAll();
+      final savedPath = await exportInvoices(invoices: invoices);
+      if (savedPath == null) return;
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('CSV exportiert: ${path.basename(savedPath)}'),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Export fehlgeschlagen: $e')),
+      );
+    }
+  }
 
   static Future<String?> exportInvoices({
     required List<Invoice> invoices,
@@ -71,6 +97,7 @@ class CsvExportService {
       'vatAmount',
       'gross',
       'itemCount',
+      'invoiceJson',
     ];
 
     final lines = <String>[
@@ -114,6 +141,7 @@ class CsvExportService {
           totals.vat.toString(),
           totals.gross.toString(),
           invoice.invoiceItemList.length.toString(),
+          jsonEncode(invoice.toJson()),
         ];
         return row.map(_csvEscape).join(',');
       }),

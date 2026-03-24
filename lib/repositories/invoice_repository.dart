@@ -80,4 +80,17 @@ class InvoiceRepository {
       );
     }
   }
+
+  /// Replaces all invoices on disk with [invoices] preserving their timestamps.
+  Future<void> replaceAll(List<Invoice> invoices) async {
+    final filePath = await _getFilePath();
+    final file = File(filePath);
+    final dir = file.parent;
+    if (!await dir.exists()) await dir.create(recursive: true);
+    final copy = List<Invoice>.from(invoices);
+    sortInvoicesByCreatedAtNewestFirst(copy);
+    await file.writeAsString(
+      const JsonEncoder.withIndent('  ').convert(copy.map((e) => e.toJson()).toList()),
+    );
+  }
 }
