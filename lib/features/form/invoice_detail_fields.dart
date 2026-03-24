@@ -30,6 +30,8 @@ class InvoiceDetailFields extends StatelessWidget {
     required this.discountType,
     required this.onDiscountTypeChanged,
     required this.discountValueController,
+    required this.vat,
+    required this.onVatChanged,
     required this.dueDateType,
     required this.onDueDateTypeChanged,
     required this.customDueDate,
@@ -58,6 +60,8 @@ class InvoiceDetailFields extends StatelessWidget {
   final DiscountType discountType;
   final ValueChanged<DiscountType> onDiscountTypeChanged;
   final TextEditingController discountValueController;
+  final double vat;
+  final ValueChanged<double> onVatChanged;
   final DueDateType dueDateType;
   final ValueChanged<DueDateType> onDueDateTypeChanged;
   final DateTime? customDueDate;
@@ -355,6 +359,22 @@ class InvoiceDetailFields extends StatelessWidget {
                   return null;
                 },
               ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            const Text('MwSt: '),
+            const SizedBox(width: 4),
+            SegmentedButton<double>(
+              showSelectedIcon: false,
+              segments: const [
+                ButtonSegment(value: 0.19, label: Text('19%')),
+                ButtonSegment(value: 0.0, label: Text('0%')),
+              ],
+              selected: {vat},
+              onSelectionChanged: (s) => onVatChanged(s.first),
             ),
           ],
         ),

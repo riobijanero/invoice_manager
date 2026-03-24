@@ -72,6 +72,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   List<int?> _serviceMonths = [null];
   List<int?> _serviceYears = [null];
   DiscountType _discountType = DiscountType.percent;
+  double _vat = 0.19;
   DueDateType _dueDateType = DueDateType.twoWeeks;
   DateTime? _customDueDate;
   Invoice? _loadedInvoice;
@@ -242,6 +243,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
         )
         .toList();
     _discountType = inv.discountType;
+    _vat = inv.vat;
     _discountValue.text = inv.discountValue.toString();
     _dueDateType = inv.dueDateType;
     _customDueDate = inv.customDueDate;
@@ -290,6 +292,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     }
     _hourlyRateControllers[0].text = d.hourlyRate > 0 ? d.hourlyRate.toString() : '0';
     _discountType = d.discountType;
+    _vat = 0.19;
     _discountValue.text = d.discountValue.toString();
     _dueDateType = d.dueDateType;
     _jobDescription.text = d.sender.jobDescription;
@@ -664,6 +667,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             discountType: _discountType,
                             onDiscountTypeChanged: (v) => setState(() => _discountType = v),
                             discountValueController: _discountValue,
+                            vat: _vat,
+                            onVatChanged: (v) => setState(() => _vat = v),
                             dueDateType: _dueDateType,
                             onDueDateTypeChanged: (v) => setState(() => _dueDateType = v),
                             customDueDate: _customDueDate,
@@ -945,6 +950,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       invoiceItemList: items,
       discountType: _discountType,
       discountValue: discount,
+      vat: _vat,
       dueDateType: _dueDateType,
       customDueDate: _dueDateType == DueDateType.custom ? _customDueDate : null,
       introductoryText: _introductoryText.text.trim(),

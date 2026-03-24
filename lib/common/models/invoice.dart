@@ -27,6 +27,7 @@ class Invoice with _$Invoice {
     @Default(<InvoiceItem>[]) List<InvoiceItem> invoiceItemList,
     @Default(DiscountType.percent) DiscountType discountType,
     @Default(0.0) double discountValue,
+    @Default(0.19) double vat,
     @Default(DueDateType.twoWeeks) DueDateType dueDateType,
     DateTime? customDueDate,
     DateTime? paidOn,

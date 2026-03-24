@@ -36,6 +36,7 @@ mixin _$Invoice {
   List<InvoiceItem> get invoiceItemList => throw _privateConstructorUsedError;
   DiscountType get discountType => throw _privateConstructorUsedError;
   double get discountValue => throw _privateConstructorUsedError;
+  double get vat => throw _privateConstructorUsedError;
   DueDateType get dueDateType => throw _privateConstructorUsedError;
   DateTime? get customDueDate => throw _privateConstructorUsedError;
   DateTime? get paidOn => throw _privateConstructorUsedError;
@@ -64,6 +65,7 @@ abstract class $InvoiceCopyWith<$Res> {
       List<InvoiceItem> invoiceItemList,
       DiscountType discountType,
       double discountValue,
+      double vat,
       DueDateType dueDateType,
       DateTime? customDueDate,
       DateTime? paidOn,
@@ -99,6 +101,7 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
     Object? invoiceItemList = null,
     Object? discountType = null,
     Object? discountValue = null,
+    Object? vat = null,
     Object? dueDateType = null,
     Object? customDueDate = freezed,
     Object? paidOn = freezed,
@@ -152,6 +155,10 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
       discountValue: null == discountValue
           ? _value.discountValue
           : discountValue // ignore: cast_nullable_to_non_nullable
+              as double,
+      vat: null == vat
+          ? _value.vat
+          : vat // ignore: cast_nullable_to_non_nullable
               as double,
       dueDateType: null == dueDateType
           ? _value.dueDateType
@@ -217,6 +224,7 @@ abstract class _$$InvoiceImplCopyWith<$Res> implements $InvoiceCopyWith<$Res> {
       List<InvoiceItem> invoiceItemList,
       DiscountType discountType,
       double discountValue,
+      double vat,
       DueDateType dueDateType,
       DateTime? customDueDate,
       DateTime? paidOn,
@@ -253,6 +261,7 @@ class __$$InvoiceImplCopyWithImpl<$Res>
     Object? invoiceItemList = null,
     Object? discountType = null,
     Object? discountValue = null,
+    Object? vat = null,
     Object? dueDateType = null,
     Object? customDueDate = freezed,
     Object? paidOn = freezed,
@@ -307,6 +316,10 @@ class __$$InvoiceImplCopyWithImpl<$Res>
           ? _value.discountValue
           : discountValue // ignore: cast_nullable_to_non_nullable
               as double,
+      vat: null == vat
+          ? _value.vat
+          : vat // ignore: cast_nullable_to_non_nullable
+              as double,
       dueDateType: null == dueDateType
           ? _value.dueDateType
           : dueDateType // ignore: cast_nullable_to_non_nullable
@@ -343,6 +356,7 @@ class _$InvoiceImpl implements _Invoice {
       final List<InvoiceItem> invoiceItemList = const <InvoiceItem>[],
       this.discountType = DiscountType.percent,
       this.discountValue = 0.0,
+      this.vat = 0.19,
       this.dueDateType = DueDateType.twoWeeks,
       this.customDueDate,
       this.paidOn,
@@ -393,6 +407,9 @@ class _$InvoiceImpl implements _Invoice {
   final double discountValue;
   @override
   @JsonKey()
+  final double vat;
+  @override
+  @JsonKey()
   final DueDateType dueDateType;
   @override
   final DateTime? customDueDate;
@@ -404,7 +421,7 @@ class _$InvoiceImpl implements _Invoice {
 
   @override
   String toString() {
-    return 'Invoice(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, invoiceNumber: $invoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, invoiceDate: $invoiceDate, invoiceItemList: $invoiceItemList, discountType: $discountType, discountValue: $discountValue, dueDateType: $dueDateType, customDueDate: $customDueDate, paidOn: $paidOn, introductoryText: $introductoryText)';
+    return 'Invoice(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, invoiceNumber: $invoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, invoiceDate: $invoiceDate, invoiceItemList: $invoiceItemList, discountType: $discountType, discountValue: $discountValue, vat: $vat, dueDateType: $dueDateType, customDueDate: $customDueDate, paidOn: $paidOn, introductoryText: $introductoryText)';
   }
 
   @override
@@ -433,6 +450,7 @@ class _$InvoiceImpl implements _Invoice {
                 other.discountType == discountType) &&
             (identical(other.discountValue, discountValue) ||
                 other.discountValue == discountValue) &&
+            (identical(other.vat, vat) || other.vat == vat) &&
             (identical(other.dueDateType, dueDateType) ||
                 other.dueDateType == dueDateType) &&
             (identical(other.customDueDate, customDueDate) ||
@@ -458,6 +476,7 @@ class _$InvoiceImpl implements _Invoice {
       const DeepCollectionEquality().hash(_invoiceItemList),
       discountType,
       discountValue,
+      vat,
       dueDateType,
       customDueDate,
       paidOn,
@@ -491,6 +510,7 @@ abstract class _Invoice implements Invoice {
       final List<InvoiceItem> invoiceItemList,
       final DiscountType discountType,
       final double discountValue,
+      final double vat,
       final DueDateType dueDateType,
       final DateTime? customDueDate,
       final DateTime? paidOn,
@@ -524,6 +544,8 @@ abstract class _Invoice implements Invoice {
   DiscountType get discountType;
   @override
   double get discountValue;
+  @override
+  double get vat;
   @override
   DueDateType get dueDateType;
   @override

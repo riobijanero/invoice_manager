@@ -75,6 +75,12 @@ List<pw.Widget> invoiceTableBlock({
     return 'Rabatt (Betrag)';
   }
 
+  String vatLabel() {
+    final pctValue = invoice.vat * 100;
+    final pct = pctValue == pctValue.truncateToDouble() ? pctValue.toInt().toString() : pctValue.toStringAsFixed(2);
+    return 'Umsatzsteuer $pct %';
+  }
+
   return [
     pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
@@ -242,7 +248,7 @@ List<pw.Widget> invoiceTableBlock({
             pw.Padding(
               padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
               child: pw.Text(
-                'Umsatzsteuer 19 %',
+                vatLabel(),
                 style: const pw.TextStyle(fontSize: fontSizeMain),
               ),
             ),

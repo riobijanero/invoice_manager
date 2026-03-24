@@ -26,6 +26,7 @@ _$InvoiceImpl _$$InvoiceImplFromJson(Map<String, dynamic> json) =>
           $enumDecodeNullable(_$DiscountTypeEnumMap, json['discountType']) ??
               DiscountType.percent,
       discountValue: (json['discountValue'] as num?)?.toDouble() ?? 0.0,
+      vat: (json['vat'] as num?)?.toDouble() ?? 0.19,
       dueDateType:
           $enumDecodeNullable(_$DueDateTypeEnumMap, json['dueDateType']) ??
               DueDateType.twoWeeks,
@@ -53,6 +54,7 @@ Map<String, dynamic> _$$InvoiceImplToJson(_$InvoiceImpl instance) =>
       'invoiceItemList': instance.invoiceItemList,
       'discountType': _$DiscountTypeEnumMap[instance.discountType]!,
       'discountValue': instance.discountValue,
+      'vat': instance.vat,
       'dueDateType': _$DueDateTypeEnumMap[instance.dueDateType]!,
       'customDueDate': instance.customDueDate?.toIso8601String(),
       'paidOn': instance.paidOn?.toIso8601String(),

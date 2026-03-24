@@ -88,9 +88,16 @@ Future<Uint8List> generateInvoicePdf(Invoice invoice) async {
             serviceDescriptions: serviceDescriptionsForPdf,
           ),
           pw.SizedBox(height: 24),
+          if (invoice.vat == 0) ...[
+            pw.Text(
+              'Gemäß §19 Abs. 1 UStG wird keine Umsatzsteuer erhoben.',
+              style: const pw.TextStyle(fontSize: fontSizeMain),
+            ),
+            pw.SizedBox(height: 0),
+          ],
           // Payment sentence
           pw.Text(
-            'Bitte überweisen Sie den Betrag unter Angabe der Rechnungsnummer bis zum ${formatDate(dueDate)} auf das folgende Konto:',
+            'Bitte überweisen Sie den Betrag unter Angabe der Rechnungsnr bis zum ${formatDate(dueDate)} auf das folgende Konto:',
             style: const pw.TextStyle(fontSize: fontSizeMain),
           ),
           pw.SizedBox(height: 10),

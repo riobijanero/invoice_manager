@@ -18,7 +18,6 @@ class InvoiceTotals {
   final double vat;
   final double gross;
 
-  static const double vatRate = 0.19;
 }
 
 InvoiceTotals computeTotals(Invoice invoice) {
@@ -32,7 +31,7 @@ InvoiceTotals computeTotals(Invoice invoice) {
   // Match form validation: discount cannot exceed subtotal.
   final discountAmount = rawDiscount.clamp(0.0, subtotal);
   final net = (subtotal - discountAmount).clamp(0.0, double.infinity);
-  final vat = net * InvoiceTotals.vatRate;
+  final vat = net * invoice.vat;
   final gross = net + vat;
   return InvoiceTotals(
     subtotal: subtotal,
