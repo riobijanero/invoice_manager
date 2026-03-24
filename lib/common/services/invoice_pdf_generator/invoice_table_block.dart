@@ -8,6 +8,7 @@ import 'package:invoice_manager/common/utils/invoice_calculations.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+const double _kPosWidth = 30;
 const double _kEinheitWidth = 48;
 const double _kAnzahlWidth = 48;
 const double _kEinzelpreisWidth = 58;
@@ -18,42 +19,42 @@ const double _kMergedEinheitAnzahlEinzelpreisWidth = _kEinheitWidth + _kAnzahlWi
 
 const pw.BorderSide _tableBorderSide = pw.BorderSide(width: 0.5, color: PdfColors.grey800);
 
-/// Outer + horizontal borders for 5-column hourly rows (no vertical lines between columns).
-pw.TableBorder _hourlyRowTableBorder({required bool top}) {
-  return pw.TableBorder(
-    left: _tableBorderSide,
-    right: _tableBorderSide,
-    bottom: _tableBorderSide,
-    top: top ? _tableBorderSide : pw.BorderSide.none,
-    verticalInside: pw.BorderSide.none,
-    horizontalInside: _tableBorderSide,
-  );
-}
+/// No table strokes (header, empty row, totals).
+const pw.TableBorder _kBorderNone = pw.TableBorder(
+  top: pw.BorderSide.none,
+  left: pw.BorderSide.none,
+  right: pw.BorderSide.none,
+  bottom: pw.BorderSide.none,
+  verticalInside: pw.BorderSide.none,
+  horizontalInside: pw.BorderSide.none,
+);
 
-/// Fixed-price row: no vertical lines between columns.
-pw.TableBorder _fixedPriceRowTableBorder({required bool top}) {
-  return pw.TableBorder(
-    left: _tableBorderSide,
-    right: _tableBorderSide,
-    bottom: _tableBorderSide,
-    top: top ? _tableBorderSide : pw.BorderSide.none,
-    verticalInside: pw.BorderSide.none,
-    horizontalInside: pw.BorderSide.none,
-  );
-}
+/// Bottom edge only under each [InvoiceItem] row (not header / not totals).
+const pw.TableBorder _kInvoiceItemRowBorder = pw.TableBorder(
+  left: pw.BorderSide.none,
+  right: pw.BorderSide.none,
+  top: pw.BorderSide.none,
+  bottom: _tableBorderSide,
+  verticalInside: pw.BorderSide.none,
+  horizontalInside: pw.BorderSide.none,
+);
 
-const Map<int, pw.TableColumnWidth> _fiveColumnWidths = {
-  0: pw.FlexColumnWidth(1), // Beschreibung
-  1: pw.FixedColumnWidth(_kEinheitWidth), // Einheit
-  2: pw.FixedColumnWidth(_kAnzahlWidth), // Anzahl
-  3: pw.FixedColumnWidth(_kEinzelpreisWidth), // Einzelpreis
-  4: pw.FixedColumnWidth(_kGesamtWidth), // Gesamt
+/// Pos. | Beschreibung | Einheit | Anzahl | Einzelpreis | Gesamt
+const Map<int, pw.TableColumnWidth> _sixColumnWidths = {
+  0: pw.FixedColumnWidth(_kPosWidth),
+  1: pw.FlexColumnWidth(1), // Beschreibung
+  2: pw.FixedColumnWidth(_kEinheitWidth),
+  3: pw.FixedColumnWidth(_kAnzahlWidth),
+  4: pw.FixedColumnWidth(_kEinzelpreisWidth),
+  5: pw.FixedColumnWidth(_kGesamtWidth),
 };
 
-const Map<int, pw.TableColumnWidth> _fixedPriceThreeColumnWidths = {
-  0: pw.FlexColumnWidth(1), // Beschreibung
-  1: pw.FixedColumnWidth(_kMergedEinheitAnzahlEinzelpreisWidth), // merged empty
-  2: pw.FixedColumnWidth(_kGesamtWidth), // Gesamt
+/// Pos. | Beschreibung | merged | Gesamt
+const Map<int, pw.TableColumnWidth> _fixedPriceFourColumnWidths = {
+  0: pw.FixedColumnWidth(_kPosWidth),
+  1: pw.FlexColumnWidth(1), // Beschreibung
+  2: pw.FixedColumnWidth(_kMergedEinheitAnzahlEinzelpreisWidth),
+  3: pw.FixedColumnWidth(_kGesamtWidth),
 };
 
 /// Main invoice table (line item + totals) used in the PDF body.
@@ -78,14 +79,15 @@ List<pw.Widget> invoiceTableBlock({
     pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
       children: [
-        // Header (5 columns)
+        // Header
         pw.Table(
-          border: _hourlyRowTableBorder(top: true),
-          columnWidths: _fiveColumnWidths,
+          border: _kBorderNone,
+          columnWidths: _sixColumnWidths,
           children: [
             pw.TableRow(
               decoration: const pw.BoxDecoration(color: PdfColors.grey300),
               children: [
+                cell('Pos.', bold: true),
                 cell('Beschreibung', bold: true),
                 cell('Einheit', bold: true, alignRight: true),
                 cell('Anzahl', bold: true, alignRight: true),
@@ -97,15 +99,16 @@ List<pw.Widget> invoiceTableBlock({
         ),
         if (items.isEmpty)
           pw.Table(
-            border: _hourlyRowTableBorder(top: false),
-            columnWidths: _fiveColumnWidths,
+            border: _kBorderNone,
+            columnWidths: _sixColumnWidths,
             children: [
               pw.TableRow(
                 children: [
+                  cell('1'),
                   cell(''),
-                  cell('Std.'),
-                  cell('0'),
-                  cell(formatCurrency(0)),
+                  cell('Std.', alignRight: true),
+                  cell('0', alignRight: true),
+                  cell(formatCurrency(0), alignRight: true),
                   cell(formatCurrency(0), alignRight: true),
                 ],
               ),
@@ -115,11 +118,12 @@ List<pw.Widget> invoiceTableBlock({
           for (int i = 0; i < items.length; i++)
             items[i].type == InvoiceItemType.fixedPriceService
                 ? pw.Table(
-                    border: _fixedPriceRowTableBorder(top: false),
-                    columnWidths: _fixedPriceThreeColumnWidths,
+                    border: _kInvoiceItemRowBorder,
+                    columnWidths: _fixedPriceFourColumnWidths,
                     children: [
                       pw.TableRow(
                         children: [
+                          cell('${i + 1}'),
                           cell(
                             serviceDescriptions.length > i ? serviceDescriptions[i] : '',
                           ),
@@ -133,11 +137,12 @@ List<pw.Widget> invoiceTableBlock({
                     ],
                   )
                 : pw.Table(
-                    border: _hourlyRowTableBorder(top: false),
-                    columnWidths: _fiveColumnWidths,
+                    border: _kInvoiceItemRowBorder,
+                    columnWidths: _sixColumnWidths,
                     children: [
                       pw.TableRow(
                         children: [
+                          cell('${i + 1}'),
                           cell(
                             serviceDescriptions.length > i ? serviceDescriptions[i] : '',
                           ),
@@ -154,24 +159,19 @@ List<pw.Widget> invoiceTableBlock({
                   ),
       ],
     ),
-    // Totals table directly under the main table, same width and visually connected.
+    // Totals: empty column matches Pos.; flex label aligns with Beschreibung…Einzelpreis; amount with Gesamt.
     pw.Table(
-      border: const pw.TableBorder(
-        top: pw.BorderSide.none,
-        left: pw.BorderSide(width: 0.5, color: PdfColors.grey800),
-        right: pw.BorderSide(width: 0.5, color: PdfColors.grey800),
-        bottom: pw.BorderSide(width: 0.5, color: PdfColors.grey800),
-        verticalInside: pw.BorderSide.none,
-        horizontalInside: pw.BorderSide(width: 0.5, color: PdfColors.grey800),
-      ),
+      border: _kBorderNone,
       columnWidths: const {
-        0: pw.FlexColumnWidth(1),
-        1: pw.FixedColumnWidth(_kGesamtWidth),
+        0: pw.FixedColumnWidth(_kPosWidth),
+        1: pw.FlexColumnWidth(1),
+        2: pw.FixedColumnWidth(_kGesamtWidth),
       },
       children: [
         if (showDiscountBreakdown) ...[
           pw.TableRow(
             children: [
+              pw.SizedBox(),
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                 child: pw.Text(
@@ -193,6 +193,7 @@ List<pw.Widget> invoiceTableBlock({
           ),
           pw.TableRow(
             children: [
+              pw.SizedBox(),
               pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                 child: pw.Text(
@@ -215,6 +216,7 @@ List<pw.Widget> invoiceTableBlock({
         ],
         pw.TableRow(
           children: [
+            pw.SizedBox(),
             pw.Padding(
               padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
               child: pw.Text(
@@ -236,6 +238,7 @@ List<pw.Widget> invoiceTableBlock({
         ),
         pw.TableRow(
           children: [
+            pw.SizedBox(),
             pw.Padding(
               padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
               child: pw.Text(
@@ -257,6 +260,7 @@ List<pw.Widget> invoiceTableBlock({
         ),
         pw.TableRow(
           children: [
+            pw.SizedBox(),
             pw.Padding(
               padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
               child: pw.Text(
