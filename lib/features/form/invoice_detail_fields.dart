@@ -200,97 +200,83 @@ class InvoiceDetailFields extends StatelessWidget {
               onItemTypeChanged(i, s.first);
             },
           ),
-          Row(
-            children: [
-              Expanded(
-                child: DropdownButtonFormField<int?>(
-                  value: serviceMonths[i],
-                  decoration: const InputDecoration(
-                    labelText: 'Leistungszeitraum Monat',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: [
-                    const DropdownMenuItem<int?>(
-                      value: null,
-                      child: Text('—'),
-                    ),
-                    ...List.generate(
-                      12,
-                      (j) => DropdownMenuItem<int?>(
-                        value: _months[j],
-                        child: Text(_monthLabels[j]),
-                      ),
-                    ),
-                  ],
-                  onChanged: (v) => onServiceMonthChanged(i, v),
-                ),
+          FieldRow(
+            left: DropdownButtonFormField<int?>(
+              value: serviceMonths[i],
+              decoration: const InputDecoration(
+                labelText: 'Leistungszeitraum Monat',
+                border: OutlineInputBorder(),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: DropdownButtonFormField<int?>(
-                  value: serviceYears[i],
-                  decoration: const InputDecoration(
-                    labelText: 'Leistungszeitraum Jahr',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: [
-                    const DropdownMenuItem<int?>(
-                      value: null,
-                      child: Text('—'),
-                    ),
-                    ...List.generate(
-                      5,
-                      (j) {
-                        final y = DateTime.now().year - 2 + j;
-                        return DropdownMenuItem<int?>(
-                          value: y,
-                          child: Text('$y'),
-                        );
-                      },
-                    ),
-                  ],
-                  onChanged: (v) => onServiceYearChanged(i, v),
+              items: [
+                const DropdownMenuItem<int?>(
+                  value: null,
+                  child: Text('—'),
                 ),
+                ...List.generate(
+                  12,
+                  (j) => DropdownMenuItem<int?>(
+                    value: _months[j],
+                    child: Text(_monthLabels[j]),
+                  ),
+                ),
+              ],
+              onChanged: (v) => onServiceMonthChanged(i, v),
+            ),
+            right: DropdownButtonFormField<int?>(
+              value: serviceYears[i],
+              decoration: const InputDecoration(
+                labelText: 'Leistungszeitraum Jahr',
+                border: OutlineInputBorder(),
               ),
-            ],
+              items: [
+                const DropdownMenuItem<int?>(
+                  value: null,
+                  child: Text('—'),
+                ),
+                ...List.generate(
+                  5,
+                  (j) {
+                    final y = DateTime.now().year - 2 + j;
+                    return DropdownMenuItem<int?>(
+                      value: y,
+                      child: Text('$y'),
+                    );
+                  },
+                ),
+              ],
+              onChanged: (v) => onServiceYearChanged(i, v),
+            ),
           ),
           if (itemTypes[i] == InvoiceItemType.hourlyRateService) ...[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: hoursControllers[i],
-                    decoration: const InputDecoration(
-                      labelText: 'Stunden',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
-                      final n = double.tryParse(v.replaceFirst(',', '.'));
-                      if (n == null || n < 0) return 'Ungültige Zahl';
-                      return null;
-                    },
-                  ),
+            FieldRow(
+              left: TextFormField(
+                controller: hoursControllers[i],
+                decoration: const InputDecoration(
+                  labelText: 'Stunden',
+                  border: OutlineInputBorder(),
                 ),
-                Expanded(
-                  child: TextFormField(
-                    controller: hourlyRateControllers[i],
-                    decoration: const InputDecoration(
-                      labelText: 'Stundensatz (€)',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
-                      final n = double.tryParse(v.replaceFirst(',', '.'));
-                      if (n == null || n < 0) return 'Ungültige Zahl';
-                      return null;
-                    },
-                  ),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
+                  final n = double.tryParse(v.replaceFirst(',', '.'));
+                  if (n == null || n < 0) return 'Ungültige Zahl';
+                  return null;
+                },
+              ),
+              right: TextFormField(
+                controller: hourlyRateControllers[i],
+                decoration: const InputDecoration(
+                  labelText: 'Stundensatz (€)',
+                  border: OutlineInputBorder(),
                 ),
-              ].intersperse(const SizedBox(width: 16)),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
+                  final n = double.tryParse(v.replaceFirst(',', '.'));
+                  if (n == null || n < 0) return 'Ungültige Zahl';
+                  return null;
+                },
+              ),
             ),
           ] else ...[
             TextFormField(
