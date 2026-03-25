@@ -2,6 +2,17 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'invoice_pdf_generator/config.dart';
 
+String formatIbanForDisplay(String input) {
+  final raw = input.replaceAll(' ', '').trim().toUpperCase();
+  if (raw.isEmpty) return '';
+  final buffer = StringBuffer();
+  for (var i = 0; i < raw.length; i++) {
+    if (i > 0 && i % 4 == 0) buffer.write(' ');
+    buffer.write(raw[i]);
+  }
+  return buffer.toString();
+}
+
 String firstLine(String multiline) {
   final lines = multiline.split(RegExp(r'[\r\n]+'));
   if (lines.isEmpty) return multiline.trim();

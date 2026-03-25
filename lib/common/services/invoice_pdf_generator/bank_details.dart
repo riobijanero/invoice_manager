@@ -4,6 +4,7 @@ import 'package:pdf/widgets.dart' as pw;
 
 /// Bank details table for the invoice PDF (Kontoinhaber, Geldinstitut, IBAN, BIC).
 List<pw.Widget> bankDetailsBlock(BankDetails bankDetails) {
+  final formattedIban = formatIbanForDisplay(bankDetails.iban);
   return [
     pw.Table(
       columnWidths: {
@@ -13,7 +14,7 @@ List<pw.Widget> bankDetailsBlock(BankDetails bankDetails) {
       children: [
         tableRow('Kontoinhaber:', bankDetails.accountHolder),
         tableRow('Geldinstitut:', bankDetails.institution),
-        tableRow('IBAN:', bankDetails.iban),
+        tableRow('IBAN:', formattedIban),
         tableRow('BIC:', bankDetails.bic),
       ],
     ),
