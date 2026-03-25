@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:invoice_manager/common/extensions/list_extensions.dart';
 
 import 'package:invoice_manager/features/form/ui/widgets/expandable_form_section.dart';
+import 'package:invoice_manager/features/form/widgets/field_row.dart';
 
 class SenderFields extends StatelessWidget {
   const SenderFields({
@@ -156,17 +158,6 @@ class SenderFields extends StatelessWidget {
     );
   }
 
-  Widget _fieldRow(Widget left, Widget right) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(child: left),
-        const SizedBox(width: _columnGap),
-        Expanded(child: right),
-      ],
-    );
-  }
-
   Widget _fieldsBody() {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -177,18 +168,13 @@ class SenderFields extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _fieldRow(_nameField(), _jobField()),
-              const SizedBox(height: 12),
-              _fieldRow(_streetField(), _plzField()),
-              const SizedBox(height: 12),
-              _fieldRow(_townField(), _countryField()),
-              const SizedBox(height: 12),
-              _fieldRow(_phoneField(), _emailField()),
-              const SizedBox(height: 12),
-              _fieldRow(_websiteField(), _ustField()),
-              const SizedBox(height: 12),
-              _taxField(),
-            ],
+              FieldRow(left: _nameField(), right: _jobField()),
+              FieldRow(left: _streetField(), right: _plzField()),
+              FieldRow(left: _townField(), right: _countryField()),
+              FieldRow(left: _phoneField(), right: _emailField()),
+              FieldRow(left: _websiteField(), right: _ustField()),
+              FieldRow(left: _taxField(), right: const SizedBox.shrink()),
+            ].intersperse(const SizedBox(height: 12)),
           );
         }
 
@@ -196,27 +182,17 @@ class SenderFields extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _nameField(),
-            const SizedBox(height: 8),
             _jobField(),
-            const SizedBox(height: 12),
             _streetField(),
-            const SizedBox(height: 12),
             _plzField(),
-            const SizedBox(height: 12),
             _townField(),
-            const SizedBox(height: 12),
             _countryField(),
-            const SizedBox(height: 12),
             _phoneField(),
-            const SizedBox(height: 12),
             _emailField(),
-            const SizedBox(height: 12),
             _websiteField(),
-            const SizedBox(height: 12),
             _ustField(),
-            const SizedBox(height: 12),
             _taxField(),
-          ],
+          ].intersperse(const SizedBox(height: 12)),
         );
       },
     );

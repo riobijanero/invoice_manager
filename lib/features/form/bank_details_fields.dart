@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:invoice_manager/common/extensions/list_extensions.dart';
 
 import 'package:invoice_manager/features/form/ui/widgets/expandable_form_section.dart';
+import 'package:invoice_manager/features/form/widgets/field_row.dart';
 
 class BankDetailsFields extends StatelessWidget {
   const BankDetailsFields({
@@ -63,17 +65,6 @@ class BankDetailsFields extends StatelessWidget {
     );
   }
 
-  Widget _fieldRow(Widget left, Widget right) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(child: left),
-        const SizedBox(width: _columnGap),
-        Expanded(child: right),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return ExpandableFormSection(
@@ -87,9 +78,9 @@ class BankDetailsFields extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _fieldRow(_accountHolderField(), _institutionField()),
+                FieldRow(left: _accountHolderField(), right: _institutionField()),
                 const SizedBox(height: 12),
-                _fieldRow(_ibanField(), _bicField()),
+                FieldRow(left: _ibanField(), right: _bicField()),
               ],
             );
           }
@@ -97,13 +88,10 @@ class BankDetailsFields extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _accountHolderField(),
-              const SizedBox(height: 12),
               _institutionField(),
-              const SizedBox(height: 12),
               _ibanField(),
-              const SizedBox(height: 12),
               _bicField(),
-            ],
+            ].intersperse(const SizedBox(height: 12)),
           );
         },
       ),

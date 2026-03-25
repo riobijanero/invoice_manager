@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:invoice_manager/common/models/discount_type.dart';
 import 'package:invoice_manager/common/models/due_date_type.dart';
 import 'package:invoice_manager/common/models/invoice_item.dart';
+import 'package:invoice_manager/features/form/widgets/field_row.dart';
 
 class InvoiceDetailFields extends StatelessWidget {
   const InvoiceDetailFields({
@@ -93,57 +94,60 @@ class InvoiceDetailFields extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         const SizedBox(height: 8),
-        TextFormField(
-          controller: invoiceNumberController,
-          decoration: const InputDecoration(
-            labelText: 'Rechnungsnummer',
-            border: OutlineInputBorder(),
-          ),
-          validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-        ),
+
         const SizedBox(height: 16),
-        InkWell(
-          onTap: onInvoiceDateTap,
-          child: InputDecorator(
+        FieldRow(
+          left: TextFormField(
+            controller: invoiceNumberController,
             decoration: const InputDecoration(
-              labelText: 'Rechnungsdatum',
+              labelText: 'Rechnungsnummer',
               border: OutlineInputBorder(),
             ),
-            child: Text(
-              invoiceDate != null ? DateFormat('dd.MM.yyyy').format(invoiceDate!) : '',
+            validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
+          ),
+          middle: InkWell(
+            onTap: onInvoiceDateTap,
+            child: InputDecorator(
+              decoration: const InputDecoration(
+                labelText: 'Rechnungsdatum',
+                border: OutlineInputBorder(),
+              ),
+              child: Text(
+                invoiceDate != null ? DateFormat('dd.MM.yyyy').format(invoiceDate!) : '',
+              ),
+            ),
+          ),
+          right: InputDecorator(
+            decoration: const InputDecoration(
+              labelText: 'Bezahlt am (optional)',
+              border: OutlineInputBorder(),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: onPaidOnTap,
+                    child: Text(
+                      paidOn != null ? DateFormat('dd.MM.yyyy').format(paidOn!) : 'Datum wählen',
+                    ),
+                  ),
+                ),
+                if (paidOn != null)
+                  IconButton(
+                    onPressed: onClearPaidOn,
+                    icon: const Icon(Icons.close),
+                    tooltip: 'Datum entfernen',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    style: IconButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+              ],
             ),
           ),
         ),
-        const SizedBox(height: 16),
-        InputDecorator(
-          decoration: const InputDecoration(
-            labelText: 'Bezahlt am (optional)',
-            border: OutlineInputBorder(),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: onPaidOnTap,
-                  child: Text(
-                    paidOn != null ? DateFormat('dd.MM.yyyy').format(paidOn!) : 'Datum wählen',
-                  ),
-                ),
-              ),
-              if (paidOn != null)
-                IconButton(
-                  onPressed: onClearPaidOn,
-                  icon: const Icon(Icons.close),
-                  tooltip: 'Datum entfernen',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  style: IconButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.error,
-                  ),
-                ),
-            ],
-          ),
-        ),
+
         const SizedBox(height: 16),
         TextFormField(
           controller: introductoryTextController,
@@ -333,6 +337,22 @@ class InvoiceDetailFields extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           children: [
+            Row(
+              children: [
+                const Text('MwSt: '),
+                const SizedBox(width: 4),
+                SegmentedButton<double>(
+                  showSelectedIcon: false,
+                  segments: const [
+                    ButtonSegment(value: 0.19, label: Text('19%')),
+                    ButtonSegment(value: 0.0, label: Text('0%')),
+                  ],
+                  selected: {vat},
+                  onSelectionChanged: (s) => onVatChanged(s.first),
+                ),
+              ],
+            ),
+            const SizedBox(width: 30),
             const Text('Rabatt: '),
             const SizedBox(width: 4),
             SegmentedButton<DiscountType>(
@@ -362,22 +382,7 @@ class InvoiceDetailFields extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            const Text('MwSt: '),
-            const SizedBox(width: 4),
-            SegmentedButton<double>(
-              showSelectedIcon: false,
-              segments: const [
-                ButtonSegment(value: 0.19, label: Text('19%')),
-                ButtonSegment(value: 0.0, label: Text('0%')),
-              ],
-              selected: {vat},
-              onSelectionChanged: (s) => onVatChanged(s.first),
-            ),
-          ],
-        ),
+
         const SizedBox(height: 16),
         DropdownButtonFormField<DueDateType>(
           value: dueDateType,

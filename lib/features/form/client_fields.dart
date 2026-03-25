@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:invoice_manager/common/models/client.dart';
 import 'package:invoice_manager/features/form/ui/widgets/expandable_form_section.dart';
 import 'package:invoice_manager/features/form/ui/widgets/saved_client_picker_list.dart';
+import 'package:invoice_manager/features/form/widgets/field_row.dart';
+import 'package:invoice_manager/common/extensions/list_extensions.dart';
 
 class ClientFields extends StatelessWidget {
   const ClientFields({
@@ -132,17 +134,6 @@ class ClientFields extends StatelessWidget {
     );
   }
 
-  Widget _fieldRow(Widget left, Widget right) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(child: left),
-        const SizedBox(width: _columnGap),
-        Expanded(child: right),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final clientOptions = List<SavedClientPickerEntry>.generate(
@@ -165,35 +156,25 @@ class ClientFields extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _fieldRow(_companyPicker(clientOptions), _nameField()),
-                const SizedBox(height: 12),
-                _fieldRow(_streetField(), _plzField()),
-                const SizedBox(height: 12),
-                _fieldRow(_townField(), _countryField()),
-                const SizedBox(height: 12),
-                _fieldRow(_contractField(), _clientIdField()),
-              ],
+                FieldRow(left: _companyPicker(clientOptions), right: _nameField()),
+                FieldRow(left: _streetField(), right: _plzField()),
+                FieldRow(left: _townField(), right: _countryField()),
+                FieldRow(left: _contractField(), right: _clientIdField()),
+              ].intersperse(const SizedBox(height: 12)),
             );
           }
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _companyPicker(clientOptions),
-              const SizedBox(height: 12),
               _nameField(),
-              const SizedBox(height: 12),
               _streetField(),
-              const SizedBox(height: 12),
               _plzField(),
-              const SizedBox(height: 12),
               _townField(),
-              const SizedBox(height: 12),
               _countryField(),
-              const SizedBox(height: 12),
               _contractField(),
-              const SizedBox(height: 12),
               _clientIdField(),
-            ],
+            ].intersperse(const SizedBox(height: 12)),
           );
         },
       ),
