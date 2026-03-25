@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:invoice_manager/common/extensions/list_extensions.dart';
 
 import 'package:invoice_manager/common/models/discount_type.dart';
 import 'package:invoice_manager/common/models/due_date_type.dart';
 import 'package:invoice_manager/common/models/invoice_item.dart';
 import 'package:invoice_manager/features/form/widgets/field_row.dart';
+import 'package:invoice_manager/features/form/widgets/discount_control.dart';
+import 'package:invoice_manager/features/form/widgets/vat_control.dart';
 
 class InvoiceDetailFields extends StatelessWidget {
   const InvoiceDetailFields({
@@ -93,9 +96,7 @@ class InvoiceDetailFields extends StatelessWidget {
           'Rechnungsdetails',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        const SizedBox(height: 8),
 
-        const SizedBox(height: 16),
         FieldRow(
           left: TextFormField(
             controller: invoiceNumberController,
@@ -105,7 +106,7 @@ class InvoiceDetailFields extends StatelessWidget {
             ),
             validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
           ),
-          middle: InkWell(
+          right: InkWell(
             onTap: onInvoiceDateTap,
             child: InputDecorator(
               decoration: const InputDecoration(
@@ -117,38 +118,39 @@ class InvoiceDetailFields extends StatelessWidget {
               ),
             ),
           ),
-          right: InputDecorator(
-            decoration: const InputDecoration(
-              labelText: 'Bezahlt am (optional)',
-              border: OutlineInputBorder(),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: onPaidOnTap,
-                    child: Text(
-                      paidOn != null ? DateFormat('dd.MM.yyyy').format(paidOn!) : 'Datum wählen',
-                    ),
-                  ),
-                ),
-                if (paidOn != null)
-                  IconButton(
-                    onPressed: onClearPaidOn,
-                    icon: const Icon(Icons.close),
-                    tooltip: 'Datum entfernen',
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    style: IconButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-              ],
-            ),
-          ),
         ),
+        FieldRow(
+            left: InputDecorator(
+              decoration: const InputDecoration(
+                labelText: 'Bezahlt am (optional)',
+                border: OutlineInputBorder(),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: onPaidOnTap,
+                      child: Text(
+                        paidOn != null ? DateFormat('dd.MM.yyyy').format(paidOn!) : 'Datum wählen',
+                      ),
+                    ),
+                  ),
+                  if (paidOn != null)
+                    IconButton(
+                      onPressed: onClearPaidOn,
+                      icon: const Icon(Icons.close),
+                      tooltip: 'Datum entfernen',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      style: IconButton.styleFrom(
+                        foregroundColor: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            right: const SizedBox.shrink()),
 
-        const SizedBox(height: 16),
         TextFormField(
           controller: introductoryTextController,
           decoration: const InputDecoration(
@@ -159,9 +161,9 @@ class InvoiceDetailFields extends StatelessWidget {
           maxLines: 3,
           validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
         ),
-        const SizedBox(height: 16),
         // Invoice item list (one block per invoice item / one table row in PDF).
         for (int i = 0; i < serviceMonths.length; i++) ...[
+          const SizedBox(height: 8),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -182,7 +184,6 @@ class InvoiceDetailFields extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 8),
           SegmentedButton<InvoiceItemType>(
             segments: const [
               ButtonSegment(
@@ -199,7 +200,6 @@ class InvoiceDetailFields extends StatelessWidget {
               onItemTypeChanged(i, s.first);
             },
           ),
-          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
@@ -254,7 +254,6 @@ class InvoiceDetailFields extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
           if (itemTypes[i] == InvoiceItemType.hourlyRateService) ...[
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,7 +274,6 @@ class InvoiceDetailFields extends StatelessWidget {
                     },
                   ),
                 ),
-                const SizedBox(width: 16),
                 Expanded(
                   child: TextFormField(
                     controller: hourlyRateControllers[i],
@@ -292,9 +290,8 @@ class InvoiceDetailFields extends StatelessWidget {
                     },
                   ),
                 ),
-              ],
+              ].intersperse(const SizedBox(width: 16)),
             ),
-            const SizedBox(height: 16),
           ] else ...[
             TextFormField(
               controller: fixedPriceControllers[i],
@@ -310,7 +307,6 @@ class InvoiceDetailFields extends StatelessWidget {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
           ],
           TextFormField(
             controller: serviceDescriptionControllers[i],
@@ -322,7 +318,6 @@ class InvoiceDetailFields extends StatelessWidget {
             maxLines: 5,
             validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
           ),
-          const SizedBox(height: 16),
         ],
 
         // Add another invoice item above the discount section.
@@ -334,56 +329,19 @@ class InvoiceDetailFields extends StatelessWidget {
             tooltip: 'Weitere Leistungsposition hinzufügen',
           ),
         ),
-        const SizedBox(height: 8),
+
         Row(
           children: [
-            Row(
-              children: [
-                const Text('MwSt: '),
-                const SizedBox(width: 4),
-                SegmentedButton<double>(
-                  showSelectedIcon: false,
-                  segments: const [
-                    ButtonSegment(value: 0.19, label: Text('19%')),
-                    ButtonSegment(value: 0.0, label: Text('0%')),
-                  ],
-                  selected: {vat},
-                  onSelectionChanged: (s) => onVatChanged(s.first),
-                ),
-              ],
-            ),
+            VatControl(vat: vat, onVatChanged: onVatChanged),
             const SizedBox(width: 30),
-            const Text('Rabatt: '),
-            const SizedBox(width: 4),
-            SegmentedButton<DiscountType>(
-              showSelectedIcon: false,
-              segments: const [
-                ButtonSegment(value: DiscountType.percent, label: Text('%')),
-                ButtonSegment(value: DiscountType.amount, label: Text('Betrag')),
-              ],
-              selected: {discountType},
-              onSelectionChanged: (s) => onDiscountTypeChanged(s.first),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: TextFormField(
-                controller: discountValueController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return null;
-                  final n = double.tryParse(v.replaceFirst(',', '.'));
-                  if (n == null || n < 0) return 'Ungültig';
-                  return null;
-                },
-              ),
+            DiscountControl(
+              discountType: discountType,
+              onDiscountTypeChanged: onDiscountTypeChanged,
+              discountValueController: discountValueController,
             ),
           ],
         ),
 
-        const SizedBox(height: 16),
         DropdownButtonFormField<DueDateType>(
           value: dueDateType,
           decoration: const InputDecoration(
@@ -401,7 +359,6 @@ class InvoiceDetailFields extends StatelessWidget {
           },
         ),
         if (dueDateType == DueDateType.custom) ...[
-          const SizedBox(height: 12),
           InkWell(
             onTap: onCustomDueDateTap,
             child: InputDecorator(
@@ -415,7 +372,7 @@ class InvoiceDetailFields extends StatelessWidget {
             ),
           ),
         ],
-      ],
+      ].intersperse(const SizedBox(height: 16)),
     );
   }
 }
