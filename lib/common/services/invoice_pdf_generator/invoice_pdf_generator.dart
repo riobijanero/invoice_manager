@@ -102,20 +102,34 @@ Future<Uint8List> generateInvoicePdf(Invoice invoice) async {
             style: const pw.TextStyle(fontSize: fontSizeMain),
           ),
           pw.SizedBox(height: 10),
-          ...bankDetailsBlock(invoice.bankDetails),
-          if (invoice.hasQrCode) ...[
-            pw.SizedBox(height: 16),
-            pw.Align(
-              alignment: pw.Alignment.centerLeft,
-              child: pw.BarcodeWidget(
-                data: QrGenerationService().generateGiroCodeString(invoice),
-                barcode: pw.Barcode.qrCode(),
-                drawText: false,
-                width: 100,
-                height: 100,
-              ),
-            ),
-          ],
+          if (invoice.hasQrCode)
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.start,
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Expanded(
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: bankDetailsBlock(invoice.bankDetails),
+                  ),
+                ),
+                pw.SizedBox(width: 4),
+                pw.Container(
+                  width: 60,
+                  height: 60,
+                  alignment: pw.Alignment.topRight,
+                  child: pw.BarcodeWidget(
+                    data: QrGenerationService().generateGiroCodeString(invoice),
+                    barcode: pw.Barcode.qrCode(),
+                    drawText: false,
+                    width: 60,
+                    height: 60,
+                  ),
+                ),
+              ],
+            )
+          else
+            ...bankDetailsBlock(invoice.bankDetails),
           pw.SizedBox(height: 40),
           pw.Text(
             'Mit freundlichen Grüßen',
