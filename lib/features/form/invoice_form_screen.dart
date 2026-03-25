@@ -79,6 +79,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   InvoiceDefaults? _defaults;
   final Set<String> _deletedClientKeys = <String>{};
   bool _initialized = false;
+  bool _hasQrCode = false;
 
   @override
   void initState() {
@@ -246,6 +247,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _vat = inv.vat;
     _discountValue.text = inv.discountValue.toString();
     _dueDateType = inv.dueDateType;
+    _hasQrCode = inv.hasQrCode;
     _customDueDate = inv.customDueDate;
     _jobDescription.text = inv.sender.jobDescription;
     _introductoryText.text = inv.introductoryText;
@@ -295,6 +297,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _vat = 0.19;
     _discountValue.text = d.discountValue.toString();
     _dueDateType = d.dueDateType;
+    _hasQrCode = false;
     _jobDescription.text = d.sender.jobDescription;
     // Prefill the invoice greeting text for new invoices.
     _introductoryText.text =
@@ -688,6 +691,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             discountValueController: _discountValue,
                             vat: _vat,
                             onVatChanged: (v) => setState(() => _vat = v),
+                            hasQrCode: _hasQrCode,
+                            onHasQrCodeChanged: (v) => setState(() => _hasQrCode = v),
                             dueDateType: _dueDateType,
                             onDueDateTypeChanged: (v) => setState(() => _dueDateType = v),
                             customDueDate: _customDueDate,
@@ -874,6 +879,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       discountValue: discount,
       vat: _vat,
       dueDateType: _dueDateType,
+      hasQrCode: _hasQrCode,
       customDueDate: _dueDateType == DueDateType.custom ? _customDueDate : null,
       introductoryText: _introductoryText.text.trim(),
     );

@@ -29,6 +29,7 @@ class Invoice with _$Invoice {
     @Default(0.0) double discountValue,
     @Default(0.19) double vat,
     @Default(DueDateType.twoWeeks) DueDateType dueDateType,
+    @Default(false) bool hasQrCode,
     DateTime? customDueDate,
     DateTime? paidOn,
     @Default(

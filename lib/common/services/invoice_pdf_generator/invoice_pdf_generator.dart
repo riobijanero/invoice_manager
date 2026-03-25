@@ -6,6 +6,7 @@ import 'package:invoice_manager/common/services/invoice_pdf_generator/title_bloc
 import 'package:invoice_manager/common/services/invoice_pdf_generator/invoice_table_block.dart';
 import 'package:invoice_manager/common/services/invoice_pdf_generator/bank_details.dart';
 import 'package:invoice_manager/common/services/invoice_pdf_generator/config.dart';
+import 'package:invoice_manager/features/QR_code_generation/services/qr_generation.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -102,6 +103,19 @@ Future<Uint8List> generateInvoicePdf(Invoice invoice) async {
           ),
           pw.SizedBox(height: 10),
           ...bankDetailsBlock(invoice.bankDetails),
+          if (invoice.hasQrCode) ...[
+            pw.SizedBox(height: 16),
+            pw.Align(
+              alignment: pw.Alignment.centerLeft,
+              child: pw.BarcodeWidget(
+                data: QrGenerationService().generateGiroCodeString(invoice),
+                barcode: pw.Barcode.qrCode(),
+                drawText: false,
+                width: 100,
+                height: 100,
+              ),
+            ),
+          ],
           pw.SizedBox(height: 40),
           pw.Text(
             'Mit freundlichen Grüßen',

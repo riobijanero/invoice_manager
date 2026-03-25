@@ -30,6 +30,7 @@ _$InvoiceImpl _$$InvoiceImplFromJson(Map<String, dynamic> json) =>
       dueDateType:
           $enumDecodeNullable(_$DueDateTypeEnumMap, json['dueDateType']) ??
               DueDateType.twoWeeks,
+      hasQrCode: json['hasQrCode'] as bool? ?? false,
       customDueDate: json['customDueDate'] == null
           ? null
           : DateTime.parse(json['customDueDate'] as String),
@@ -56,6 +57,7 @@ Map<String, dynamic> _$$InvoiceImplToJson(_$InvoiceImpl instance) =>
       'discountValue': instance.discountValue,
       'vat': instance.vat,
       'dueDateType': _$DueDateTypeEnumMap[instance.dueDateType]!,
+      'hasQrCode': instance.hasQrCode,
       'customDueDate': instance.customDueDate?.toIso8601String(),
       'paidOn': instance.paidOn?.toIso8601String(),
       'introductoryText': instance.introductoryText,

@@ -38,6 +38,7 @@ mixin _$Invoice {
   double get discountValue => throw _privateConstructorUsedError;
   double get vat => throw _privateConstructorUsedError;
   DueDateType get dueDateType => throw _privateConstructorUsedError;
+  bool get hasQrCode => throw _privateConstructorUsedError;
   DateTime? get customDueDate => throw _privateConstructorUsedError;
   DateTime? get paidOn => throw _privateConstructorUsedError;
   String get introductoryText => throw _privateConstructorUsedError;
@@ -67,6 +68,7 @@ abstract class $InvoiceCopyWith<$Res> {
       double discountValue,
       double vat,
       DueDateType dueDateType,
+      bool hasQrCode,
       DateTime? customDueDate,
       DateTime? paidOn,
       String introductoryText});
@@ -103,6 +105,7 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
     Object? discountValue = null,
     Object? vat = null,
     Object? dueDateType = null,
+    Object? hasQrCode = null,
     Object? customDueDate = freezed,
     Object? paidOn = freezed,
     Object? introductoryText = null,
@@ -164,6 +167,10 @@ class _$InvoiceCopyWithImpl<$Res, $Val extends Invoice>
           ? _value.dueDateType
           : dueDateType // ignore: cast_nullable_to_non_nullable
               as DueDateType,
+      hasQrCode: null == hasQrCode
+          ? _value.hasQrCode
+          : hasQrCode // ignore: cast_nullable_to_non_nullable
+              as bool,
       customDueDate: freezed == customDueDate
           ? _value.customDueDate
           : customDueDate // ignore: cast_nullable_to_non_nullable
@@ -226,6 +233,7 @@ abstract class _$$InvoiceImplCopyWith<$Res> implements $InvoiceCopyWith<$Res> {
       double discountValue,
       double vat,
       DueDateType dueDateType,
+      bool hasQrCode,
       DateTime? customDueDate,
       DateTime? paidOn,
       String introductoryText});
@@ -263,6 +271,7 @@ class __$$InvoiceImplCopyWithImpl<$Res>
     Object? discountValue = null,
     Object? vat = null,
     Object? dueDateType = null,
+    Object? hasQrCode = null,
     Object? customDueDate = freezed,
     Object? paidOn = freezed,
     Object? introductoryText = null,
@@ -324,6 +333,10 @@ class __$$InvoiceImplCopyWithImpl<$Res>
           ? _value.dueDateType
           : dueDateType // ignore: cast_nullable_to_non_nullable
               as DueDateType,
+      hasQrCode: null == hasQrCode
+          ? _value.hasQrCode
+          : hasQrCode // ignore: cast_nullable_to_non_nullable
+              as bool,
       customDueDate: freezed == customDueDate
           ? _value.customDueDate
           : customDueDate // ignore: cast_nullable_to_non_nullable
@@ -358,6 +371,7 @@ class _$InvoiceImpl implements _Invoice {
       this.discountValue = 0.0,
       this.vat = 0.19,
       this.dueDateType = DueDateType.twoWeeks,
+      this.hasQrCode = false,
       this.customDueDate,
       this.paidOn,
       this.introductoryText =
@@ -412,6 +426,9 @@ class _$InvoiceImpl implements _Invoice {
   @JsonKey()
   final DueDateType dueDateType;
   @override
+  @JsonKey()
+  final bool hasQrCode;
+  @override
   final DateTime? customDueDate;
   @override
   final DateTime? paidOn;
@@ -421,7 +438,7 @@ class _$InvoiceImpl implements _Invoice {
 
   @override
   String toString() {
-    return 'Invoice(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, invoiceNumber: $invoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, invoiceDate: $invoiceDate, invoiceItemList: $invoiceItemList, discountType: $discountType, discountValue: $discountValue, vat: $vat, dueDateType: $dueDateType, customDueDate: $customDueDate, paidOn: $paidOn, introductoryText: $introductoryText)';
+    return 'Invoice(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, invoiceNumber: $invoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, invoiceDate: $invoiceDate, invoiceItemList: $invoiceItemList, discountType: $discountType, discountValue: $discountValue, vat: $vat, dueDateType: $dueDateType, hasQrCode: $hasQrCode, customDueDate: $customDueDate, paidOn: $paidOn, introductoryText: $introductoryText)';
   }
 
   @override
@@ -453,6 +470,8 @@ class _$InvoiceImpl implements _Invoice {
             (identical(other.vat, vat) || other.vat == vat) &&
             (identical(other.dueDateType, dueDateType) ||
                 other.dueDateType == dueDateType) &&
+            (identical(other.hasQrCode, hasQrCode) ||
+                other.hasQrCode == hasQrCode) &&
             (identical(other.customDueDate, customDueDate) ||
                 other.customDueDate == customDueDate) &&
             (identical(other.paidOn, paidOn) || other.paidOn == paidOn) &&
@@ -478,6 +497,7 @@ class _$InvoiceImpl implements _Invoice {
       discountValue,
       vat,
       dueDateType,
+      hasQrCode,
       customDueDate,
       paidOn,
       introductoryText);
@@ -512,6 +532,7 @@ abstract class _Invoice implements Invoice {
       final double discountValue,
       final double vat,
       final DueDateType dueDateType,
+      final bool hasQrCode,
       final DateTime? customDueDate,
       final DateTime? paidOn,
       final String introductoryText}) = _$InvoiceImpl;
@@ -548,6 +569,8 @@ abstract class _Invoice implements Invoice {
   double get vat;
   @override
   DueDateType get dueDateType;
+  @override
+  bool get hasQrCode;
   @override
   DateTime? get customDueDate;
   @override

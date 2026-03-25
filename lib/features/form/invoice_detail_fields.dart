@@ -18,6 +18,8 @@ class InvoiceDetailFields extends StatelessWidget {
     required this.paidOn,
     required this.onPaidOnTap,
     required this.onClearPaidOn,
+    required this.hasQrCode,
+    required this.onHasQrCodeChanged,
     required this.introductoryTextController,
     required this.serviceMonths,
     required this.serviceYears,
@@ -48,6 +50,8 @@ class InvoiceDetailFields extends StatelessWidget {
   final DateTime? paidOn;
   final VoidCallback onPaidOnTap;
   final VoidCallback onClearPaidOn;
+  final bool hasQrCode;
+  final ValueChanged<bool> onHasQrCodeChanged;
   final TextEditingController introductoryTextController;
   final List<int?> serviceMonths;
   final List<int?> serviceYears;
@@ -325,6 +329,16 @@ class InvoiceDetailFields extends StatelessWidget {
               onDiscountTypeChanged: onDiscountTypeChanged,
               discountValueController: discountValueController,
             ),
+          ],
+        ),
+
+        Row(
+          children: [
+            Checkbox(
+              value: hasQrCode,
+              onChanged: (v) => onHasQrCodeChanged(v ?? false),
+            ),
+            const Text('QR-Code hinzufügen'),
           ],
         ),
 
