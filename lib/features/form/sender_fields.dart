@@ -210,6 +210,8 @@ class SenderFields extends StatelessWidget {
       expandTooltip: 'Absender ausklappen',
       collapseTooltip: 'Absender einklappen',
       initiallyExpanded: initiallyExpanded,
+      summaryListenables: [senderNameController],
+      collapsedSummary: () => senderNameController.text.trim(),
       child: _fieldsBody(),
     );
   }

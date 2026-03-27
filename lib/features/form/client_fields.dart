@@ -152,6 +152,13 @@ class ClientFields extends StatelessWidget {
       expandTooltip: 'Kunde ausklappen',
       collapseTooltip: 'Kunde einklappen',
       initiallyExpanded: initiallyExpanded,
+      summaryListenables: [clientCompanyNameController, clientNameController],
+      collapsedSummary: () {
+        final company = clientCompanyNameController.text.trim();
+        final name = clientNameController.text.trim();
+        if (company.isNotEmpty) return company;
+        return name;
+      },
       child: LayoutBuilder(
         builder: (context, constraints) {
           final twoCols = constraints.maxWidth >= _minColumnWidth * 2 + _columnGap;

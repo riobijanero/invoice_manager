@@ -9,11 +9,20 @@ class ExpandableFormSection extends StatefulWidget {
     this.initiallyExpanded = true,
     this.expandTooltip,
     this.collapseTooltip,
+    /// Wenn gesetzt: bei eingeklapptem Zustand `title (summary)` anzeigen und bei Änderungen neu bauen.
+    this.collapsedSummary,
+    this.summaryListenables = const [],
   });
 
   final String title;
   final Widget child;
   final bool initiallyExpanded;
+
+  /// Returning empty/nullish text → nur [title] anzeigen.
+  final String Function()? collapsedSummary;
+
+  /// Controller o.ä., damit die Überschrift live aktualisiert wird.
+  final List<Listenable> summaryListenables;
 
   /// Tooltip wenn der Abschnitt eingeklappt ist (Tippen zum Ausklappen).
   final String? expandTooltip;
@@ -90,43 +99,78 @@ class _ExpandableFormSectionState extends State<ExpandableFormSection>
   String get _tooltipExpand =>
       widget.expandTooltip ?? '${widget.title} ausklappen';
 
+  String _titleLabel() {
+    if (_expanded || widget.collapsedSummary == null) {
+      return widget.title;
+    }
+    final hint = widget.collapsedSummary!().trim();
+    if (hint.isEmpty) return widget.title;
+    return '${widget.title} ($hint)';
+  }
+
+  Widget _headerTitle(BuildContext context) {
+    return Text(
+      _titleLabel(),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 16,
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Tooltip(
-          message: _expanded ? _tooltipCollapse : _tooltipExpand,
-          child: Focus(
-            canRequestFocus: false,
-            skipTraversal: true,
-            child: InkWell(
-              onTap: _toggleExpanded,
-              borderRadius: BorderRadius.circular(4),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    RotationTransition(
-                      turns: _iconTurns,
-                      child: const Icon(Icons.keyboard_arrow_right, size: 28),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      widget.title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
-                ),
+    final listenables = widget.summaryListenables;
+    final hasSummary = widget.collapsedSummary != null && listenables.isNotEmpty;
+
+    Widget headerTile() {
+      final fullHint = (!_expanded && widget.collapsedSummary != null)
+          ? widget.collapsedSummary!().trim()
+          : '';
+      final tooltipMessage = fullHint.isNotEmpty
+          ? '${_expanded ? _tooltipCollapse : _tooltipExpand}\n$fullHint'
+          : (_expanded ? _tooltipCollapse : _tooltipExpand);
+
+      return Tooltip(
+        message: tooltipMessage,
+        child: Focus(
+          canRequestFocus: false,
+          skipTraversal: true,
+          child: InkWell(
+            onTap: _toggleExpanded,
+            borderRadius: BorderRadius.circular(4),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  RotationTransition(
+                    turns: _iconTurns,
+                    child: const Icon(Icons.keyboard_arrow_right, size: 28),
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(child: _headerTitle(context)),
+                ],
               ),
             ),
           ),
         ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (hasSummary)
+          AnimatedBuilder(
+            animation: Listenable.merge(listenables),
+            builder: (context, _) => headerTile(),
+          )
+        else
+          headerTile(),
         ClipRect(
           child: SizeTransition(
             axisAlignment: -1,

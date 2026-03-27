@@ -76,10 +76,12 @@ class BankDetailsFields extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ExpandableFormSection(
-      title: 'Bankdaten (Absender)',
+      title: 'Bankdaten',
       expandTooltip: 'Bankdaten ausklappen',
       collapseTooltip: 'Bankdaten einklappen',
       initiallyExpanded: initiallyExpanded,
+      summaryListenables: [institutionController],
+      collapsedSummary: () => institutionController.text.trim(),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final twoCols = constraints.maxWidth >= _minColumnWidth * 2 + _columnGap;
