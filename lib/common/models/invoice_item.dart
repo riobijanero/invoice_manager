@@ -16,6 +16,7 @@ class InvoiceItem with _$InvoiceItem {
   const factory InvoiceItem({
     int? serviceMonth,
     int? serviceYear,
+    DateTime? serviceDate,
     @Default(UnitType.hours) UnitType unitType,
     @Default(0.0) double quantity,
     @Default(0.0) double unitPrice,
@@ -24,8 +25,8 @@ class InvoiceItem with _$InvoiceItem {
 
   factory InvoiceItem.fromJson(Map<String, dynamic> json) => _$InvoiceItemFromJson(json);
 
-  /// Both month and year set → line appears on the PDF and counts toward totals.
-  bool get hasServicePeriod => serviceMonth != null && serviceYear != null;
+  /// Any service period set (month+year range OR a single date).
+  bool get hasServicePeriod => serviceDate != null || (serviceMonth != null && serviceYear != null);
 
   double get itemTotal => quantity * unitPrice;
 

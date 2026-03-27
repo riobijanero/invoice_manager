@@ -10,6 +10,9 @@ _$InvoiceItemImpl _$$InvoiceItemImplFromJson(Map<String, dynamic> json) =>
     _$InvoiceItemImpl(
       serviceMonth: (json['serviceMonth'] as num?)?.toInt(),
       serviceYear: (json['serviceYear'] as num?)?.toInt(),
+      serviceDate: json['serviceDate'] == null
+          ? null
+          : DateTime.parse(json['serviceDate'] as String),
       unitType: $enumDecodeNullable(_$UnitTypeEnumMap, json['unitType']) ??
           UnitType.hours,
       quantity: (json['quantity'] as num?)?.toDouble() ?? 0.0,
@@ -21,6 +24,7 @@ Map<String, dynamic> _$$InvoiceItemImplToJson(_$InvoiceItemImpl instance) =>
     <String, dynamic>{
       'serviceMonth': instance.serviceMonth,
       'serviceYear': instance.serviceYear,
+      'serviceDate': instance.serviceDate?.toIso8601String(),
       'unitType': _$UnitTypeEnumMap[instance.unitType]!,
       'quantity': instance.quantity,
       'unitPrice': instance.unitPrice,

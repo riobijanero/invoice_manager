@@ -30,7 +30,9 @@ class InvoiceListTile extends ConsumerWidget {
     final dateFormat = DateFormat('dd.MM.yyyy');
     final firstItem = invoice.invoiceItemList.isNotEmpty ? invoice.invoiceItemList.first : null;
     final periodLabel = firstItem != null && firstItem.hasServicePeriod
-        ? '${_monthName(firstItem.serviceMonth!)} ${firstItem.serviceYear}'
+        ? (firstItem.serviceDate != null
+            ? dateFormat.format(firstItem.serviceDate!)
+            : '${_monthName(firstItem.serviceMonth!)} ${firstItem.serviceYear}')
         : '-';
 
     final theme = Theme.of(context);
@@ -140,12 +142,6 @@ class InvoiceListTile extends ConsumerWidget {
       onTap: onTap,
     );
   }
-}
-
-String _firstLine(String text) {
-  final lines = text.split(RegExp(r'[\r\n]+'));
-  if (lines.isEmpty) return text.trim();
-  return lines.first.trim();
 }
 
 String _monthName(int month) {

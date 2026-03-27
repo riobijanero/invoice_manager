@@ -22,6 +22,7 @@ InvoiceItem _$InvoiceItemFromJson(Map<String, dynamic> json) {
 mixin _$InvoiceItem {
   int? get serviceMonth => throw _privateConstructorUsedError;
   int? get serviceYear => throw _privateConstructorUsedError;
+  DateTime? get serviceDate => throw _privateConstructorUsedError;
   UnitType get unitType => throw _privateConstructorUsedError;
   double get quantity => throw _privateConstructorUsedError;
   double get unitPrice => throw _privateConstructorUsedError;
@@ -42,6 +43,7 @@ abstract class $InvoiceItemCopyWith<$Res> {
   $Res call(
       {int? serviceMonth,
       int? serviceYear,
+      DateTime? serviceDate,
       UnitType unitType,
       double quantity,
       double unitPrice,
@@ -63,6 +65,7 @@ class _$InvoiceItemCopyWithImpl<$Res, $Val extends InvoiceItem>
   $Res call({
     Object? serviceMonth = freezed,
     Object? serviceYear = freezed,
+    Object? serviceDate = freezed,
     Object? unitType = null,
     Object? quantity = null,
     Object? unitPrice = null,
@@ -77,6 +80,10 @@ class _$InvoiceItemCopyWithImpl<$Res, $Val extends InvoiceItem>
           ? _value.serviceYear
           : serviceYear // ignore: cast_nullable_to_non_nullable
               as int?,
+      serviceDate: freezed == serviceDate
+          ? _value.serviceDate
+          : serviceDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       unitType: null == unitType
           ? _value.unitType
           : unitType // ignore: cast_nullable_to_non_nullable
@@ -108,6 +115,7 @@ abstract class _$$InvoiceItemImplCopyWith<$Res>
   $Res call(
       {int? serviceMonth,
       int? serviceYear,
+      DateTime? serviceDate,
       UnitType unitType,
       double quantity,
       double unitPrice,
@@ -127,6 +135,7 @@ class __$$InvoiceItemImplCopyWithImpl<$Res>
   $Res call({
     Object? serviceMonth = freezed,
     Object? serviceYear = freezed,
+    Object? serviceDate = freezed,
     Object? unitType = null,
     Object? quantity = null,
     Object? unitPrice = null,
@@ -141,6 +150,10 @@ class __$$InvoiceItemImplCopyWithImpl<$Res>
           ? _value.serviceYear
           : serviceYear // ignore: cast_nullable_to_non_nullable
               as int?,
+      serviceDate: freezed == serviceDate
+          ? _value.serviceDate
+          : serviceDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       unitType: null == unitType
           ? _value.unitType
           : unitType // ignore: cast_nullable_to_non_nullable
@@ -167,6 +180,7 @@ class _$InvoiceItemImpl extends _InvoiceItem {
   const _$InvoiceItemImpl(
       {this.serviceMonth,
       this.serviceYear,
+      this.serviceDate,
       this.unitType = UnitType.hours,
       this.quantity = 0.0,
       this.unitPrice = 0.0,
@@ -181,6 +195,8 @@ class _$InvoiceItemImpl extends _InvoiceItem {
   @override
   final int? serviceYear;
   @override
+  final DateTime? serviceDate;
+  @override
   @JsonKey()
   final UnitType unitType;
   @override
@@ -194,7 +210,7 @@ class _$InvoiceItemImpl extends _InvoiceItem {
 
   @override
   String toString() {
-    return 'InvoiceItem(serviceMonth: $serviceMonth, serviceYear: $serviceYear, unitType: $unitType, quantity: $quantity, unitPrice: $unitPrice, serviceDescription: $serviceDescription)';
+    return 'InvoiceItem(serviceMonth: $serviceMonth, serviceYear: $serviceYear, serviceDate: $serviceDate, unitType: $unitType, quantity: $quantity, unitPrice: $unitPrice, serviceDescription: $serviceDescription)';
   }
 
   @override
@@ -206,6 +222,8 @@ class _$InvoiceItemImpl extends _InvoiceItem {
                 other.serviceMonth == serviceMonth) &&
             (identical(other.serviceYear, serviceYear) ||
                 other.serviceYear == serviceYear) &&
+            (identical(other.serviceDate, serviceDate) ||
+                other.serviceDate == serviceDate) &&
             (identical(other.unitType, unitType) ||
                 other.unitType == unitType) &&
             (identical(other.quantity, quantity) ||
@@ -219,7 +237,7 @@ class _$InvoiceItemImpl extends _InvoiceItem {
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, serviceMonth, serviceYear,
-      unitType, quantity, unitPrice, serviceDescription);
+      serviceDate, unitType, quantity, unitPrice, serviceDescription);
 
   @JsonKey(ignore: true)
   @override
@@ -239,6 +257,7 @@ abstract class _InvoiceItem extends InvoiceItem {
   const factory _InvoiceItem(
       {final int? serviceMonth,
       final int? serviceYear,
+      final DateTime? serviceDate,
       final UnitType unitType,
       final double quantity,
       final double unitPrice,
@@ -252,6 +271,8 @@ abstract class _InvoiceItem extends InvoiceItem {
   int? get serviceMonth;
   @override
   int? get serviceYear;
+  @override
+  DateTime? get serviceDate;
   @override
   UnitType get unitType;
   @override

@@ -70,6 +70,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   DateTime? _paidOn;
   List<int?> _serviceMonths = [null];
   List<int?> _serviceYears = [null];
+  List<DateTime?> _serviceDates = [null];
+  List<bool> _useServiceDate = [false];
   DiscountType _discountType = DiscountType.percent;
   double _vat = 0.19;
   DueDateType _dueDateType = DueDateType.twoWeeks;
@@ -245,6 +247,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
 
     _serviceMonths = items.map((e) => e.serviceMonth).toList();
     _serviceYears = items.map((e) => e.serviceYear).toList();
+    _serviceDates = items.map((e) => e.serviceDate).toList();
+    _useServiceDate = items.map((e) => e.serviceDate != null).toList();
 
     for (final c in _quantityControllers) {
       c.dispose();
@@ -276,6 +280,10 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
 
     _paidOn = null;
     _unitTypes = [UnitType.hours];
+    _serviceMonths = [null];
+    _serviceYears = [null];
+    _serviceDates = [null];
+    _useServiceDate = [false];
     if (_quantityControllers.isEmpty) {
       _quantityControllers = [TextEditingController()];
     }
@@ -376,7 +384,15 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     return '${fmt.format(start)} - ${fmt.format(end)}';
   }
 
+  String _serviceDatePlaceholderFor(DateTime d) {
+    final fmt = DateFormat('dd.MM.yyyy');
+    return fmt.format(d);
+  }
+
   bool _hasPeriodAt(int index) {
+    if (_useServiceDate[index]) {
+      return _serviceDates[index] != null;
+    }
     final m = _serviceMonths[index];
     final y = _serviceYears[index];
     return m != null && y != null;
@@ -388,7 +404,9 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   void _updateItemPeriodInDescription(int index) {
     if (!_hasPeriodAt(index)) return;
     final t = _serviceDescriptionControllers[index].text;
-    final newPeriod = _periodPlaceholderFor(_serviceMonths[index]!, _serviceYears[index]!);
+    final newPeriod = _useServiceDate[index]
+        ? _serviceDatePlaceholderFor(_serviceDates[index]!)
+        : _periodPlaceholderFor(_serviceMonths[index]!, _serviceYears[index]!);
     if (t.contains('{PERIOD}')) {
       _serviceDescriptionControllers[index].text = t.replaceAll('{PERIOD}', newPeriod);
       return;
@@ -410,6 +428,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     setState(() {
       _serviceMonths.add(null);
       _serviceYears.add(null);
+      _serviceDates.add(null);
+      _useServiceDate.add(false);
       _unitTypes.add(baseUnitType);
       _quantityControllers.add(TextEditingController(text: baseQuantityText));
       _unitPriceControllers.add(TextEditingController(text: baseUnitPriceText));
@@ -430,6 +450,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
 
       _serviceMonths.removeAt(index);
       _serviceYears.removeAt(index);
+      _serviceDates.removeAt(index);
+      _useServiceDate.removeAt(index);
       _unitTypes.removeAt(index);
       _quantityControllers.removeAt(index);
       _unitPriceControllers.removeAt(index);
@@ -667,11 +689,24 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             introductoryTextController: _introductoryText,
                             serviceMonths: _serviceMonths,
                             serviceYears: _serviceYears,
+                            serviceDates: _serviceDates,
+                            useServiceDate: _useServiceDate,
                             unitTypes: _unitTypes,
                             quantityControllers: _quantityControllers,
                             unitPriceControllers: _unitPriceControllers,
                             onUnitTypeChanged: _onUnitTypeChanged,
                             serviceDescriptionControllers: _serviceDescriptionControllers,
+                            onServicePeriodModeChanged: (index, useDate) {
+                              setState(() {
+                                _useServiceDate[index] = useDate;
+                                if (useDate) {
+                                  _serviceMonths[index] = null;
+                                  _serviceYears[index] = null;
+                                } else {
+                                  _serviceDates[index] = null;
+                                }
+                              });
+                            },
                             onServiceMonthChanged: (index, v) {
                               setState(() {
                                 _serviceMonths[index] = v;
@@ -686,6 +721,28 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                                 if (_hasPeriodAt(index)) {
                                   _updateItemPeriodInDescription(index);
                                 }
+                              });
+                            },
+                            onServiceDateTap: (index) async {
+                              final initial = _serviceDates[index] ?? _invoiceDate ?? DateTime.now();
+                              final date = await showDatePicker(
+                                context: context,
+                                initialDate: initial,
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                              );
+                              if (date != null) {
+                                setState(() {
+                                  _serviceDates[index] = date;
+                                  if (_hasPeriodAt(index)) {
+                                    _updateItemPeriodInDescription(index);
+                                  }
+                                });
+                              }
+                            },
+                            onClearServiceDate: (index) {
+                              setState(() {
+                                _serviceDates[index] = null;
                               });
                             },
                             onAddInvoiceItem: _addInvoiceItem,
@@ -803,8 +860,9 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
           ) ??
           0;
       return InvoiceItem(
-        serviceMonth: _serviceMonths[i],
-        serviceYear: _serviceYears[i],
+        serviceMonth: _useServiceDate[i] ? null : _serviceMonths[i],
+        serviceYear: _useServiceDate[i] ? null : _serviceYears[i],
+        serviceDate: _useServiceDate[i] ? _serviceDates[i] : null,
         unitType: _unitTypes[i],
         quantity: quantity,
         unitPrice: unitPrice,
