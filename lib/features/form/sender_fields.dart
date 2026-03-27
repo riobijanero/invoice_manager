@@ -18,6 +18,7 @@ class SenderFields extends StatelessWidget {
     required this.senderWebsiteController,
     required this.ustIdController,
     required this.taxNumberController,
+    this.initiallyExpanded = true,
   });
 
   final TextEditingController senderNameController;
@@ -31,6 +32,7 @@ class SenderFields extends StatelessWidget {
   final TextEditingController senderWebsiteController;
   final TextEditingController ustIdController;
   final TextEditingController taxNumberController;
+  final bool initiallyExpanded;
 
   static const double _minColumnWidth = 280;
   static const double _columnGap = 24;
@@ -204,6 +206,7 @@ class SenderFields extends StatelessWidget {
       title: 'Absender',
       expandTooltip: 'Absender ausklappen',
       collapseTooltip: 'Absender einklappen',
+      initiallyExpanded: initiallyExpanded,
       child: _fieldsBody(),
     );
   }

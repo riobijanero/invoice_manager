@@ -27,23 +27,25 @@ class InvoiceItem with _$InvoiceItem {
     required String serviceDescription,
   }) = _FixedPriceServiceItem;
 
-  factory InvoiceItem.fromJson(Map<String, dynamic> json) =>
-      _$InvoiceItemFromJson(json);
+  factory InvoiceItem.fromJson(Map<String, dynamic> json) => _$InvoiceItemFromJson(json);
 
   /// Both month and year set → line appears on the PDF and counts toward totals.
   bool get hasServicePeriod => serviceMonth != null && serviceYear != null;
 
   // Common accessors so the rest of the app can stay readable.
+  @override
   int? get serviceMonth => map(
         hourlyRateService: (v) => v.serviceMonth,
         fixedPriceService: (v) => v.serviceMonth,
       );
 
+  @override
   int? get serviceYear => map(
         hourlyRateService: (v) => v.serviceYear,
         fixedPriceService: (v) => v.serviceYear,
       );
 
+  @override
   String get serviceDescription => map(
         hourlyRateService: (v) => v.serviceDescription,
         fixedPriceService: (v) => v.serviceDescription,
@@ -90,4 +92,3 @@ class InvoiceItem with _$InvoiceItem {
         fixedPriceService: (v) => v.fixedPrice,
       );
 }
-

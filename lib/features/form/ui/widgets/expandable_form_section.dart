@@ -54,6 +54,19 @@ class _ExpandableFormSectionState extends State<ExpandableFormSection>
   }
 
   @override
+  void didUpdateWidget(covariant ExpandableFormSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initiallyExpanded != widget.initiallyExpanded) {
+      _expanded = widget.initiallyExpanded;
+      if (_expanded) {
+        _expandController.forward();
+      } else {
+        _expandController.reverse();
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _expandCurve.dispose();
     _expandController.dispose();

@@ -19,6 +19,7 @@ class ClientFields extends StatelessWidget {
     required this.clientCountryController,
     required this.clientIdController,
     required this.contractNumberController,
+    this.initiallyExpanded = true,
   });
 
   final List<Client> existingClients;
@@ -32,6 +33,7 @@ class ClientFields extends StatelessWidget {
   final TextEditingController clientCountryController;
   final TextEditingController clientIdController;
   final TextEditingController contractNumberController;
+  final bool initiallyExpanded;
 
   static const double _minColumnWidth = 280;
   static const double _columnGap = 24;
@@ -149,6 +151,7 @@ class ClientFields extends StatelessWidget {
       title: 'Kunde',
       expandTooltip: 'Kunde ausklappen',
       collapseTooltip: 'Kunde einklappen',
+      initiallyExpanded: initiallyExpanded,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final twoCols = constraints.maxWidth >= _minColumnWidth * 2 + _columnGap;

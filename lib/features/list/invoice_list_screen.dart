@@ -86,7 +86,7 @@ class InvoiceListScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              SizedBox(width: 30),
+              const SizedBox(width: 30),
               FloatingActionButton(
                 tooltip: 'Rechnungen importieren',
                 heroTag: 'import_data_fab',
@@ -194,9 +194,9 @@ class InvoiceListScreen extends ConsumerWidget {
     ref.invalidate(defaultsProvider);
     if (context.mounted) {
       if (isWideInvoiceLayout(context)) {
-        context.go(pathEdit(newInvoice.id));
+        context.go('${pathEdit(newInvoice.id)}?source=duplicate');
       } else {
-        context.push(pathEdit(newInvoice.id));
+        context.push('${pathEdit(newInvoice.id)}?source=duplicate');
       }
     }
   }

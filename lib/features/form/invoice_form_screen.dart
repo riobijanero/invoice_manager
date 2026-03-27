@@ -81,6 +81,40 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   bool _initialized = false;
   bool _hasQrCode = false;
 
+  bool _hasAnyText(TextEditingController c) => c.text.trim().isNotEmpty;
+
+  bool _senderPrefilled() {
+    return _hasAnyText(_senderName) ||
+        _hasAnyText(_senderStreetNameAndNumber) ||
+        _hasAnyText(_senderPostalCode) ||
+        _hasAnyText(_senderTown) ||
+        _hasAnyText(_senderCountry) ||
+        _hasAnyText(_senderPhone) ||
+        _hasAnyText(_senderEmail) ||
+        _hasAnyText(_senderWebsite) ||
+        _hasAnyText(_ustId) ||
+        _hasAnyText(_taxNumber) ||
+        _hasAnyText(_jobDescription);
+  }
+
+  bool _bankPrefilled() {
+    return _hasAnyText(_accountHolder) ||
+        _hasAnyText(_institution) ||
+        _hasAnyText(_iban) ||
+        _hasAnyText(_bic);
+  }
+
+  bool _clientPrefilled() {
+    return _hasAnyText(_clientCompanyName) ||
+        _hasAnyText(_clientName) ||
+        _hasAnyText(_clientStreetNameAndNumber) ||
+        _hasAnyText(_clientPostalCode) ||
+        _hasAnyText(_clientTown) ||
+        _hasAnyText(_clientCountry) ||
+        _hasAnyText(_clientId) ||
+        _hasAnyText(_contractNumber);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -491,6 +525,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   @override
   Widget build(BuildContext context) {
     final isNew = widget.invoiceId == null;
+    final isDuplicate = GoRouterState.of(context).uri.queryParameters['source'] == 'duplicate';
     final asyncInvoice = widget.invoiceId != null ? ref.watch(invoiceDetailProvider(widget.invoiceId!)) : null;
     final asyncDefaults = ref.watch(defaultsProvider);
     final asyncInvoiceList = ref.watch(invoiceListProvider);
@@ -537,6 +572,11 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       }
       _initialized = true;
     }
+
+    final shouldCollapsePrefilledSections = (isNew || isDuplicate);
+    final senderExpanded = !(shouldCollapsePrefilledSections && _senderPrefilled());
+    final bankExpanded = !(shouldCollapsePrefilledSections && _bankPrefilled());
+    final clientExpanded = !(isDuplicate && _clientPrefilled());
 
     return Scaffold(
       appBar: AppBar(
@@ -607,6 +647,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             senderWebsiteController: _senderWebsite,
                             ustIdController: _ustId,
                             taxNumberController: _taxNumber,
+                            initiallyExpanded: senderExpanded,
                           ),
                           const SizedBox(height: 20),
                           BankDetailsFields(
@@ -614,6 +655,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             institutionController: _institution,
                             ibanController: _iban,
                             bicController: _bic,
+                            initiallyExpanded: bankExpanded,
                           ),
                           const SizedBox(height: 30),
                           // Zeile 2: Kunde
@@ -633,6 +675,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             clientCountryController: _clientCountry,
                             clientIdController: _clientId,
                             contractNumberController: _contractNumber,
+                            initiallyExpanded: clientExpanded,
                           ),
                           const SizedBox(height: 30),
                           // Zeile 3: Rechnungsdetails

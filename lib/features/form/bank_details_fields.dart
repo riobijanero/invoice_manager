@@ -12,12 +12,14 @@ class BankDetailsFields extends StatelessWidget {
     required this.institutionController,
     required this.ibanController,
     required this.bicController,
+    this.initiallyExpanded = true,
   });
 
   final TextEditingController accountHolderController;
   final TextEditingController institutionController;
   final TextEditingController ibanController;
   final TextEditingController bicController;
+  final bool initiallyExpanded;
 
   static const double _minColumnWidth = 280;
   static const double _columnGap = 24;
@@ -77,6 +79,7 @@ class BankDetailsFields extends StatelessWidget {
       title: 'Bankdaten (Absender)',
       expandTooltip: 'Bankdaten ausklappen',
       collapseTooltip: 'Bankdaten einklappen',
+      initiallyExpanded: initiallyExpanded,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final twoCols = constraints.maxWidth >= _minColumnWidth * 2 + _columnGap;

@@ -20,18 +20,18 @@ Invoice _minimalInvoice({
     createdAt: now,
     updatedAt: now,
     invoiceNumber: 'R-1',
-    sender: Sender(
+    sender: const Sender(
       name: 'S',
       jobDescription: '',
-      address: const Adress(),
+      address: Adress(),
       phoneNumber: '',
       email: '',
       website: '',
       ustId: '',
       taxNumber: '',
     ),
-    client: Client(companyName: '', name: 'C', address: const Adress()),
-    bankDetails: BankDetails(
+    client: const Client(companyName: '', name: 'C', address: Adress()),
+    bankDetails: const BankDetails(
       accountHolder: 'x',
       institution: 'y',
       iban: 'z',
@@ -50,7 +50,7 @@ void main() {
     test('applies percent discount to net and gross', () {
       final inv = _minimalInvoice(
         items: [
-          InvoiceItem.hourlyRateService(
+          const InvoiceItem.hourlyRateService(
             serviceMonth: 5,
             serviceYear: 2024,
             hours: 10,
@@ -72,7 +72,7 @@ void main() {
     test('applies fixed amount (Betrag) discount', () {
       final inv = _minimalInvoice(
         items: [
-          InvoiceItem.hourlyRateService(
+          const InvoiceItem.hourlyRateService(
             serviceMonth: 5,
             serviceYear: 2024,
             hours: 5,
@@ -92,7 +92,7 @@ void main() {
     test('caps discount at subtotal', () {
       final inv = _minimalInvoice(
         items: [
-          InvoiceItem.fixedPriceService(
+          const InvoiceItem.fixedPriceService(
             serviceMonth: 1,
             serviceYear: 2024,
             fixedPrice: 100,
@@ -110,14 +110,14 @@ void main() {
     test('includes lines without Leistungszeitraum in subtotal', () {
       final inv = _minimalInvoice(
         items: [
-          InvoiceItem.hourlyRateService(
+          const InvoiceItem.hourlyRateService(
             serviceMonth: null,
             serviceYear: null,
             hours: 10,
             hourlyRate: 100,
             serviceDescription: 'a',
           ),
-          InvoiceItem.hourlyRateService(
+          const InvoiceItem.hourlyRateService(
             serviceMonth: 3,
             serviceYear: 2024,
             hours: 1,
