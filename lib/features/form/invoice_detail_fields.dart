@@ -111,6 +111,180 @@ class InvoiceDetailFields extends StatelessWidget {
     required String Function(UnitType) unitLabel,
     required double Function(int) itemTotalFor,
   }) {
+    final descriptionField = TextFormField(
+      controller: serviceDescriptionControllers[i],
+      decoration: const InputDecoration(
+        labelText: 'Leistungsbeschreibung',
+        border: OutlineInputBorder(),
+        alignLabelWithHint: true,
+      ),
+      maxLines: 5,
+      validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
+    );
+
+    final posField = InputDecorator(
+      decoration: const InputDecoration(
+        labelText: 'Pos.',
+        border: OutlineInputBorder(),
+      ),
+      child: Text('${i + 1}'),
+    );
+
+    final quantityField = TextFormField(
+      controller: quantityControllers[i],
+      decoration: const InputDecoration(
+        labelText: 'Anzahl',
+        border: OutlineInputBorder(),
+      ),
+      keyboardType: const TextInputType.numberWithOptions(
+        decimal: true,
+      ),
+      validator: (v) {
+        if (v == null || v.trim().isEmpty) {
+          return 'Pflichtfeld';
+        }
+        final n = double.tryParse(v.replaceFirst(',', '.'));
+        if (n == null || n < 0) return 'Ungültige Zahl';
+        return null;
+      },
+    );
+
+    final unitField = DropdownButtonFormField<UnitType>(
+      initialValue: unitTypes[i],
+      decoration: const InputDecoration(
+        labelText: 'Einheit',
+        border: OutlineInputBorder(),
+      ),
+      items: UnitType.values
+          .map(
+            (t) => DropdownMenuItem<UnitType>(
+              value: t,
+              child: Text(unitLabel(t)),
+            ),
+          )
+          .toList(),
+      onChanged: (v) {
+        if (v != null) onUnitTypeChanged(i, v);
+      },
+    );
+
+    final priceField = TextFormField(
+      controller: unitPriceControllers[i],
+      decoration: const InputDecoration(
+        labelText: 'Einzelpreis (€)',
+        border: OutlineInputBorder(),
+      ),
+      keyboardType: const TextInputType.numberWithOptions(
+        decimal: true,
+      ),
+      validator: (v) {
+        if (v == null || v.trim().isEmpty) {
+          return 'Pflichtfeld';
+        }
+        final n = double.tryParse(v.replaceFirst(',', '.'));
+        if (n == null || n < 0) return 'Ungültige Zahl';
+        return null;
+      },
+    );
+
+    final totalField = ValueListenableBuilder<TextEditingValue>(
+      valueListenable: unitPriceControllers[i],
+      builder: (context, _, __) {
+        return ValueListenableBuilder<TextEditingValue>(
+          valueListenable: quantityControllers[i],
+          builder: (context, __, ___) {
+            return InputDecorator(
+              decoration: const InputDecoration(
+                labelText: 'Gesamt',
+                border: OutlineInputBorder(),
+              ),
+              child: Text(formatCurrency(itemTotalFor(i))),
+            );
+          },
+        );
+      },
+    );
+
+    final dateControls = useServiceDate[i]
+        ? InputDecorator(
+            decoration: const InputDecoration(
+              labelText: 'Leistungsdatum',
+              border: OutlineInputBorder(),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () => onServiceDateTap(i),
+                    child: Text(
+                      serviceDates[i] != null
+                          ? DateFormat('dd.MM.yyyy').format(serviceDates[i]!)
+                          : 'Datum wählen',
+                    ),
+                  ),
+                ),
+                if (serviceDates[i] != null)
+                  IconButton(
+                    onPressed: () => onClearServiceDate(i),
+                    icon: const Icon(Icons.close),
+                    tooltip: 'Datum entfernen',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    style: IconButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+              ],
+            ),
+          )
+        : FieldRow(
+            left: DropdownButtonFormField<int?>(
+              initialValue: serviceMonths[i],
+              decoration: const InputDecoration(
+                labelText: 'Leistungszeitraum Monat',
+                border: OutlineInputBorder(),
+              ),
+              items: [
+                const DropdownMenuItem<int?>(
+                  value: null,
+                  child: Text('—'),
+                ),
+                ...List.generate(
+                  12,
+                  (j) => DropdownMenuItem<int?>(
+                    value: _months[j],
+                    child: Text(_monthLabels[j]),
+                  ),
+                ),
+              ],
+              onChanged: (v) => onServiceMonthChanged(i, v),
+            ),
+            right: DropdownButtonFormField<int?>(
+              initialValue: serviceYears[i],
+              decoration: const InputDecoration(
+                labelText: 'Leistungszeitraum Jahr',
+                border: OutlineInputBorder(),
+              ),
+              items: [
+                const DropdownMenuItem<int?>(
+                  value: null,
+                  child: Text('—'),
+                ),
+                ...List.generate(
+                  5,
+                  (j) {
+                    final y = DateTime.now().year - 2 + j;
+                    return DropdownMenuItem<int?>(
+                      value: y,
+                      child: Text('$y'),
+                    );
+                  },
+                ),
+              ],
+              onChanged: (v) => onServiceYearChanged(i, v),
+            ),
+          );
+
     final itemChildren = <Widget>[
       const SizedBox(height: 8),
       Row(
@@ -151,248 +325,67 @@ class InvoiceDetailFields extends StatelessWidget {
             ),
         ],
       ),
-      SegmentedButton<bool>(
-        segments: const [
-          ButtonSegment<bool>(
-            value: false,
-            label: Text('Zeitraum'),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: SegmentedButton<bool>(
+              segments: const [
+                ButtonSegment<bool>(
+                  value: false,
+                  label: Text('Zeitraum'),
+                ),
+                ButtonSegment<bool>(
+                  value: true,
+                  label: Text('Datum'),
+                ),
+              ],
+              selected: {useServiceDate[i]},
+              onSelectionChanged: (s) => onServicePeriodModeChanged(i, s.first),
+            ),
           ),
-          ButtonSegment<bool>(
-            value: true,
-            label: Text('Datum'),
+          const SizedBox(width: 12),
+          Expanded(
+            child: dateControls,
           ),
         ],
-        selected: {useServiceDate[i]},
-        onSelectionChanged: (s) => onServicePeriodModeChanged(i, s.first),
       ),
-      if (!useServiceDate[i])
-        FieldRow(
-          left: DropdownButtonFormField<int?>(
-            initialValue: serviceMonths[i],
-            decoration: const InputDecoration(
-              labelText: 'Leistungszeitraum Monat',
-              border: OutlineInputBorder(),
-            ),
-            items: [
-              const DropdownMenuItem<int?>(
-                value: null,
-                child: Text('—'),
-              ),
-              ...List.generate(
-                12,
-                (j) => DropdownMenuItem<int?>(
-                  value: _months[j],
-                  child: Text(_monthLabels[j]),
-                ),
-              ),
-            ],
-            onChanged: (v) => onServiceMonthChanged(i, v),
-          ),
-          right: DropdownButtonFormField<int?>(
-            initialValue: serviceYears[i],
-            decoration: const InputDecoration(
-              labelText: 'Leistungszeitraum Jahr',
-              border: OutlineInputBorder(),
-            ),
-            items: [
-              const DropdownMenuItem<int?>(
-                value: null,
-                child: Text('—'),
-              ),
-              ...List.generate(
-                5,
-                (j) {
-                  final y = DateTime.now().year - 2 + j;
-                  return DropdownMenuItem<int?>(
-                    value: y,
-                    child: Text('$y'),
-                  );
-                },
-              ),
-            ],
-            onChanged: (v) => onServiceYearChanged(i, v),
-          ),
-        )
-      else
-        InputDecorator(
-          decoration: const InputDecoration(
-            labelText: 'Leistungsdatum',
-            border: OutlineInputBorder(),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () => onServiceDateTap(i),
-                  child: Text(
-                    serviceDates[i] != null
-                        ? DateFormat('dd.MM.yyyy').format(serviceDates[i]!)
-                        : 'Datum wählen',
-                  ),
-                ),
-              ),
-              if (serviceDates[i] != null)
-                IconButton(
-                  onPressed: () => onClearServiceDate(i),
-                  icon: const Icon(Icons.close),
-                  tooltip: 'Datum entfernen',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  style: IconButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.error,
-                  ),
-                ),
-            ],
-          ),
-        ),
-      LayoutBuilder(
-        builder: (context, constraints) {
-          final wide = constraints.maxWidth >= 900;
-
-          final descriptionField = TextFormField(
-            controller: serviceDescriptionControllers[i],
-            decoration: const InputDecoration(
-              labelText: 'Leistungsbeschreibung',
-              border: OutlineInputBorder(),
-              alignLabelWithHint: true,
-            ),
-            maxLines: 5,
-            validator: (v) =>
-                (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-          );
-
-          final posField = InputDecorator(
-            decoration: const InputDecoration(
-              labelText: 'Pos.',
-              border: OutlineInputBorder(),
-            ),
-            child: Text('${i + 1}'),
-          );
-
-          final quantityField = TextFormField(
-            controller: quantityControllers[i],
-            decoration: const InputDecoration(
-              labelText: 'Anzahl',
-              border: OutlineInputBorder(),
-            ),
-            keyboardType: const TextInputType.numberWithOptions(
-              decimal: true,
-            ),
-            validator: (v) {
-              if (v == null || v.trim().isEmpty) {
-                return 'Pflichtfeld';
-              }
-              final n = double.tryParse(v.replaceFirst(',', '.'));
-              if (n == null || n < 0) return 'Ungültige Zahl';
-              return null;
-            },
-          );
-
-          final unitField = DropdownButtonFormField<UnitType>(
-            initialValue: unitTypes[i],
-            decoration: const InputDecoration(
-              labelText: 'Einheit',
-              border: OutlineInputBorder(),
-            ),
-            items: UnitType.values
-                .map(
-                  (t) => DropdownMenuItem<UnitType>(
-                    value: t,
-                    child: Text(unitLabel(t)),
-                  ),
-                )
-                .toList(),
-            onChanged: (v) {
-              if (v != null) onUnitTypeChanged(i, v);
-            },
-          );
-
-          final priceField = TextFormField(
-            controller: unitPriceControllers[i],
-            decoration: const InputDecoration(
-              labelText: 'Einzelpreis (€)',
-              border: OutlineInputBorder(),
-            ),
-            keyboardType: const TextInputType.numberWithOptions(
-              decimal: true,
-            ),
-            validator: (v) {
-              if (v == null || v.trim().isEmpty) {
-                return 'Pflichtfeld';
-              }
-              final n = double.tryParse(v.replaceFirst(',', '.'));
-              if (n == null || n < 0) return 'Ungültige Zahl';
-              return null;
-            },
-          );
-
-          final totalField = ValueListenableBuilder<TextEditingValue>(
-            valueListenable: unitPriceControllers[i],
-            builder: (context, _, __) {
-              return ValueListenableBuilder<TextEditingValue>(
-                valueListenable: quantityControllers[i],
-                builder: (context, __, ___) {
-                  return InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: 'Gesamt',
-                      border: OutlineInputBorder(),
-                    ),
-                    child: Text(formatCurrency(itemTotalFor(i))),
-                  );
-                },
-              );
-            },
-          );
-
-          if (!wide) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(width: 60, child: posField),
-                    const SizedBox(width: 12),
-                    Expanded(child: descriptionField),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                quantityField,
-                const SizedBox(height: 12),
-                unitField,
-                const SizedBox(height: 12),
-                priceField,
-                const SizedBox(height: 12),
-                totalField,
+                SizedBox(width: 60, child: posField),
+                const SizedBox(width: 12),
+                Expanded(child: descriptionField),
               ],
-            );
-          }
-
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(width: 60, child: posField),
-              const SizedBox(width: 12),
-              Expanded(child: descriptionField),
-              const SizedBox(width: 12),
-              SizedBox(width: 140, child: quantityField),
-              const SizedBox(width: 12),
-              SizedBox(width: 170, child: unitField),
-              const SizedBox(width: 12),
-              SizedBox(
-                width: 160,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    priceField,
-                    const SizedBox(height: 12),
-                    totalField,
-                  ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: quantityField),
+                const SizedBox(width: 12),
+                Expanded(child: unitField),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      priceField,
+                      const SizedBox(height: 12),
+                      totalField,
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            ),
+          ),
+        ],
       ),
     ];
     final spaced = itemChildren.intersperse(
