@@ -1,28 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:invoice_manager/common/layout/invoice_layout_breakpoints.dart';
 import 'package:invoice_manager/common/providers/providers.dart';
 import 'package:invoice_manager/common/utils/date_utils.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:invoice_manager/common/models/bank_details.dart';
 import 'package:invoice_manager/common/models/client.dart';
 import 'package:invoice_manager/common/models/discount_type.dart';
 import 'package:invoice_manager/common/models/due_date_type.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
 import 'package:invoice_manager/common/models/invoice_defaults.dart';
 import 'package:invoice_manager/common/models/invoice_item.dart';
-import 'package:invoice_manager/common/models/adress.dart';
-import 'package:invoice_manager/common/models/sender.dart';
 import 'package:invoice_manager/features/form/ui/widgets/overdue_chip.dart';
-import 'package:invoice_manager/features/form/bank_details_fields.dart';
-import 'package:invoice_manager/features/form/client_fields.dart';
-import 'package:invoice_manager/features/form/invoice_detail_fields.dart';
-import 'package:invoice_manager/features/form/sender_fields.dart';
+import 'package:invoice_manager/features/form/services/invoice_form_defaults_sync.dart';
+import 'package:invoice_manager/features/form/services/invoice_form_dto_builders.dart';
+import 'package:invoice_manager/features/form/services/invoice_form_invoice_builder.dart';
+import 'package:invoice_manager/features/form/services/invoice_line_items_builder.dart';
+import 'package:invoice_manager/features/form/ui/sections/bank_details_fields.dart';
+import 'package:invoice_manager/features/form/ui/sections/client_fields.dart';
+import 'package:invoice_manager/features/form/ui/sections/invoice_detail_fields.dart';
+import 'package:invoice_manager/features/form/ui/sections/sender_fields.dart';
+import 'package:invoice_manager/features/form/utils/client_dedupe_utils.dart';
+import 'package:invoice_manager/features/form/utils/form_mandatory_sections.dart';
+import 'package:invoice_manager/features/form/utils/service_period_description.dart';
 import 'package:invoice_manager/features/form/utils/utils.dart';
-import '../../routing/app_router.dart';
+import '../../../routing/app_router.dart';
 
 class InvoiceFormScreen extends ConsumerStatefulWidget {
   const InvoiceFormScreen({super.key, this.invoiceId});
@@ -82,44 +85,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   final Set<String> _deletedClientKeys = <String>{};
   bool _initialized = false;
   bool _hasQrCode = false;
-
-  bool _hasAnyText(TextEditingController c) => c.text.trim().isNotEmpty;
-
-  /// Matches [SenderFields] validators: Name, Straße, PLZ, Ort, Land.
-  bool _senderMandatoryComplete() {
-    if (!_hasAnyText(_senderName)) return false;
-    if (!_hasAnyText(_senderStreetNameAndNumber)) return false;
-    final plz = _senderPostalCode.text.trim();
-    final plzN = int.tryParse(plz);
-    if (plz.isEmpty || plzN == null || plzN <= 0) return false;
-    if (!_hasAnyText(_senderTown)) return false;
-    if (!_hasAnyText(_senderCountry)) return false;
-    return true;
-  }
-
-  /// Matches [BankDetailsFields] validators.
-  bool _bankMandatoryComplete() {
-    if (!_hasAnyText(_accountHolder)) return false;
-    if (!_hasAnyText(_institution)) return false;
-    if (!_hasAnyText(_bic)) return false;
-    final iban = _iban.text.trim();
-    if (iban.isEmpty || !isValidIban(iban)) return false;
-    return true;
-  }
-
-  /// Matches [ClientFields] validators: Firma oder Name, Adresse, PLZ, Ort, Land.
-  bool _clientMandatoryComplete() {
-    final company = _clientCompanyName.text.trim();
-    final name = _clientName.text.trim();
-    if (company.isEmpty && name.isEmpty) return false;
-    if (!_hasAnyText(_clientStreetNameAndNumber)) return false;
-    final plz = _clientPostalCode.text.trim();
-    final plzN = int.tryParse(plz);
-    if (plz.isEmpty || plzN == null || plzN <= 0) return false;
-    if (!_hasAnyText(_clientTown)) return false;
-    if (!_hasAnyText(_clientCountry)) return false;
-    return true;
-  }
 
   @override
   void initState() {
@@ -345,14 +310,14 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     if (d.serviceDescriptionTemplate.isNotEmpty) {
       var text = d.serviceDescriptionTemplate;
       if (m0 != null && y0 != null) {
-        text = text.replaceAll('{PERIOD}', _periodPlaceholderFor(m0, y0));
+        text = text.replaceAll('{PERIOD}', periodPlaceholderForMonthYear(m0, y0));
       }
       _serviceDescriptionControllers[0].text = text;
     } else {
       if (m0 != null && y0 != null) {
         _serviceDescriptionControllers[0].text = defaultServiceDescriptionTemplate.replaceAll(
           '{PERIOD}',
-          _periodPlaceholderFor(m0, y0),
+          periodPlaceholderForMonthYear(m0, y0),
         );
       } else {
         _serviceDescriptionControllers[0].text = defaultServiceDescriptionTemplate;
@@ -389,45 +354,20 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     return isOverdueUnpaid(snapshot);
   }
 
-  String _periodPlaceholderFor(int month, int year) {
-    final start = DateTime(year, month, 1);
-    final end = DateTime(year, month + 1, 0);
-    final fmt = DateFormat('dd.MM.yyyy');
-    return '${fmt.format(start)} - ${fmt.format(end)}';
-  }
-
-  String _serviceDatePlaceholderFor(DateTime d) {
-    final fmt = DateFormat('dd.MM.yyyy');
-    return fmt.format(d);
-  }
-
-  bool _hasPeriodAt(int index) {
-    if (_useServiceDate[index]) {
-      return _serviceDates[index] != null;
-    }
-    final m = _serviceMonths[index];
-    final y = _serviceYears[index];
-    return m != null && y != null;
-  }
-
-  /// Updates the Leistungsbeschreibung so the date range matches the chosen
-  /// Leistungszeitraum (month/year). Replaces {PERIOD} or any existing
-  /// dd.MM.yyyy - dd.MM.yyyy range with the current period.
   void _updateItemPeriodInDescription(int index) {
-    if (!_hasPeriodAt(index)) return;
-    final t = _serviceDescriptionControllers[index].text;
-    final newPeriod = _useServiceDate[index]
-        ? _serviceDatePlaceholderFor(_serviceDates[index]!)
-        : _periodPlaceholderFor(_serviceMonths[index]!, _serviceYears[index]!);
-    if (t.contains('{PERIOD}')) {
-      _serviceDescriptionControllers[index].text = t.replaceAll('{PERIOD}', newPeriod);
+    if (!hasSelectedServicePeriod(
+      useServiceDate: _useServiceDate[index],
+      serviceDate: _serviceDates[index],
+      serviceMonth: _serviceMonths[index],
+      serviceYear: _serviceYears[index],
+    )) {
       return;
     }
-    // Replace existing date range (e.g. "01.03.2026 - 31.03.2026") with new period
-    final periodPattern = RegExp(r'\d{2}\.\d{2}\.\d{4}\s*-\s*\d{2}\.\d{2}\.\d{4}');
-    if (periodPattern.hasMatch(t)) {
-      _serviceDescriptionControllers[index].text = t.replaceFirst(periodPattern, newPeriod);
-    }
+    final t = _serviceDescriptionControllers[index].text;
+    final newPeriod = _useServiceDate[index]
+        ? serviceDatePlaceholder(_serviceDates[index]!)
+        : periodPlaceholderForMonthYear(_serviceMonths[index]!, _serviceYears[index]!);
+    _serviceDescriptionControllers[index].text = replaceServicePeriodInDescription(t, newPeriod);
   }
 
   void _addInvoiceItem() {
@@ -499,37 +439,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     });
   }
 
-  List<Client> _existingClientsFromInvoices(List<Invoice> invoices) {
-    final seen = <String>{};
-    final clients = <Client>[];
-    for (final invoice in invoices) {
-      final c = invoice.client;
-      final dedupeKey = [
-        c.companyName.trim().toLowerCase(),
-        c.name.trim().toLowerCase(),
-        c.address.streetNameAndNumber.trim().toLowerCase(),
-        c.address.postalCode.toString(),
-        c.address.town.trim().toLowerCase(),
-        c.address.country.trim().toLowerCase(),
-      ].join('|');
-      if (seen.add(dedupeKey)) {
-        clients.add(c);
-      }
-    }
-    return clients;
-  }
-
-  String _clientKey(Client c) {
-    return [
-      c.companyName.trim().toLowerCase(),
-      c.name.trim().toLowerCase(),
-      c.address.streetNameAndNumber.trim().toLowerCase(),
-      c.address.postalCode.toString(),
-      c.address.town.trim().toLowerCase(),
-      c.address.country.trim().toLowerCase(),
-    ].join('|');
-  }
-
   void _applySelectedClient(Client client) {
     _clientCompanyName.text = client.companyName;
     _clientName.text = client.name;
@@ -547,8 +456,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     final asyncDefaults = ref.watch(defaultsProvider);
     final asyncInvoiceList = ref.watch(invoiceListProvider);
     final allExistingClients =
-        asyncInvoiceList.hasValue ? _existingClientsFromInvoices(asyncInvoiceList.value!) : <Client>[];
-    final existingClients = allExistingClients.where((c) => !_deletedClientKeys.contains(_clientKey(c))).toList();
+        asyncInvoiceList.hasValue ? uniqueClientsFromInvoices(asyncInvoiceList.value!) : <Client>[];
+    final existingClients = allExistingClients.where((c) => !_deletedClientKeys.contains(clientDedupeKey(c))).toList();
 
     if (widget.invoiceId != null) {
       ref.listen<AsyncValue<Invoice?>>(
@@ -591,9 +500,27 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     }
 
     // Eingeklappt, sobald alle Pflichtfelder des Blocks gültig befüllt sind.
-    final senderExpanded = !_senderMandatoryComplete();
-    final bankExpanded = !_bankMandatoryComplete();
-    final clientExpanded = !_clientMandatoryComplete();
+    final senderExpanded = !isSenderMandatoryComplete(
+      name: _senderName.text,
+      street: _senderStreetNameAndNumber.text,
+      postalCodeText: _senderPostalCode.text,
+      town: _senderTown.text,
+      country: _senderCountry.text,
+    );
+    final bankExpanded = !isBankMandatoryComplete(
+      accountHolder: _accountHolder.text,
+      institution: _institution.text,
+      iban: _iban.text,
+      bic: _bic.text,
+    );
+    final clientExpanded = !isClientMandatoryComplete(
+      companyName: _clientCompanyName.text,
+      personName: _clientName.text,
+      street: _clientStreetNameAndNumber.text,
+      postalCodeText: _clientPostalCode.text,
+      town: _clientTown.text,
+      country: _clientCountry.text,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -743,7 +670,12 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             onServiceMonthChanged: (index, v) {
                               setState(() {
                                 _serviceMonths[index] = v;
-                                if (_hasPeriodAt(index)) {
+                                if (hasSelectedServicePeriod(
+                                  useServiceDate: _useServiceDate[index],
+                                  serviceDate: _serviceDates[index],
+                                  serviceMonth: _serviceMonths[index],
+                                  serviceYear: _serviceYears[index],
+                                )) {
                                   _updateItemPeriodInDescription(index);
                                 }
                               });
@@ -751,7 +683,12 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             onServiceYearChanged: (index, v) {
                               setState(() {
                                 _serviceYears[index] = v;
-                                if (_hasPeriodAt(index)) {
+                                if (hasSelectedServicePeriod(
+                                  useServiceDate: _useServiceDate[index],
+                                  serviceDate: _serviceDates[index],
+                                  serviceMonth: _serviceMonths[index],
+                                  serviceYear: _serviceYears[index],
+                                )) {
                                   _updateItemPeriodInDescription(index);
                                 }
                               });
@@ -767,7 +704,12 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                               if (date != null) {
                                 setState(() {
                                   _serviceDates[index] = date;
-                                  if (_hasPeriodAt(index)) {
+                                  if (hasSelectedServicePeriod(
+                                    useServiceDate: _useServiceDate[index],
+                                    serviceDate: _serviceDates[index],
+                                    serviceMonth: _serviceMonths[index],
+                                    serviceYear: _serviceYears[index],
+                                  )) {
                                     _updateItemPeriodInDescription(index);
                                   }
                                 });
@@ -830,144 +772,108 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
 
   Future<void> _updateDefaultsFromForm(WidgetRef ref) async {
     final defaultsRepo = ref.read(defaultsRepositoryProvider);
-    final current = await defaultsRepo.load();
-    final hourlyIndex = _unitTypes.indexOf(UnitType.hours);
-    final double rate = hourlyIndex >= 0 && hourlyIndex < _unitPriceControllers.length
-        ? (double.tryParse(
-              _unitPriceControllers[hourlyIndex].text.replaceFirst(',', '.'),
-            ) ??
-            0.0)
-        : 0.0;
-    await defaultsRepo.save(current.copyWith(
-      lastInvoiceNumber: widget.invoiceId == null ? _invoiceNumber.text.trim() : current.lastInvoiceNumber,
-      sender: Sender(
-        name: _senderName.text.trim(),
-        jobDescription: _jobDescription.text.trim(),
-        address: Adress(
-          streetNameAndNumber: _senderStreetNameAndNumber.text.trim(),
-          town: _senderTown.text.trim(),
-          country: _senderCountry.text.trim(),
-          postalCode: int.tryParse(_senderPostalCode.text.trim()) ?? 0,
-        ),
-        phoneNumber: _senderPhone.text.trim(),
-        email: _senderEmail.text.trim(),
-        website: _senderWebsite.text.trim(),
-        ustId: _ustId.text.trim(),
-        taxNumber: _taxNumber.text.trim(),
+    final rate = hourlyRateFromUnitTypeRow(
+      unitTypes: _unitTypes,
+      unitPriceFieldTexts: _unitPriceControllers.map((c) => c.text).toList(),
+    );
+    await persistInvoiceDefaultsFromForm(
+      defaultsRepo: defaultsRepo,
+      isNewInvoice: widget.invoiceId == null,
+      invoiceNumber: _invoiceNumber.text,
+      sender: senderFromFormFields(
+        name: _senderName.text,
+        jobDescription: _jobDescription.text,
+        street: _senderStreetNameAndNumber.text,
+        town: _senderTown.text,
+        country: _senderCountry.text,
+        postalCodeText: _senderPostalCode.text,
+        phone: _senderPhone.text,
+        email: _senderEmail.text,
+        website: _senderWebsite.text,
+        ustId: _ustId.text,
+        taxNumber: _taxNumber.text,
       ),
-      client: Client(
-        clientId: _clientId.text.trim(),
-        companyName: _clientCompanyName.text.trim(),
-        name: _clientName.text.trim(),
-        address: Adress(
-          streetNameAndNumber: _clientStreetNameAndNumber.text.trim(),
-          town: _clientTown.text.trim(),
-          country: _clientCountry.text.trim(),
-          postalCode: int.tryParse(_clientPostalCode.text.trim()) ?? 0,
-        ),
+      client: clientFromFormFields(
+        clientId: _clientId.text,
+        companyName: _clientCompanyName.text,
+        name: _clientName.text,
+        street: _clientStreetNameAndNumber.text,
+        town: _clientTown.text,
+        country: _clientCountry.text,
+        postalCodeText: _clientPostalCode.text,
       ),
-      contractNumber: _contractNumber.text.trim(),
-      bankDetails: BankDetails(
-        accountHolder: _accountHolder.text.trim(),
-        institution: _institution.text.trim(),
-        iban: _iban.text.trim(),
-        bic: _bic.text.trim(),
+      contractNumber: _contractNumber.text,
+      bankDetails: bankDetailsFromFormFields(
+        accountHolder: _accountHolder.text,
+        institution: _institution.text,
+        iban: _iban.text,
+        bic: _bic.text,
       ),
-      ustId: _ustId.text.trim(),
+      ustId: _ustId.text,
       hourlyRate: rate,
       discountType: _discountType,
       discountValue: double.tryParse(_discountValue.text.replaceFirst(',', '.')) ?? 0,
       dueDateType: _dueDateType,
-    ));
+    );
   }
 
   (Invoice?, String?) _buildInvoiceFromForm() {
     final discount = double.tryParse(_discountValue.text.replaceFirst(',', '.')) ?? 0;
-
-    final items = List<InvoiceItem>.generate(_serviceMonths.length, (i) {
-      final serviceDescription = _serviceDescriptionControllers[i].text.trim();
-      final quantity = double.tryParse(
-            _quantityControllers[i].text.replaceFirst(',', '.'),
-          ) ??
-          0;
-      final unitPrice = double.tryParse(
-            _unitPriceControllers[i].text.replaceFirst(',', '.'),
-          ) ??
-          0;
-      return InvoiceItem(
-        position: i + 1,
-        serviceMonth: _useServiceDate[i] ? null : _serviceMonths[i],
-        serviceYear: _useServiceDate[i] ? null : _serviceYears[i],
-        serviceDate: _useServiceDate[i] ? _serviceDates[i] : null,
-        unitType: _unitTypes[i],
-        quantity: quantity,
-        unitPrice: unitPrice,
-        serviceDescription: serviceDescription,
-      );
-    });
-
-    final subtotal = items.fold<double>(
-      0.0,
-      (sum, item) => sum + item.itemTotal,
+    final items = parseInvoiceLineItemsFromForm(
+      rowCount: _serviceMonths.length,
+      useServiceDate: _useServiceDate,
+      serviceMonths: _serviceMonths,
+      serviceYears: _serviceYears,
+      serviceDates: _serviceDates,
+      unitTypes: _unitTypes,
+      quantityTexts: _quantityControllers.map((c) => c.text).toList(),
+      unitPriceTexts: _unitPriceControllers.map((c) => c.text).toList(),
+      serviceDescriptions: _serviceDescriptionControllers.map((c) => c.text).toList(),
     );
-    final discountAmount = _discountType == DiscountType.percent ? subtotal * (discount / 100) : discount;
-    if (discountAmount > subtotal) {
-      return (null, 'Rabatt darf den Zwischensummenbetrag nicht übersteigen.');
-    }
-    final id = widget.invoiceId ?? _loadedInvoice?.id ?? const Uuid().v4();
-    // Only use [DateTime.now] for brand-new invoices; never reset createdAt on edit.
-    final haveLoadedSnapshot = _loadedInvoice != null && _loadedInvoice!.id == id;
-    final createdAt = haveLoadedSnapshot ? _loadedInvoice!.createdAt : DateTime.now();
-    final invoice = Invoice(
-      id: id,
-      createdAt: createdAt,
-      updatedAt: DateTime.now(),
-      invoiceNumber: _invoiceNumber.text.trim(),
-      sender: Sender(
-        name: _senderName.text.trim(),
-        jobDescription: _jobDescription.text.trim(),
-        address: Adress(
-          streetNameAndNumber: _senderStreetNameAndNumber.text.trim(),
-          town: _senderTown.text.trim(),
-          country: _senderCountry.text.trim(),
-          postalCode: int.tryParse(_senderPostalCode.text.trim()) ?? 0,
-        ),
-        phoneNumber: _senderPhone.text.trim(),
-        email: _senderEmail.text.trim(),
-        website: _senderWebsite.text.trim(),
-        ustId: _ustId.text.trim(),
-        taxNumber: _taxNumber.text.trim(),
-      ),
-      client: Client(
-        clientId: _clientId.text.trim(),
-        companyName: _clientCompanyName.text.trim(),
-        name: _clientName.text.trim(),
-        address: Adress(
-          streetNameAndNumber: _clientStreetNameAndNumber.text.trim(),
-          town: _clientTown.text.trim(),
-          country: _clientCountry.text.trim(),
-          postalCode: int.tryParse(_clientPostalCode.text.trim()) ?? 0,
-        ),
-      ),
-      contractNumber: _contractNumber.text.trim(),
-      bankDetails: BankDetails(
-        accountHolder: _accountHolder.text.trim(),
-        institution: _institution.text.trim(),
-        iban: _iban.text.trim(),
-        bic: _bic.text.trim(),
-      ),
+    return buildStoredInvoice(
+      routeInvoiceId: widget.invoiceId,
+      loadedInvoice: _loadedInvoice,
+      invoiceNumber: _invoiceNumber.text,
       invoiceDate: _invoiceDate!,
       paidOn: _paidOn,
-      invoiceItemList: items,
+      sender: senderFromFormFields(
+        name: _senderName.text,
+        jobDescription: _jobDescription.text,
+        street: _senderStreetNameAndNumber.text,
+        town: _senderTown.text,
+        country: _senderCountry.text,
+        postalCodeText: _senderPostalCode.text,
+        phone: _senderPhone.text,
+        email: _senderEmail.text,
+        website: _senderWebsite.text,
+        ustId: _ustId.text,
+        taxNumber: _taxNumber.text,
+      ),
+      client: clientFromFormFields(
+        clientId: _clientId.text,
+        companyName: _clientCompanyName.text,
+        name: _clientName.text,
+        street: _clientStreetNameAndNumber.text,
+        town: _clientTown.text,
+        country: _clientCountry.text,
+        postalCodeText: _clientPostalCode.text,
+      ),
+      contractNumber: _contractNumber.text,
+      bankDetails: bankDetailsFromFormFields(
+        accountHolder: _accountHolder.text,
+        institution: _institution.text,
+        iban: _iban.text,
+        bic: _bic.text,
+      ),
+      items: items,
       discountType: _discountType,
       discountValue: discount,
       vat: _vat,
       dueDateType: _dueDateType,
       hasQrCode: _hasQrCode,
-      customDueDate: _dueDateType == DueDateType.custom ? _customDueDate : null,
-      introductoryText: _introductoryText.text.trim(),
+      customDueDate: _customDueDate,
+      introductoryText: _introductoryText.text,
     );
-    return (invoice, null);
   }
 
   Future<void> _save(BuildContext context, WidgetRef ref) async {

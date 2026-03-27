@@ -6,9 +6,9 @@ import 'package:invoice_manager/common/models/discount_type.dart';
 import 'package:invoice_manager/common/models/due_date_type.dart';
 import 'package:invoice_manager/common/models/invoice_item.dart';
 import 'package:invoice_manager/common/utils/currency_format.dart';
-import 'package:invoice_manager/features/form/widgets/field_row.dart';
-import 'package:invoice_manager/features/form/widgets/discount_control.dart';
-import 'package:invoice_manager/features/form/widgets/vat_control.dart';
+import 'package:invoice_manager/features/form/ui/widgets/discount_control.dart';
+import 'package:invoice_manager/features/form/ui/widgets/field_row.dart';
+import 'package:invoice_manager/features/form/ui/widgets/vat_control.dart';
 
 class InvoiceDetailFields extends StatelessWidget {
   const InvoiceDetailFields({

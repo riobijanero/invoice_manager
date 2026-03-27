@@ -1,4 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Live query string for filtering the invoice list (empty → no filtering).
+/// Aktueller Suchtext auf der Rechnungsliste; leer = keine Filterung.
 final invoiceListSearchQueryProvider = StateProvider<String>((ref) => '');

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:invoice_manager/common/models/client.dart';
 import 'package:invoice_manager/features/form/ui/widgets/expandable_form_section.dart';
 import 'package:invoice_manager/features/form/ui/widgets/saved_client_picker_list.dart';
-import 'package:invoice_manager/features/form/widgets/field_row.dart';
+import 'package:invoice_manager/features/form/ui/widgets/field_row.dart';
+import 'package:invoice_manager/features/form/utils/client_dedupe_utils.dart';
 import 'package:invoice_manager/common/extensions/list_extensions.dart';
 
 class ClientFields extends StatelessWidget {
@@ -141,7 +142,7 @@ class ClientFields extends StatelessWidget {
     final clientOptions = List<SavedClientPickerEntry>.generate(
       existingClients.length,
       (i) => SavedClientPickerEntry(
-        clientKey: _clientKey(existingClients[i]),
+        clientKey: clientDedupeKey(existingClients[i]),
         client: existingClients[i],
         label: _clientLabel(existingClients[i]),
       ),
@@ -198,17 +199,6 @@ String _clientLabel(Client client) {
   final name = client.name.trim();
   if (name.isNotEmpty) return name;
   return 'Unbenannter Kunde';
-}
-
-String _clientKey(Client client) {
-  return [
-    client.companyName.trim().toLowerCase(),
-    client.name.trim().toLowerCase(),
-    client.address.streetNameAndNumber.trim().toLowerCase(),
-    client.address.postalCode.toString(),
-    client.address.town.trim().toLowerCase(),
-    client.address.country.trim().toLowerCase(),
-  ].join('|');
 }
 
 /// Opens the saved-client list in an overlay aligned under the company field (dropdown-style).

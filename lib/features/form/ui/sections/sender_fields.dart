@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:invoice_manager/common/extensions/list_extensions.dart';
 
 import 'package:invoice_manager/features/form/ui/widgets/expandable_form_section.dart';
-import 'package:invoice_manager/features/form/widgets/field_row.dart';
+import 'package:invoice_manager/features/form/ui/widgets/field_row.dart';
 
 class SenderFields extends StatelessWidget {
   const SenderFields({

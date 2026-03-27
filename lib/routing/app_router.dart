@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../common/layout/invoice_layout_breakpoints.dart';
-import '../features/form/invoice_form_screen.dart';
+import '../features/form/ui/invoice_form_screen.dart';
 import '../features/layout/invoice_split_placeholder.dart';
 import '../features/list/invoice_list_screen.dart';
 import '../features/preview/preview_screen.dart';

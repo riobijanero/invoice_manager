@@ -50,4 +50,3 @@ class DiscountControl extends StatelessWidget {
     );
   }
 }
-

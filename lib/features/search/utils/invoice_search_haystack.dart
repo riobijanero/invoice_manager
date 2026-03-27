@@ -1,3 +1,4 @@
+// Baut einen durchsuchbaren Text aus allen Feldern einer [Invoice] (für die Liste).
 import 'package:intl/intl.dart';
 
 import 'package:invoice_manager/common/models/discount_type.dart';
@@ -20,7 +21,7 @@ void _bufAppendDate(StringBuffer b, DateTime? d) {
   _bufAppend(b, _formatDatesForSearch(d));
 }
 
-/// Flattened, lowercased text of all invoice fields for substring search.
+/// Ein einziger lowercased String mit allen durchsuchbaren Inhalten (inkl. Datums-ISO und `dd.MM.yyyy`).
 String buildInvoiceSearchHaystack(Invoice invoice) {
   final b = StringBuffer();
   _bufAppend(b, invoice.id);

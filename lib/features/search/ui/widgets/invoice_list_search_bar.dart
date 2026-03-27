@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:invoice_manager/features/search/providers/invoice_list_search_query_provider.dart';
 
-/// Search field for the invoice list; keeps query in [invoiceListSearchQueryProvider].
+/// Suchfeld oberhalb der Rechnungsliste; synchronisiert mit [invoiceListSearchQueryProvider].
 class InvoiceListSearchBar extends ConsumerStatefulWidget {
   const InvoiceListSearchBar({super.key});
 
