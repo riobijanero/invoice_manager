@@ -54,7 +54,7 @@ class BankDetailsFields extends StatelessWidget {
         border: OutlineInputBorder(),
       ),
       validator: (v) {
-        final raw = v?.replaceAll(' ', '').trim().toUpperCase() ?? '';
+        final raw = v?.trim() ?? '';
         if (raw.isEmpty) return 'Pflichtfeld';
         if (!isValidIban(raw)) return 'Ungültige IBAN';
         return null;

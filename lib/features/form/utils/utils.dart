@@ -23,6 +23,9 @@ String nextInvoiceNumber(String lastInvoiceNumber) {
 }
 
 bool isValidIban(String iban) {
+  // PDF copy/paste often includes non-breaking spaces, zero-width chars, or other separators.
+  // Keep only ASCII letters/digits, then uppercase.
+  iban = iban.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '').trim();
   // IBAN: 2-letter country code, 2 check digits, and 11..30 BBAN chars (overall 15..34).
   if (iban.length < 15 || iban.length > 34) return false;
   if (!RegExp(r'^[A-Z]{2}[0-9]{2}[A-Z0-9]+$').hasMatch(iban)) return false;

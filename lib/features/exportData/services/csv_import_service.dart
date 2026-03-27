@@ -362,8 +362,8 @@ class CsvImportService {
 
   static String _hourlyRatesSummary(Invoice invoice) {
     final rates = invoice.invoiceItemList
-        .where((item) => item.type == InvoiceItemType.hourlyRateService)
-        .map((item) => item.hourlyRate.toStringAsFixed(2))
+        .where((item) => item.unitType == UnitType.hours)
+        .map((item) => item.unitPrice.toStringAsFixed(2))
         .toSet()
         .toList()
       ..sort();

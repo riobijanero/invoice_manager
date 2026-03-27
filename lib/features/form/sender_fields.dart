@@ -161,42 +161,45 @@ class SenderFields extends StatelessWidget {
   }
 
   Widget _fieldsBody() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final maxW = constraints.maxWidth;
-        final twoCols = maxW >= _minColumnWidth * 2 + _columnGap;
+    return FocusTraversalGroup(
+      policy: WidgetOrderTraversalPolicy(),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final maxW = constraints.maxWidth;
+          final twoCols = maxW >= _minColumnWidth * 2 + _columnGap;
 
-        if (twoCols) {
+          if (twoCols) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                FieldRow(left: _nameField(), right: _jobField()),
+                FieldRow(left: _streetField(), right: _plzField()),
+                FieldRow(left: _townField(), right: _countryField()),
+                FieldRow(left: _phoneField(), right: _emailField()),
+                FieldRow(left: _websiteField(), right: _ustField()),
+                FieldRow(left: _taxField(), right: const SizedBox.shrink()),
+              ].intersperse(const SizedBox(height: 12)),
+            );
+          }
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              FieldRow(left: _nameField(), right: _jobField()),
-              FieldRow(left: _streetField(), right: _plzField()),
-              FieldRow(left: _townField(), right: _countryField()),
-              FieldRow(left: _phoneField(), right: _emailField()),
-              FieldRow(left: _websiteField(), right: _ustField()),
-              FieldRow(left: _taxField(), right: const SizedBox.shrink()),
+              _nameField(),
+              _jobField(),
+              _streetField(),
+              _plzField(),
+              _townField(),
+              _countryField(),
+              _phoneField(),
+              _emailField(),
+              _websiteField(),
+              _ustField(),
+              _taxField(),
             ].intersperse(const SizedBox(height: 12)),
           );
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _nameField(),
-            _jobField(),
-            _streetField(),
-            _plzField(),
-            _townField(),
-            _countryField(),
-            _phoneField(),
-            _emailField(),
-            _websiteField(),
-            _ustField(),
-            _taxField(),
-          ].intersperse(const SizedBox(height: 12)),
-        );
-      },
+        },
+      ),
     );
   }
 

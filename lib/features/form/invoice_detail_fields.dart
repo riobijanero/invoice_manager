@@ -23,11 +23,10 @@ class InvoiceDetailFields extends StatelessWidget {
     required this.introductoryTextController,
     required this.serviceMonths,
     required this.serviceYears,
-    required this.hoursControllers,
-    required this.hourlyRateControllers,
-    required this.itemTypes,
-    required this.fixedPriceControllers,
-    required this.onItemTypeChanged,
+    required this.unitTypes,
+    required this.quantityControllers,
+    required this.unitPriceControllers,
+    required this.onUnitTypeChanged,
     required this.serviceDescriptionControllers,
     required this.onServiceMonthChanged,
     required this.onServiceYearChanged,
@@ -55,11 +54,10 @@ class InvoiceDetailFields extends StatelessWidget {
   final TextEditingController introductoryTextController;
   final List<int?> serviceMonths;
   final List<int?> serviceYears;
-  final List<TextEditingController> hoursControllers;
-  final List<TextEditingController> hourlyRateControllers;
-  final List<InvoiceItemType> itemTypes;
-  final List<TextEditingController> fixedPriceControllers;
-  final void Function(int index, InvoiceItemType type) onItemTypeChanged;
+  final List<UnitType> unitTypes;
+  final List<TextEditingController> quantityControllers;
+  final List<TextEditingController> unitPriceControllers;
+  final void Function(int index, UnitType type) onUnitTypeChanged;
   final List<TextEditingController> serviceDescriptionControllers;
   final void Function(int index, int? value) onServiceMonthChanged;
   final void Function(int index, int? value) onServiceYearChanged;
@@ -93,6 +91,17 @@ class InvoiceDetailFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String unitLabel(UnitType t) {
+      switch (t) {
+        case UnitType.hours:
+          return 'Stunden';
+        case UnitType.minutes:
+          return 'Minuten';
+        case UnitType.amount:
+          return 'Anzahl';
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -188,22 +197,7 @@ class InvoiceDetailFields extends StatelessWidget {
                 ),
             ],
           ),
-          SegmentedButton<InvoiceItemType>(
-            segments: const [
-              ButtonSegment(
-                value: InvoiceItemType.hourlyRateService,
-                label: Text('Stunden'),
-              ),
-              ButtonSegment(
-                value: InvoiceItemType.fixedPriceService,
-                label: Text('Pauschal'),
-              ),
-            ],
-            selected: {itemTypes[i]},
-            onSelectionChanged: (s) {
-              onItemTypeChanged(i, s.first);
-            },
-          ),
+          // 1) Leistungszeitraum
           FieldRow(
             left: DropdownButtonFormField<int?>(
               initialValue: serviceMonths[i],
@@ -251,12 +245,26 @@ class InvoiceDetailFields extends StatelessWidget {
               onChanged: (v) => onServiceYearChanged(i, v),
             ),
           ),
-          if (itemTypes[i] == InvoiceItemType.hourlyRateService) ...[
-            FieldRow(
-              left: TextFormField(
-                controller: hoursControllers[i],
+          // 2) Leistungsbeschreibung - Anzahl (quantity) - Einheit - Preis
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final wide = constraints.maxWidth >= 900;
+
+              final descriptionField = TextFormField(
+                controller: serviceDescriptionControllers[i],
                 decoration: const InputDecoration(
-                  labelText: 'Stunden',
+                  labelText: 'Leistungsbeschreibung',
+                  border: OutlineInputBorder(),
+                  alignLabelWithHint: true,
+                ),
+                maxLines: 5,
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
+              );
+
+              final quantityField = TextFormField(
+                controller: quantityControllers[i],
+                decoration: const InputDecoration(
+                  labelText: 'Anzahl',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -266,11 +274,31 @@ class InvoiceDetailFields extends StatelessWidget {
                   if (n == null || n < 0) return 'Ungültige Zahl';
                   return null;
                 },
-              ),
-              right: TextFormField(
-                controller: hourlyRateControllers[i],
+              );
+
+              final unitField = DropdownButtonFormField<UnitType>(
+                initialValue: unitTypes[i],
                 decoration: const InputDecoration(
-                  labelText: 'Stundensatz (€)',
+                  labelText: 'Einheit',
+                  border: OutlineInputBorder(),
+                ),
+                items: UnitType.values
+                    .map(
+                      (t) => DropdownMenuItem<UnitType>(
+                        value: t,
+                        child: Text(unitLabel(t)),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (v) {
+                  if (v != null) onUnitTypeChanged(i, v);
+                },
+              );
+
+              final priceField = TextFormField(
+                controller: unitPriceControllers[i],
+                decoration: const InputDecoration(
+                  labelText: 'Preis (€)',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -280,33 +308,36 @@ class InvoiceDetailFields extends StatelessWidget {
                   if (n == null || n < 0) return 'Ungültige Zahl';
                   return null;
                 },
-              ),
-            ),
-          ] else ...[
-            TextFormField(
-              controller: fixedPriceControllers[i],
-              decoration: const InputDecoration(
-                labelText: 'Festpreis (€)',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
-                final n = double.tryParse(v.replaceFirst(',', '.'));
-                if (n == null || n < 0) return 'Ungültige Zahl';
-                return null;
-              },
-            ),
-          ],
-          TextFormField(
-            controller: serviceDescriptionControllers[i],
-            decoration: const InputDecoration(
-              labelText: 'Leistungsbeschreibung',
-              border: OutlineInputBorder(),
-              alignLabelWithHint: true,
-            ),
-            maxLines: 5,
-            validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
+              );
+
+              if (!wide) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    descriptionField,
+                    const SizedBox(height: 12),
+                    quantityField,
+                    const SizedBox(height: 12),
+                    unitField,
+                    const SizedBox(height: 12),
+                    priceField,
+                  ],
+                );
+              }
+
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: descriptionField),
+                  const SizedBox(width: 12),
+                  SizedBox(width: 140, child: quantityField),
+                  const SizedBox(width: 12),
+                  SizedBox(width: 170, child: unitField),
+                  const SizedBox(width: 12),
+                  SizedBox(width: 160, child: priceField),
+                ],
+              );
+            },
           ),
         ],
 

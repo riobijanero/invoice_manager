@@ -97,28 +97,32 @@ class _ExpandableFormSectionState extends State<ExpandableFormSection>
       children: [
         Tooltip(
           message: _expanded ? _tooltipCollapse : _tooltipExpand,
-          child: InkWell(
-            onTap: _toggleExpanded,
-            borderRadius: BorderRadius.circular(4),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  RotationTransition(
-                    turns: _iconTurns,
-                    child: const Icon(Icons.keyboard_arrow_right, size: 28),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    widget.title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Theme.of(context).colorScheme.onSurface,
+          child: Focus(
+            canRequestFocus: false,
+            skipTraversal: true,
+            child: InkWell(
+              onTap: _toggleExpanded,
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    RotationTransition(
+                      turns: _iconTurns,
+                      child: const Icon(Icons.keyboard_arrow_right, size: 28),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 4),
+                    Text(
+                      widget.title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

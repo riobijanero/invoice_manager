@@ -50,11 +50,12 @@ void main() {
     test('applies percent discount to net and gross', () {
       final inv = _minimalInvoice(
         items: [
-          const InvoiceItem.hourlyRateService(
+          const InvoiceItem(
             serviceMonth: 5,
             serviceYear: 2024,
-            hours: 10,
-            hourlyRate: 100,
+            unitType: UnitType.hours,
+            quantity: 10,
+            unitPrice: 100,
             serviceDescription: 'x',
           ),
         ],
@@ -72,11 +73,12 @@ void main() {
     test('applies fixed amount (Betrag) discount', () {
       final inv = _minimalInvoice(
         items: [
-          const InvoiceItem.hourlyRateService(
+          const InvoiceItem(
             serviceMonth: 5,
             serviceYear: 2024,
-            hours: 5,
-            hourlyRate: 200,
+            unitType: UnitType.hours,
+            quantity: 5,
+            unitPrice: 200,
             serviceDescription: 'x',
           ),
         ],
@@ -92,10 +94,12 @@ void main() {
     test('caps discount at subtotal', () {
       final inv = _minimalInvoice(
         items: [
-          const InvoiceItem.fixedPriceService(
+          const InvoiceItem(
             serviceMonth: 1,
             serviceYear: 2024,
-            fixedPrice: 100,
+            unitType: UnitType.amount,
+            quantity: 1,
+            unitPrice: 100,
             serviceDescription: 'x',
           ),
         ],
@@ -110,18 +114,20 @@ void main() {
     test('includes lines without Leistungszeitraum in subtotal', () {
       final inv = _minimalInvoice(
         items: [
-          const InvoiceItem.hourlyRateService(
+          const InvoiceItem(
             serviceMonth: null,
             serviceYear: null,
-            hours: 10,
-            hourlyRate: 100,
+            unitType: UnitType.hours,
+            quantity: 10,
+            unitPrice: 100,
             serviceDescription: 'a',
           ),
-          const InvoiceItem.hourlyRateService(
+          const InvoiceItem(
             serviceMonth: 3,
             serviceYear: 2024,
-            hours: 1,
-            hourlyRate: 100,
+            unitType: UnitType.hours,
+            quantity: 1,
+            unitPrice: 100,
             serviceDescription: 'b',
           ),
         ],

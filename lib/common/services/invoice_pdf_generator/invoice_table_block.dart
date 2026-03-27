@@ -14,9 +14,6 @@ const double _kAnzahlWidth = 48;
 const double _kEinzelpreisWidth = 58;
 const double _kGesamtWidth = 62;
 
-/// Width of Einheit + Anzahl + Einzelpreis (merged for fixed-price rows).
-const double _kMergedEinheitAnzahlEinzelpreisWidth = _kEinheitWidth + _kAnzahlWidth + _kEinzelpreisWidth;
-
 const pw.BorderSide _tableBorderSide = pw.BorderSide(width: 0.5, color: PdfColors.grey800);
 
 /// No table strokes (header, empty row, totals).
@@ -47,14 +44,6 @@ const Map<int, pw.TableColumnWidth> _sixColumnWidths = {
   3: pw.FixedColumnWidth(_kAnzahlWidth),
   4: pw.FixedColumnWidth(_kEinzelpreisWidth),
   5: pw.FixedColumnWidth(_kGesamtWidth),
-};
-
-/// Pos. | Beschreibung | merged | Gesamt
-const Map<int, pw.TableColumnWidth> _fixedPriceFourColumnWidths = {
-  0: pw.FixedColumnWidth(_kPosWidth),
-  1: pw.FlexColumnWidth(1), // Beschreibung
-  2: pw.FixedColumnWidth(_kMergedEinheitAnzahlEinzelpreisWidth),
-  3: pw.FixedColumnWidth(_kGesamtWidth),
 };
 
 /// Main invoice table (line item + totals) used in the PDF body.
@@ -122,47 +111,27 @@ List<pw.Widget> invoiceTableBlock({
           )
         else
           for (int i = 0; i < items.length; i++)
-            items[i].type == InvoiceItemType.fixedPriceService
-                ? pw.Table(
-                    border: _kInvoiceItemRowBorder,
-                    columnWidths: _fixedPriceFourColumnWidths,
-                    children: [
-                      pw.TableRow(
-                        children: [
-                          cell('${i + 1}'),
-                          cell(
-                            serviceDescriptions.length > i ? serviceDescriptions[i] : '',
-                          ),
-                          cell('', alignRight: true),
-                          cell(
-                            formatCurrency(items[i].itemTotal),
-                            alignRight: true,
-                          ),
-                        ],
-                      ),
-                    ],
-                  )
-                : pw.Table(
-                    border: _kInvoiceItemRowBorder,
-                    columnWidths: _sixColumnWidths,
-                    children: [
-                      pw.TableRow(
-                        children: [
-                          cell('${i + 1}'),
-                          cell(
-                            serviceDescriptions.length > i ? serviceDescriptions[i] : '',
-                          ),
-                          cell(items[i].unitLabel, alignRight: true),
-                          cell(items[i].quantity.toStringAsFixed(0), alignRight: true),
-                          cell(formatCurrency(items[i].unitPrice), alignRight: true),
-                          cell(
-                            formatCurrency(items[i].itemTotal),
-                            alignRight: true,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+            pw.Table(
+              border: _kInvoiceItemRowBorder,
+              columnWidths: _sixColumnWidths,
+              children: [
+                pw.TableRow(
+                  children: [
+                    cell('${i + 1}'),
+                    cell(
+                      serviceDescriptions.length > i ? serviceDescriptions[i] : '',
+                    ),
+                    cell(items[i].unitLabel, alignRight: true),
+                    cell(items[i].quantity.toStringAsFixed(2), alignRight: true),
+                    cell(formatCurrency(items[i].unitPrice), alignRight: true),
+                    cell(
+                      formatCurrency(items[i].itemTotal),
+                      alignRight: true,
+                    ),
+                  ],
+                ),
+              ],
+            ),
       ],
     ),
     // Totals: empty column matches Pos.; flex label aligns with Beschreibung…Einzelpreis; amount with Gesamt.

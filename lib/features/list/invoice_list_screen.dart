@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:invoice_manager/common/layout/invoice_layout_breakpoints.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
+import 'package:invoice_manager/common/models/invoice_defaults.dart';
 import 'package:invoice_manager/common/providers/providers.dart';
 import 'package:invoice_manager/features/exportData/services/csv_export_service.dart';
 import 'package:invoice_manager/features/exportData/services/csv_import_service.dart';
@@ -24,6 +25,28 @@ class InvoiceListScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Rechnungsliste'),
+        actions: [
+          PopupMenuButton<String>(
+            tooltip: 'Menü',
+            onSelected: (v) async {
+              if (v == 'reset_data') {
+                await _confirmResetAllData(context, ref);
+              }
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem(
+                value: 'reset_data',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_forever_outlined),
+                    SizedBox(width: 8),
+                    Text('Alle Daten löschen'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: asyncInvoices.when(
         data: (invoices) {
@@ -118,6 +141,48 @@ class InvoiceListScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _confirmResetAllData(BuildContext context, WidgetRef ref) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Alle Daten löschen?'),
+        content: const Text(
+          'Dies löscht alle gespeicherten Rechnungen und setzt die Standardwerte zurück.\n\n'
+          'Diese Aktion kann nicht rückgängig gemacht werden.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Abbrechen'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Löschen'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+
+    try {
+      await ref.read(invoiceRepositoryProvider).replaceAll(const []);
+      await ref.read(defaultsRepositoryProvider).save(
+            const InvoiceDefaults(serviceDescriptionTemplate: defaultServiceDescriptionTemplate),
+          );
+      ref.invalidate(invoiceListProvider);
+      ref.invalidate(defaultsProvider);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Alle Daten wurden gelöscht.')),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Löschen fehlgeschlagen: $e')),
+      );
+    }
   }
 
   void _handleAction(
