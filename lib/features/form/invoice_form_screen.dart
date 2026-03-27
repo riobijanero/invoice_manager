@@ -72,6 +72,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   List<int?> _serviceYears = [null];
   List<DateTime?> _serviceDates = [null];
   List<bool> _useServiceDate = [false];
+  late List<String> _invoiceItemRowIds;
   DiscountType _discountType = DiscountType.percent;
   double _vat = 0.19;
   DueDateType _dueDateType = DueDateType.twoWeeks;
@@ -150,6 +151,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _taxNumber = TextEditingController();
     _invoiceDate = DateTime.now();
     _paidOn = null;
+    _invoiceItemRowIds = [Uuid().v4()];
   }
 
   @override
@@ -250,6 +252,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _serviceYears = items.map((e) => e.serviceYear).toList();
     _serviceDates = items.map((e) => e.serviceDate).toList();
     _useServiceDate = items.map((e) => e.serviceDate != null).toList();
+    _invoiceItemRowIds = List<String>.generate(items.length, (_) => Uuid().v4());
 
     for (final c in _quantityControllers) {
       c.dispose();
@@ -285,6 +288,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _serviceYears = [null];
     _serviceDates = [null];
     _useServiceDate = [false];
+    _invoiceItemRowIds = [Uuid().v4()];
     if (_quantityControllers.isEmpty) {
       _quantityControllers = [TextEditingController()];
     }
@@ -431,6 +435,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       _serviceYears.add(null);
       _serviceDates.add(null);
       _useServiceDate.add(false);
+      _invoiceItemRowIds.add(Uuid().v4());
       _unitTypes.add(baseUnitType);
       _quantityControllers.add(TextEditingController(text: baseQuantityText));
       _unitPriceControllers.add(TextEditingController(text: baseUnitPriceText));
@@ -453,6 +458,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       _serviceYears.removeAt(index);
       _serviceDates.removeAt(index);
       _useServiceDate.removeAt(index);
+      _invoiceItemRowIds.removeAt(index);
       _unitTypes.removeAt(index);
       _quantityControllers.removeAt(index);
       _unitPriceControllers.removeAt(index);
@@ -463,6 +469,26 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   void _onUnitTypeChanged(int index, UnitType type) {
     setState(() {
       _unitTypes[index] = type;
+    });
+  }
+
+  void _onReorderInvoiceItems(int oldIndex, int newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) newIndex -= 1;
+      void move<T>(List<T> list) {
+        final item = list.removeAt(oldIndex);
+        list.insert(newIndex, item);
+      }
+
+      move(_invoiceItemRowIds);
+      move(_serviceMonths);
+      move(_serviceYears);
+      move(_serviceDates);
+      move(_useServiceDate);
+      move(_unitTypes);
+      move(_quantityControllers);
+      move(_unitPriceControllers);
+      move(_serviceDescriptionControllers);
     });
   }
 
@@ -748,6 +774,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             },
                             onAddInvoiceItem: _addInvoiceItem,
                             onRemoveInvoiceItem: _removeInvoiceItem,
+                            invoiceItemRowIds: _invoiceItemRowIds,
+                            onReorderInvoiceItems: _onReorderInvoiceItems,
                             discountType: _discountType,
                             onDiscountTypeChanged: (v) => setState(() => _discountType = v),
                             discountValueController: _discountValue,

@@ -38,6 +38,8 @@ class InvoiceDetailFields extends StatelessWidget {
     required this.onClearServiceDate,
     required this.onAddInvoiceItem,
     required this.onRemoveInvoiceItem,
+    required this.invoiceItemRowIds,
+    required this.onReorderInvoiceItems,
     required this.discountType,
     required this.onDiscountTypeChanged,
     required this.discountValueController,
@@ -74,6 +76,8 @@ class InvoiceDetailFields extends StatelessWidget {
   final void Function(int index) onClearServiceDate;
   final VoidCallback onAddInvoiceItem;
   final void Function(int index) onRemoveInvoiceItem;
+  final List<String> invoiceItemRowIds;
+  final void Function(int oldIndex, int newIndex) onReorderInvoiceItems;
   final DiscountType discountType;
   final ValueChanged<DiscountType> onDiscountTypeChanged;
   final TextEditingController discountValueController;
@@ -100,6 +104,309 @@ class InvoiceDetailFields extends StatelessWidget {
     'Dezember',
   ];
 
+  Widget _buildInvoiceItem(
+    BuildContext context, {
+    required int i,
+    required bool reorderable,
+    required String Function(UnitType) unitLabel,
+    required double Function(int) itemTotalFor,
+  }) {
+    final itemChildren = <Widget>[
+      const SizedBox(height: 8),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (reorderable) ...[
+            ReorderableDragStartListener(
+              index: i,
+              child: MouseRegion(
+                cursor: SystemMouseCursors.grab,
+                child: Semantics(
+                  label: 'Reihenfolge ändern',
+                  button: true,
+                  child: Icon(
+                    Icons.drag_handle,
+                    size: 22,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 4),
+          ],
+          Expanded(
+            child: Text(
+              'Leistungsposition ${i + 1}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          if (serviceMonths.length > 1)
+            IconButton(
+              onPressed: () => onRemoveInvoiceItem(i),
+              icon: const Icon(Icons.remove_circle_outline),
+              tooltip: 'Position entfernen',
+              style: IconButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
+            ),
+        ],
+      ),
+      SegmentedButton<bool>(
+        segments: const [
+          ButtonSegment<bool>(
+            value: false,
+            label: Text('Zeitraum'),
+          ),
+          ButtonSegment<bool>(
+            value: true,
+            label: Text('Datum'),
+          ),
+        ],
+        selected: {useServiceDate[i]},
+        onSelectionChanged: (s) => onServicePeriodModeChanged(i, s.first),
+      ),
+      if (!useServiceDate[i])
+        FieldRow(
+          left: DropdownButtonFormField<int?>(
+            initialValue: serviceMonths[i],
+            decoration: const InputDecoration(
+              labelText: 'Leistungszeitraum Monat',
+              border: OutlineInputBorder(),
+            ),
+            items: [
+              const DropdownMenuItem<int?>(
+                value: null,
+                child: Text('—'),
+              ),
+              ...List.generate(
+                12,
+                (j) => DropdownMenuItem<int?>(
+                  value: _months[j],
+                  child: Text(_monthLabels[j]),
+                ),
+              ),
+            ],
+            onChanged: (v) => onServiceMonthChanged(i, v),
+          ),
+          right: DropdownButtonFormField<int?>(
+            initialValue: serviceYears[i],
+            decoration: const InputDecoration(
+              labelText: 'Leistungszeitraum Jahr',
+              border: OutlineInputBorder(),
+            ),
+            items: [
+              const DropdownMenuItem<int?>(
+                value: null,
+                child: Text('—'),
+              ),
+              ...List.generate(
+                5,
+                (j) {
+                  final y = DateTime.now().year - 2 + j;
+                  return DropdownMenuItem<int?>(
+                    value: y,
+                    child: Text('$y'),
+                  );
+                },
+              ),
+            ],
+            onChanged: (v) => onServiceYearChanged(i, v),
+          ),
+        )
+      else
+        InputDecorator(
+          decoration: const InputDecoration(
+            labelText: 'Leistungsdatum',
+            border: OutlineInputBorder(),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () => onServiceDateTap(i),
+                  child: Text(
+                    serviceDates[i] != null
+                        ? DateFormat('dd.MM.yyyy').format(serviceDates[i]!)
+                        : 'Datum wählen',
+                  ),
+                ),
+              ),
+              if (serviceDates[i] != null)
+                IconButton(
+                  onPressed: () => onClearServiceDate(i),
+                  icon: const Icon(Icons.close),
+                  tooltip: 'Datum entfernen',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  style: IconButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final wide = constraints.maxWidth >= 900;
+
+          final descriptionField = TextFormField(
+            controller: serviceDescriptionControllers[i],
+            decoration: const InputDecoration(
+              labelText: 'Leistungsbeschreibung',
+              border: OutlineInputBorder(),
+              alignLabelWithHint: true,
+            ),
+            maxLines: 5,
+            validator: (v) =>
+                (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
+          );
+
+          final posField = InputDecorator(
+            decoration: const InputDecoration(
+              labelText: 'Pos.',
+              border: OutlineInputBorder(),
+            ),
+            child: Text('${i + 1}'),
+          );
+
+          final quantityField = TextFormField(
+            controller: quantityControllers[i],
+            decoration: const InputDecoration(
+              labelText: 'Anzahl',
+              border: OutlineInputBorder(),
+            ),
+            keyboardType: const TextInputType.numberWithOptions(
+              decimal: true,
+            ),
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) {
+                return 'Pflichtfeld';
+              }
+              final n = double.tryParse(v.replaceFirst(',', '.'));
+              if (n == null || n < 0) return 'Ungültige Zahl';
+              return null;
+            },
+          );
+
+          final unitField = DropdownButtonFormField<UnitType>(
+            initialValue: unitTypes[i],
+            decoration: const InputDecoration(
+              labelText: 'Einheit',
+              border: OutlineInputBorder(),
+            ),
+            items: UnitType.values
+                .map(
+                  (t) => DropdownMenuItem<UnitType>(
+                    value: t,
+                    child: Text(unitLabel(t)),
+                  ),
+                )
+                .toList(),
+            onChanged: (v) {
+              if (v != null) onUnitTypeChanged(i, v);
+            },
+          );
+
+          final priceField = TextFormField(
+            controller: unitPriceControllers[i],
+            decoration: const InputDecoration(
+              labelText: 'Einzelpreis (€)',
+              border: OutlineInputBorder(),
+            ),
+            keyboardType: const TextInputType.numberWithOptions(
+              decimal: true,
+            ),
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) {
+                return 'Pflichtfeld';
+              }
+              final n = double.tryParse(v.replaceFirst(',', '.'));
+              if (n == null || n < 0) return 'Ungültige Zahl';
+              return null;
+            },
+          );
+
+          final totalField = ValueListenableBuilder<TextEditingValue>(
+            valueListenable: unitPriceControllers[i],
+            builder: (context, _, __) {
+              return ValueListenableBuilder<TextEditingValue>(
+                valueListenable: quantityControllers[i],
+                builder: (context, __, ___) {
+                  return InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'Gesamt',
+                      border: OutlineInputBorder(),
+                    ),
+                    child: Text(formatCurrency(itemTotalFor(i))),
+                  );
+                },
+              );
+            },
+          );
+
+          if (!wide) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(width: 60, child: posField),
+                    const SizedBox(width: 12),
+                    Expanded(child: descriptionField),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                quantityField,
+                const SizedBox(height: 12),
+                unitField,
+                const SizedBox(height: 12),
+                priceField,
+                const SizedBox(height: 12),
+                totalField,
+              ],
+            );
+          }
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(width: 60, child: posField),
+              const SizedBox(width: 12),
+              Expanded(child: descriptionField),
+              const SizedBox(width: 12),
+              SizedBox(width: 140, child: quantityField),
+              const SizedBox(width: 12),
+              SizedBox(width: 170, child: unitField),
+              const SizedBox(width: 12),
+              SizedBox(
+                width: 160,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    priceField,
+                    const SizedBox(height: 12),
+                    totalField,
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    ];
+    final spaced = itemChildren.intersperse(
+      const SizedBox(height: 16),
+    );
+    if (i < serviceMonths.length - 1) {
+      spaced.add(const SizedBox(height: 16));
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: spaced,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     String unitLabel(UnitType t) {
@@ -114,8 +421,12 @@ class InvoiceDetailFields extends StatelessWidget {
     }
 
     double itemTotalFor(int index) {
-      final q = double.tryParse(quantityControllers[index].text.replaceFirst(',', '.')) ?? 0.0;
-      final p = double.tryParse(unitPriceControllers[index].text.replaceFirst(',', '.')) ?? 0.0;
+      final q = double.tryParse(
+              quantityControllers[index].text.replaceFirst(',', '.')) ??
+          0.0;
+      final p = double.tryParse(
+              unitPriceControllers[index].text.replaceFirst(',', '.')) ??
+          0.0;
       return q * p;
     }
 
@@ -134,7 +445,8 @@ class InvoiceDetailFields extends StatelessWidget {
               labelText: 'Rechnungsnummer',
               border: OutlineInputBorder(),
             ),
-            validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
+            validator: (v) =>
+                (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
           ),
           right: InkWell(
             onTap: onInvoiceDateTap,
@@ -144,7 +456,9 @@ class InvoiceDetailFields extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
               child: Text(
-                invoiceDate != null ? DateFormat('dd.MM.yyyy').format(invoiceDate!) : '',
+                invoiceDate != null
+                    ? DateFormat('dd.MM.yyyy').format(invoiceDate!)
+                    : '',
               ),
             ),
           ),
@@ -161,7 +475,9 @@ class InvoiceDetailFields extends StatelessWidget {
                     child: InkWell(
                       onTap: onPaidOnTap,
                       child: Text(
-                        paidOn != null ? DateFormat('dd.MM.yyyy').format(paidOn!) : 'Datum wählen',
+                        paidOn != null
+                            ? DateFormat('dd.MM.yyyy').format(paidOn!)
+                            : 'Datum wählen',
                       ),
                     ),
                   ),
@@ -189,266 +505,42 @@ class InvoiceDetailFields extends StatelessWidget {
             alignLabelWithHint: true,
           ),
           maxLines: 3,
-          validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
+          validator: (v) =>
+              (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
         ),
         // Invoice item list (one block per invoice item / one table row in PDF).
-        for (int i = 0; i < serviceMonths.length; i++) ...[
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Text(
-                  'Leistungsposition ${i + 1}',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-              if (serviceMonths.length > 1)
-                IconButton(
-                  onPressed: () => onRemoveInvoiceItem(i),
-                  icon: const Icon(Icons.remove_circle_outline),
-                  tooltip: 'Position entfernen',
-                  style: IconButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.error,
-                  ),
-                ),
-            ],
-          ),
-          // 1) Leistungszeitraum (range vs single date)
-          SegmentedButton<bool>(
-            segments: const [
-              ButtonSegment<bool>(
-                value: false,
-                label: Text('Zeitraum'),
-              ),
-              ButtonSegment<bool>(
-                value: true,
-                label: Text('Datum'),
-              ),
-            ],
-            selected: {useServiceDate[i]},
-            onSelectionChanged: (s) => onServicePeriodModeChanged(i, s.first),
-          ),
-          if (!useServiceDate[i])
-            FieldRow(
-              left: DropdownButtonFormField<int?>(
-                initialValue: serviceMonths[i],
-                decoration: const InputDecoration(
-                  labelText: 'Leistungszeitraum Monat',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  const DropdownMenuItem<int?>(
-                    value: null,
-                    child: Text('—'),
-                  ),
-                  ...List.generate(
-                    12,
-                    (j) => DropdownMenuItem<int?>(
-                      value: _months[j],
-                      child: Text(_monthLabels[j]),
-                    ),
-                  ),
-                ],
-                onChanged: (v) => onServiceMonthChanged(i, v),
-              ),
-              right: DropdownButtonFormField<int?>(
-                initialValue: serviceYears[i],
-                decoration: const InputDecoration(
-                  labelText: 'Leistungszeitraum Jahr',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  const DropdownMenuItem<int?>(
-                    value: null,
-                    child: Text('—'),
-                  ),
-                  ...List.generate(
-                    5,
-                    (j) {
-                      final y = DateTime.now().year - 2 + j;
-                      return DropdownMenuItem<int?>(
-                        value: y,
-                        child: Text('$y'),
-                      );
-                    },
-                  ),
-                ],
-                onChanged: (v) => onServiceYearChanged(i, v),
-              ),
-            )
-          else
-            InputDecorator(
-              decoration: const InputDecoration(
-                labelText: 'Leistungsdatum',
-                border: OutlineInputBorder(),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => onServiceDateTap(i),
-                      child: Text(
-                        serviceDates[i] != null ? DateFormat('dd.MM.yyyy').format(serviceDates[i]!) : 'Datum wählen',
-                      ),
-                    ),
-                  ),
-                  if (serviceDates[i] != null)
-                    IconButton(
-                      onPressed: () => onClearServiceDate(i),
-                      icon: const Icon(Icons.close),
-                      tooltip: 'Datum entfernen',
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      style: IconButton.styleFrom(
-                        foregroundColor: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          // 2) Leistungsbeschreibung - Anzahl (quantity) - Einheit - Preis
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final wide = constraints.maxWidth >= 900;
-
-              final descriptionField = TextFormField(
-                controller: serviceDescriptionControllers[i],
-                decoration: const InputDecoration(
-                  labelText: 'Leistungsbeschreibung',
-                  border: OutlineInputBorder(),
-                  alignLabelWithHint: true,
-                ),
-                maxLines: 5,
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
-              );
-
-              final posField = InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'Pos.',
-                  border: OutlineInputBorder(),
-                ),
-                child: Text('${i + 1}'),
-              );
-
-              final quantityField = TextFormField(
-                controller: quantityControllers[i],
-                decoration: const InputDecoration(
-                  labelText: 'Anzahl',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
-                  final n = double.tryParse(v.replaceFirst(',', '.'));
-                  if (n == null || n < 0) return 'Ungültige Zahl';
-                  return null;
-                },
-              );
-
-              final unitField = DropdownButtonFormField<UnitType>(
-                initialValue: unitTypes[i],
-                decoration: const InputDecoration(
-                  labelText: 'Einheit',
-                  border: OutlineInputBorder(),
-                ),
-                items: UnitType.values
-                    .map(
-                      (t) => DropdownMenuItem<UnitType>(
-                        value: t,
-                        child: Text(unitLabel(t)),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (v) {
-                  if (v != null) onUnitTypeChanged(i, v);
-                },
-              );
-
-              final priceField = TextFormField(
-                controller: unitPriceControllers[i],
-                decoration: const InputDecoration(
-                  labelText: 'Einzelpreis (€)',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Pflichtfeld';
-                  final n = double.tryParse(v.replaceFirst(',', '.'));
-                  if (n == null || n < 0) return 'Ungültige Zahl';
-                  return null;
-                },
-              );
-
-              final totalField = ValueListenableBuilder<TextEditingValue>(
-                valueListenable: unitPriceControllers[i],
-                builder: (context, _, __) {
-                  return ValueListenableBuilder<TextEditingValue>(
-                    valueListenable: quantityControllers[i],
-                    builder: (context, __, ___) {
-                      return InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Gesamt',
-                          border: OutlineInputBorder(),
-                        ),
-                        child: Text(formatCurrency(itemTotalFor(i))),
-                      );
-                    },
-                  );
-                },
-              );
-
-              if (!wide) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+        // Full width so fields match the rest of the form (parent Column is start-aligned).
+        SizedBox(
+          width: double.infinity,
+          child: serviceMonths.length > 1
+              ? ReorderableListView(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  buildDefaultDragHandles: false,
+                  onReorder: onReorderInvoiceItems,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(width: 60, child: posField),
-                        const SizedBox(width: 12),
-                        Expanded(child: descriptionField),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    quantityField,
-                    const SizedBox(height: 12),
-                    unitField,
-                    const SizedBox(height: 12),
-                    priceField,
-                    const SizedBox(height: 12),
-                    totalField,
+                    for (int i = 0; i < serviceMonths.length; i++)
+                      Builder(
+                        key: ValueKey(invoiceItemRowIds[i]),
+                        builder: (_) => _buildInvoiceItem(
+                          context,
+                          i: i,
+                          reorderable: true,
+                          unitLabel: unitLabel,
+                          itemTotalFor: itemTotalFor,
+                        ),
+                      ),
                   ],
-                );
-              }
-
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(width: 60, child: posField),
-                  const SizedBox(width: 12),
-                  Expanded(child: descriptionField),
-                  const SizedBox(width: 12),
-                  SizedBox(width: 140, child: quantityField),
-                  const SizedBox(width: 12),
-                  SizedBox(width: 170, child: unitField),
-                  const SizedBox(width: 12),
-                  SizedBox(
-                    width: 160,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        priceField,
-                        const SizedBox(height: 12),
-                        totalField,
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
+                )
+              : _buildInvoiceItem(
+                  context,
+                  i: 0,
+                  reorderable: false,
+                  unitLabel: unitLabel,
+                  itemTotalFor: itemTotalFor,
+                ),
+        ),
 
         // Add another invoice item above the discount section.
         Align(
@@ -507,7 +599,9 @@ class InvoiceDetailFields extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
               child: Text(
-                customDueDate != null ? DateFormat('dd.MM.yyyy').format(customDueDate!) : 'Datum wählen',
+                customDueDate != null
+                    ? DateFormat('dd.MM.yyyy').format(customDueDate!)
+                    : 'Datum wählen',
               ),
             ),
           ),
