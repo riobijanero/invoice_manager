@@ -117,7 +117,7 @@ List<pw.Widget> invoiceTableBlock({
               children: [
                 pw.TableRow(
                   children: [
-                    cell('${i + 1}'),
+                    cell('${items[i].position}'),
                     cell(
                       serviceDescriptions.length > i ? serviceDescriptions[i] : '',
                     ),

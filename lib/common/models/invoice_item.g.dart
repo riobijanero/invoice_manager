@@ -8,6 +8,7 @@ part of 'invoice_item.dart';
 
 _$InvoiceItemImpl _$$InvoiceItemImplFromJson(Map<String, dynamic> json) =>
     _$InvoiceItemImpl(
+      position: (json['position'] as num?)?.toInt() ?? 1,
       serviceMonth: (json['serviceMonth'] as num?)?.toInt(),
       serviceYear: (json['serviceYear'] as num?)?.toInt(),
       serviceDate: json['serviceDate'] == null
@@ -22,6 +23,7 @@ _$InvoiceItemImpl _$$InvoiceItemImplFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$$InvoiceItemImplToJson(_$InvoiceItemImpl instance) =>
     <String, dynamic>{
+      'position': instance.position,
       'serviceMonth': instance.serviceMonth,
       'serviceYear': instance.serviceYear,
       'serviceDate': instance.serviceDate?.toIso8601String(),

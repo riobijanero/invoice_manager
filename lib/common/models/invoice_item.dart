@@ -14,6 +14,7 @@ class InvoiceItem with _$InvoiceItem {
   const InvoiceItem._();
 
   const factory InvoiceItem({
+    @Default(1) int position,
     int? serviceMonth,
     int? serviceYear,
     DateTime? serviceDate,

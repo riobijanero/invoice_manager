@@ -236,6 +236,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
         ? inv.invoiceItemList
         : [
             const InvoiceItem(
+              position: 1,
               serviceMonth: null,
               serviceYear: null,
               unitType: UnitType.hours,
@@ -860,6 +861,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
           ) ??
           0;
       return InvoiceItem(
+        position: i + 1,
         serviceMonth: _useServiceDate[i] ? null : _serviceMonths[i],
         serviceYear: _useServiceDate[i] ? null : _serviceYears[i],
         serviceDate: _useServiceDate[i] ? _serviceDates[i] : null,

@@ -5,6 +5,7 @@ import 'package:invoice_manager/common/extensions/list_extensions.dart';
 import 'package:invoice_manager/common/models/discount_type.dart';
 import 'package:invoice_manager/common/models/due_date_type.dart';
 import 'package:invoice_manager/common/models/invoice_item.dart';
+import 'package:invoice_manager/common/utils/currency_format.dart';
 import 'package:invoice_manager/features/form/widgets/field_row.dart';
 import 'package:invoice_manager/features/form/widgets/discount_control.dart';
 import 'package:invoice_manager/features/form/widgets/vat_control.dart';
@@ -110,6 +111,12 @@ class InvoiceDetailFields extends StatelessWidget {
         case UnitType.amount:
           return 'Anzahl';
       }
+    }
+
+    double itemTotalFor(int index) {
+      final q = double.tryParse(quantityControllers[index].text.replaceFirst(',', '.')) ?? 0.0;
+      final p = double.tryParse(unitPriceControllers[index].text.replaceFirst(',', '.')) ?? 0.0;
+      return q * p;
     }
 
     return Column(
@@ -316,6 +323,14 @@ class InvoiceDetailFields extends StatelessWidget {
                 validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
               );
 
+              final posField = InputDecorator(
+                decoration: const InputDecoration(
+                  labelText: 'Pos.',
+                  border: OutlineInputBorder(),
+                ),
+                child: Text('${i + 1}'),
+              );
+
               final quantityField = TextFormField(
                 controller: quantityControllers[i],
                 decoration: const InputDecoration(
@@ -365,17 +380,44 @@ class InvoiceDetailFields extends StatelessWidget {
                 },
               );
 
+              final totalField = ValueListenableBuilder<TextEditingValue>(
+                valueListenable: unitPriceControllers[i],
+                builder: (context, _, __) {
+                  return ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: quantityControllers[i],
+                    builder: (context, __, ___) {
+                      return InputDecorator(
+                        decoration: const InputDecoration(
+                          labelText: 'Gesamt',
+                          border: OutlineInputBorder(),
+                        ),
+                        child: Text(formatCurrency(itemTotalFor(i))),
+                      );
+                    },
+                  );
+                },
+              );
+
               if (!wide) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    descriptionField,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(width: 60, child: posField),
+                        const SizedBox(width: 12),
+                        Expanded(child: descriptionField),
+                      ],
+                    ),
                     const SizedBox(height: 12),
                     quantityField,
                     const SizedBox(height: 12),
                     unitField,
                     const SizedBox(height: 12),
                     priceField,
+                    const SizedBox(height: 12),
+                    totalField,
                   ],
                 );
               }
@@ -383,13 +425,25 @@ class InvoiceDetailFields extends StatelessWidget {
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(width: 60, child: posField),
+                  const SizedBox(width: 12),
                   Expanded(child: descriptionField),
                   const SizedBox(width: 12),
                   SizedBox(width: 140, child: quantityField),
                   const SizedBox(width: 12),
                   SizedBox(width: 170, child: unitField),
                   const SizedBox(width: 12),
-                  SizedBox(width: 160, child: priceField),
+                  SizedBox(
+                    width: 160,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        priceField,
+                        const SizedBox(height: 12),
+                        totalField,
+                      ],
+                    ),
+                  ),
                 ],
               );
             },

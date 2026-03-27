@@ -20,6 +20,7 @@ InvoiceItem _$InvoiceItemFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$InvoiceItem {
+  int get position => throw _privateConstructorUsedError;
   int? get serviceMonth => throw _privateConstructorUsedError;
   int? get serviceYear => throw _privateConstructorUsedError;
   DateTime? get serviceDate => throw _privateConstructorUsedError;
@@ -41,7 +42,8 @@ abstract class $InvoiceItemCopyWith<$Res> {
       _$InvoiceItemCopyWithImpl<$Res, InvoiceItem>;
   @useResult
   $Res call(
-      {int? serviceMonth,
+      {int position,
+      int? serviceMonth,
       int? serviceYear,
       DateTime? serviceDate,
       UnitType unitType,
@@ -63,6 +65,7 @@ class _$InvoiceItemCopyWithImpl<$Res, $Val extends InvoiceItem>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? position = null,
     Object? serviceMonth = freezed,
     Object? serviceYear = freezed,
     Object? serviceDate = freezed,
@@ -72,6 +75,10 @@ class _$InvoiceItemCopyWithImpl<$Res, $Val extends InvoiceItem>
     Object? serviceDescription = null,
   }) {
     return _then(_value.copyWith(
+      position: null == position
+          ? _value.position
+          : position // ignore: cast_nullable_to_non_nullable
+              as int,
       serviceMonth: freezed == serviceMonth
           ? _value.serviceMonth
           : serviceMonth // ignore: cast_nullable_to_non_nullable
@@ -113,7 +120,8 @@ abstract class _$$InvoiceItemImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int? serviceMonth,
+      {int position,
+      int? serviceMonth,
       int? serviceYear,
       DateTime? serviceDate,
       UnitType unitType,
@@ -133,6 +141,7 @@ class __$$InvoiceItemImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? position = null,
     Object? serviceMonth = freezed,
     Object? serviceYear = freezed,
     Object? serviceDate = freezed,
@@ -142,6 +151,10 @@ class __$$InvoiceItemImplCopyWithImpl<$Res>
     Object? serviceDescription = null,
   }) {
     return _then(_$InvoiceItemImpl(
+      position: null == position
+          ? _value.position
+          : position // ignore: cast_nullable_to_non_nullable
+              as int,
       serviceMonth: freezed == serviceMonth
           ? _value.serviceMonth
           : serviceMonth // ignore: cast_nullable_to_non_nullable
@@ -178,7 +191,8 @@ class __$$InvoiceItemImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$InvoiceItemImpl extends _InvoiceItem {
   const _$InvoiceItemImpl(
-      {this.serviceMonth,
+      {this.position = 1,
+      this.serviceMonth,
       this.serviceYear,
       this.serviceDate,
       this.unitType = UnitType.hours,
@@ -190,6 +204,9 @@ class _$InvoiceItemImpl extends _InvoiceItem {
   factory _$InvoiceItemImpl.fromJson(Map<String, dynamic> json) =>
       _$$InvoiceItemImplFromJson(json);
 
+  @override
+  @JsonKey()
+  final int position;
   @override
   final int? serviceMonth;
   @override
@@ -210,7 +227,7 @@ class _$InvoiceItemImpl extends _InvoiceItem {
 
   @override
   String toString() {
-    return 'InvoiceItem(serviceMonth: $serviceMonth, serviceYear: $serviceYear, serviceDate: $serviceDate, unitType: $unitType, quantity: $quantity, unitPrice: $unitPrice, serviceDescription: $serviceDescription)';
+    return 'InvoiceItem(position: $position, serviceMonth: $serviceMonth, serviceYear: $serviceYear, serviceDate: $serviceDate, unitType: $unitType, quantity: $quantity, unitPrice: $unitPrice, serviceDescription: $serviceDescription)';
   }
 
   @override
@@ -218,6 +235,8 @@ class _$InvoiceItemImpl extends _InvoiceItem {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$InvoiceItemImpl &&
+            (identical(other.position, position) ||
+                other.position == position) &&
             (identical(other.serviceMonth, serviceMonth) ||
                 other.serviceMonth == serviceMonth) &&
             (identical(other.serviceYear, serviceYear) ||
@@ -236,8 +255,16 @@ class _$InvoiceItemImpl extends _InvoiceItem {
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, serviceMonth, serviceYear,
-      serviceDate, unitType, quantity, unitPrice, serviceDescription);
+  int get hashCode => Object.hash(
+      runtimeType,
+      position,
+      serviceMonth,
+      serviceYear,
+      serviceDate,
+      unitType,
+      quantity,
+      unitPrice,
+      serviceDescription);
 
   @JsonKey(ignore: true)
   @override
@@ -255,7 +282,8 @@ class _$InvoiceItemImpl extends _InvoiceItem {
 
 abstract class _InvoiceItem extends InvoiceItem {
   const factory _InvoiceItem(
-      {final int? serviceMonth,
+      {final int position,
+      final int? serviceMonth,
       final int? serviceYear,
       final DateTime? serviceDate,
       final UnitType unitType,
@@ -267,6 +295,8 @@ abstract class _InvoiceItem extends InvoiceItem {
   factory _InvoiceItem.fromJson(Map<String, dynamic> json) =
       _$InvoiceItemImpl.fromJson;
 
+  @override
+  int get position;
   @override
   int? get serviceMonth;
   @override
