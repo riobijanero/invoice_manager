@@ -11,6 +11,9 @@ import 'package:invoice_manager/features/exportData/services/csv_import_service.
 import 'package:invoice_manager/features/form/utils/utils.dart';
 import 'package:invoice_manager/features/list/widgets/invoice_list_tile.dart';
 import 'package:invoice_manager/features/list/widgets/new_invoice_draft_list_tile.dart';
+import 'package:invoice_manager/features/search/providers/invoice_list_search_query_provider.dart';
+import 'package:invoice_manager/features/search/services/invoice_search_service.dart';
+import 'package:invoice_manager/features/search/ui/widgets/invoice_list_search_bar.dart';
 import '../../routing/app_router.dart';
 
 class InvoiceListScreen extends ConsumerWidget {
@@ -19,6 +22,7 @@ class InvoiceListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncInvoices = ref.watch(invoiceListProvider);
+    final searchQuery = ref.watch(invoiceListSearchQueryProvider);
     final selectedId = _selectedInvoiceId(context);
     final wide = isWideInvoiceLayout(context);
     final showNewDraftRow = wide && GoRouterState.of(context).uri.path == '/invoice/new';
@@ -50,43 +54,24 @@ class InvoiceListScreen extends ConsumerWidget {
       ),
       body: asyncInvoices.when(
         data: (invoices) {
-          if (invoices.isEmpty && !showNewDraftRow) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.receipt_long_outlined, size: 64),
-                  const SizedBox(height: 16),
-                  const Text('Noch keine Rechnungen'),
-                  const SizedBox(height: 8),
-                  TextButton.icon(
-                    onPressed: () => context.go('/invoice/new'),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Neue Rechnung'),
-                  ),
-                ],
+          final filtered = filterInvoicesBySearchQuery(invoices, searchQuery);
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const InvoiceListSearchBar(),
+              Expanded(
+                child: _invoiceListBody(
+                  context,
+                  ref,
+                  invoices: invoices,
+                  filtered: filtered,
+                  searchQuery: searchQuery,
+                  showNewDraftRow: showNewDraftRow,
+                  selectedId: selectedId,
+                  wide: wide,
+                ),
               ),
-            );
-          }
-          final itemCount = invoices.length + (showNewDraftRow ? 1 : 0);
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: itemCount,
-            itemBuilder: (context, index) {
-              if (showNewDraftRow && index == 0) {
-                return NewInvoiceDraftListTile(
-                  onTap: () => context.go('/invoice/new'),
-                );
-              }
-              final invoiceIndex = showNewDraftRow ? index - 1 : index;
-              final invoice = invoices[invoiceIndex];
-              return InvoiceListTile(
-                invoice: invoice,
-                selected: selectedId == invoice.id,
-                onAction: (action) => _handleAction(context, ref, action, invoice),
-                onTap: () => wide ? context.go(pathEdit(invoice.id)) : context.push(pathEdit(invoice.id)),
-              );
-            },
+            ],
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -140,6 +125,80 @@ class InvoiceListScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _invoiceListBody(
+    BuildContext context,
+    WidgetRef ref, {
+    required List<Invoice> invoices,
+    required List<Invoice> filtered,
+    required String searchQuery,
+    required bool showNewDraftRow,
+    required String? selectedId,
+    required bool wide,
+  }) {
+    if (invoices.isEmpty && !showNewDraftRow) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.receipt_long_outlined, size: 64),
+            const SizedBox(height: 16),
+            const Text('Noch keine Rechnungen'),
+            const SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: () => context.go('/invoice/new'),
+              icon: const Icon(Icons.add),
+              label: const Text('Neue Rechnung'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final queryTrimmed = searchQuery.trim();
+    final hasNoMatches = filtered.isEmpty && queryTrimmed.isNotEmpty;
+
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      children: [
+        if (showNewDraftRow)
+          NewInvoiceDraftListTile(
+            onTap: () => context.go('/invoice/new'),
+          ),
+        if (hasNoMatches)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.search_off_outlined,
+                    size: 48,
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Keine Treffer für „$queryTrimmed“',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          ...filtered.map(
+            (invoice) => InvoiceListTile(
+              invoice: invoice,
+              selected: selectedId == invoice.id,
+              onAction: (action) => _handleAction(context, ref, action, invoice),
+              onTap: () => wide ? context.go(pathEdit(invoice.id)) : context.push(pathEdit(invoice.id)),
+            ),
+          ),
+      ],
     );
   }
 
