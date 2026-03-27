@@ -85,33 +85,40 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
 
   bool _hasAnyText(TextEditingController c) => c.text.trim().isNotEmpty;
 
-  bool _senderPrefilled() {
-    return _hasAnyText(_senderName) ||
-        _hasAnyText(_senderStreetNameAndNumber) ||
-        _hasAnyText(_senderPostalCode) ||
-        _hasAnyText(_senderTown) ||
-        _hasAnyText(_senderCountry) ||
-        _hasAnyText(_senderPhone) ||
-        _hasAnyText(_senderEmail) ||
-        _hasAnyText(_senderWebsite) ||
-        _hasAnyText(_ustId) ||
-        _hasAnyText(_taxNumber) ||
-        _hasAnyText(_jobDescription);
+  /// Matches [SenderFields] validators: Name, Straße, PLZ, Ort, Land.
+  bool _senderMandatoryComplete() {
+    if (!_hasAnyText(_senderName)) return false;
+    if (!_hasAnyText(_senderStreetNameAndNumber)) return false;
+    final plz = _senderPostalCode.text.trim();
+    final plzN = int.tryParse(plz);
+    if (plz.isEmpty || plzN == null || plzN <= 0) return false;
+    if (!_hasAnyText(_senderTown)) return false;
+    if (!_hasAnyText(_senderCountry)) return false;
+    return true;
   }
 
-  bool _bankPrefilled() {
-    return _hasAnyText(_accountHolder) || _hasAnyText(_institution) || _hasAnyText(_iban) || _hasAnyText(_bic);
+  /// Matches [BankDetailsFields] validators.
+  bool _bankMandatoryComplete() {
+    if (!_hasAnyText(_accountHolder)) return false;
+    if (!_hasAnyText(_institution)) return false;
+    if (!_hasAnyText(_bic)) return false;
+    final iban = _iban.text.trim();
+    if (iban.isEmpty || !isValidIban(iban)) return false;
+    return true;
   }
 
-  bool _clientPrefilled() {
-    return _hasAnyText(_clientCompanyName) ||
-        _hasAnyText(_clientName) ||
-        _hasAnyText(_clientStreetNameAndNumber) ||
-        _hasAnyText(_clientPostalCode) ||
-        _hasAnyText(_clientTown) ||
-        _hasAnyText(_clientCountry) ||
-        _hasAnyText(_clientId) ||
-        _hasAnyText(_contractNumber);
+  /// Matches [ClientFields] validators: Firma oder Name, Adresse, PLZ, Ort, Land.
+  bool _clientMandatoryComplete() {
+    final company = _clientCompanyName.text.trim();
+    final name = _clientName.text.trim();
+    if (company.isEmpty && name.isEmpty) return false;
+    if (!_hasAnyText(_clientStreetNameAndNumber)) return false;
+    final plz = _clientPostalCode.text.trim();
+    final plzN = int.tryParse(plz);
+    if (plz.isEmpty || plzN == null || plzN <= 0) return false;
+    if (!_hasAnyText(_clientTown)) return false;
+    if (!_hasAnyText(_clientCountry)) return false;
+    return true;
   }
 
   @override
@@ -536,7 +543,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   @override
   Widget build(BuildContext context) {
     final isNew = widget.invoiceId == null;
-    final isDuplicate = GoRouterState.of(context).uri.queryParameters['source'] == 'duplicate';
     final asyncInvoice = widget.invoiceId != null ? ref.watch(invoiceDetailProvider(widget.invoiceId!)) : null;
     final asyncDefaults = ref.watch(defaultsProvider);
     final asyncInvoiceList = ref.watch(invoiceListProvider);
@@ -584,10 +590,10 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       _initialized = true;
     }
 
-    final shouldCollapsePrefilledSections = (isNew || isDuplicate);
-    final senderExpanded = !(shouldCollapsePrefilledSections && _senderPrefilled());
-    final bankExpanded = !(shouldCollapsePrefilledSections && _bankPrefilled());
-    final clientExpanded = !(isDuplicate && _clientPrefilled());
+    // Eingeklappt, sobald alle Pflichtfelder des Blocks gültig befüllt sind.
+    final senderExpanded = !_senderMandatoryComplete();
+    final bankExpanded = !_bankMandatoryComplete();
+    final clientExpanded = !_clientMandatoryComplete();
 
     return Scaffold(
       appBar: AppBar(
