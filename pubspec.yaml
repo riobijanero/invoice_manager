@@ -2,7 +2,7 @@ name: invoice_manager
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -36,9 +36,9 @@ dependencies:
   flutter_riverpod: ^2.6.1
   go_router: ^14.6.2
 
-  # File save / selection & paths (file_picker supports Save As on desktop; file_selector needs SDK 3.7+)
+  # File save / selection & paths (file_selector 1.1+ requires Dart ^3.9; keep 1.0.x for SDK ^3.4)
   file_picker: ^8.1.6
-  file_selector: ^1.1.0
+  file_selector: ^1.0.3
   path_provider: ^2.1.5
   path: ^1.9.0
 
@@ -68,7 +68,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

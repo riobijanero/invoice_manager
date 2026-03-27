@@ -9,6 +9,7 @@ class ExpandableFormSection extends StatefulWidget {
     this.initiallyExpanded = true,
     this.expandTooltip,
     this.collapseTooltip,
+
     /// Wenn gesetzt: bei eingeklapptem Zustand `title (summary)` anzeigen und bei Änderungen neu bauen.
     this.collapsedSummary,
     this.summaryListenables = const [],
@@ -34,8 +35,7 @@ class ExpandableFormSection extends StatefulWidget {
   State<ExpandableFormSection> createState() => _ExpandableFormSectionState();
 }
 
-class _ExpandableFormSectionState extends State<ExpandableFormSection>
-    with SingleTickerProviderStateMixin {
+class _ExpandableFormSectionState extends State<ExpandableFormSection> with SingleTickerProviderStateMixin {
   static const Duration _expandDuration = Duration(milliseconds: 280);
 
   late final AnimationController _expandController;
@@ -93,11 +93,9 @@ class _ExpandableFormSectionState extends State<ExpandableFormSection>
     });
   }
 
-  String get _tooltipCollapse =>
-      widget.collapseTooltip ?? '${widget.title} einklappen';
+  String get _tooltipCollapse => widget.collapseTooltip ?? '${widget.title} einklappen';
 
-  String get _tooltipExpand =>
-      widget.expandTooltip ?? '${widget.title} ausklappen';
+  String get _tooltipExpand => widget.expandTooltip ?? '${widget.title} ausklappen';
 
   String _titleLabel() {
     if (_expanded || widget.collapsedSummary == null) {
@@ -127,9 +125,7 @@ class _ExpandableFormSectionState extends State<ExpandableFormSection>
     final hasSummary = widget.collapsedSummary != null && listenables.isNotEmpty;
 
     Widget headerTile() {
-      final fullHint = (!_expanded && widget.collapsedSummary != null)
-          ? widget.collapsedSummary!().trim()
-          : '';
+      final fullHint = (!_expanded && widget.collapsedSummary != null) ? widget.collapsedSummary!().trim() : '';
       final tooltipMessage = fullHint.isNotEmpty
           ? '${_expanded ? _tooltipCollapse : _tooltipExpand}\n$fullHint'
           : (_expanded ? _tooltipCollapse : _tooltipExpand);

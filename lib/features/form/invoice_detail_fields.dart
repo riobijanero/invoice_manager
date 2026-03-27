@@ -150,7 +150,7 @@ class InvoiceDetailFields extends StatelessWidget {
     );
 
     final unitField = DropdownButtonFormField<UnitType>(
-      initialValue: unitTypes[i],
+      value: unitTypes[i],
       decoration: const InputDecoration(
         labelText: 'Einheit',
         border: OutlineInputBorder(),
@@ -239,7 +239,7 @@ class InvoiceDetailFields extends StatelessWidget {
           )
         : FieldRow(
             left: DropdownButtonFormField<int?>(
-              initialValue: serviceMonths[i],
+              value: serviceMonths[i],
               decoration: const InputDecoration(
                 labelText: 'Leistungszeitraum Monat',
                 border: OutlineInputBorder(),
@@ -260,7 +260,7 @@ class InvoiceDetailFields extends StatelessWidget {
               onChanged: (v) => onServiceMonthChanged(i, v),
             ),
             right: DropdownButtonFormField<int?>(
-              initialValue: serviceYears[i],
+              value: serviceYears[i],
               decoration: const InputDecoration(
                 labelText: 'Leistungszeitraum Jahr',
                 border: OutlineInputBorder(),
@@ -568,7 +568,7 @@ class InvoiceDetailFields extends StatelessWidget {
         ),
 
         DropdownButtonFormField<DueDateType>(
-          initialValue: dueDateType,
+          value: dueDateType,
           decoration: const InputDecoration(
             labelText: 'Fälligkeit',
             border: OutlineInputBorder(),
