@@ -4,6 +4,7 @@ import 'package:invoice_manager/common/models/invoice_item.dart';
 import 'package:invoice_manager/common/services/invoice_pdf_generator/config.dart';
 import 'package:invoice_manager/common/services/utils.dart';
 import 'package:invoice_manager/common/utils/currency_format.dart';
+import 'package:invoice_manager/common/utils/quantity_format.dart';
 import 'package:invoice_manager/common/utils/invoice_calculations.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -122,7 +123,7 @@ List<pw.Widget> invoiceTableBlock({
                       serviceDescriptions.length > i ? serviceDescriptions[i] : '',
                     ),
                     cell(items[i].unitLabel, alignRight: true),
-                    cell(items[i].quantity.toStringAsFixed(2), alignRight: true),
+                    cell(formatQuantityForDisplay(items[i].quantity), alignRight: true),
                     cell(formatCurrency(items[i].unitPrice), alignRight: true),
                     cell(
                       formatCurrency(items[i].itemTotal),

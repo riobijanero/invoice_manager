@@ -5,6 +5,7 @@ import 'package:invoice_manager/common/models/discount_type.dart';
 import 'package:invoice_manager/common/models/due_date_type.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
 import 'package:invoice_manager/common/utils/currency_format.dart';
+import 'package:invoice_manager/common/utils/quantity_format.dart';
 import 'package:invoice_manager/common/utils/invoice_calculations.dart';
 
 String _formatDatesForSearch(DateTime d) =>
@@ -98,6 +99,7 @@ String buildInvoiceSearchHaystack(Invoice invoice) {
     _bufAppendDate(b, item.serviceDate);
     _bufAppend(b, item.unitType.name);
     _bufAppend(b, item.unitLabel);
+    _bufAppend(b, formatQuantityForDisplay(item.quantity));
     _bufAppend(b, item.quantity.toString());
     _bufAppend(b, item.unitPrice.toString());
   }

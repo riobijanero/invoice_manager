@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:invoice_manager/common/layout/invoice_layout_breakpoints.dart';
 import 'package:invoice_manager/common/providers/providers.dart';
 import 'package:invoice_manager/common/utils/date_utils.dart';
+import 'package:invoice_manager/common/utils/quantity_format.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:invoice_manager/common/models/client.dart';
@@ -237,7 +238,9 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     }
 
     _unitTypes = items.map((e) => e.unitType).toList();
-    _quantityControllers = items.map((e) => TextEditingController(text: e.quantity.toString())).toList();
+    _quantityControllers = items
+        .map((e) => TextEditingController(text: formatQuantityForDisplay(e.quantity)))
+        .toList();
     _unitPriceControllers = items.map((e) => TextEditingController(text: e.unitPrice.toString())).toList();
     _serviceDescriptionControllers = items.map((e) => TextEditingController(text: e.serviceDescription)).toList();
     _discountType = inv.discountType;
