@@ -891,9 +891,9 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     await _updateDefaultsFromForm(ref);
     ref.invalidate(defaultsProvider);
     ref.invalidate(invoiceListProvider);
-    // Do not invalidate invoiceDetailProvider here: that would put the watched
-    // provider into loading, replace the form with a spinner, and reset scroll.
-    // Controllers already hold the saved data; disk matches after save.
+    // Must refresh detail cache or reopening this invoice shows stale [AsyncData].
+    // [Speichern & Vorschau] already did this; plain Speichern must match.
+    ref.invalidate(invoiceDetailProvider(invoice.id));
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Rechnung gespeichert')),
