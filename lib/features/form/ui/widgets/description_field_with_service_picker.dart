@@ -1,31 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:invoice_manager/common/models/invoice_item.dart';
 import 'package:invoice_manager/common/models/saved_service_preset.dart';
-import 'package:invoice_manager/common/utils/currency_format.dart';
 import 'package:invoice_manager/features/form/ui/widgets/clearable_input_decoration.dart';
 import 'package:invoice_manager/features/form/ui/widgets/saved_service_preset_picker_list.dart';
 import 'package:invoice_manager/features/form/utils/service_preset_dedupe_utils.dart';
-
-String _unitTypeAbbrev(UnitType t) {
-  switch (t) {
-    case UnitType.hours:
-      return 'Std.';
-    case UnitType.minutes:
-      return 'Min.';
-    case UnitType.amount:
-      return 'Stk.';
-  }
-}
-
-String servicePresetPickerLabel(SavedServicePreset p) {
-  final firstLine = p.description.trim().split(RegExp(r'\r?\n')).first;
-  final short =
-      firstLine.length > 72 ? '${firstLine.substring(0, 69)}…' : firstLine;
-  final u = _unitTypeAbbrev(p.unitType);
-  if (short.isEmpty) return '${formatCurrency(p.unitPrice)} · $u';
-  return '$short · ${formatCurrency(p.unitPrice)} · $u';
-}
 
 /// [Leistungsbeschreibung] with a dropdown-style control to pick saved presets.
 class DescriptionFieldWithServicePicker extends StatefulWidget {
@@ -223,7 +201,7 @@ List<SavedServicePresetPickerEntry> savedServicePresetPickerEntries(
       .map(
         (p) => SavedServicePresetPickerEntry(
           presetKey: servicePresetDedupeKey(p),
-          label: servicePresetPickerLabel(p),
+          label: servicePresetMenuLabel(p),
           preset: p,
         ),
       )

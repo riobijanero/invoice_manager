@@ -11,6 +11,7 @@ import 'package:invoice_manager/features/exportData/services/csv_import_service.
 import 'package:invoice_manager/features/form/utils/utils.dart';
 import 'package:invoice_manager/features/list/widgets/invoice_list_tile.dart';
 import 'package:invoice_manager/features/list/widgets/new_invoice_draft_list_tile.dart';
+import 'package:invoice_manager/features/search/providers/invoice_list_filter_providers.dart';
 import 'package:invoice_manager/features/search/providers/invoice_list_search_query_provider.dart';
 import 'package:invoice_manager/features/search/services/invoice_search_service.dart';
 import 'package:invoice_manager/features/search/ui/widgets/invoice_list_search_bar.dart';
@@ -23,6 +24,9 @@ class InvoiceListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncInvoices = ref.watch(invoiceListProvider);
     final searchQuery = ref.watch(invoiceListSearchQueryProvider);
+    final filterClientKey = ref.watch(invoiceListFilterClientKeyProvider);
+    final filterServiceKey = ref.watch(invoiceListFilterServicePresetKeyProvider);
+    ref.watch(invoiceListFilterPanelExpandedProvider);
     final selectedId = _selectedInvoiceId(context);
     final wide = isWideInvoiceLayout(context);
     final showNewDraftRow = wide && GoRouterState.of(context).uri.path == '/invoice/new';
@@ -54,7 +58,12 @@ class InvoiceListScreen extends ConsumerWidget {
       ),
       body: asyncInvoices.when(
         data: (invoices) {
-          final filtered = filterInvoicesBySearchQuery(invoices, searchQuery);
+          final filtered = applyInvoiceListFilters(
+            invoices,
+            searchQuery: searchQuery,
+            clientKey: filterClientKey,
+            servicePresetKey: filterServiceKey,
+          );
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -66,6 +75,8 @@ class InvoiceListScreen extends ConsumerWidget {
                   invoices: invoices,
                   filtered: filtered,
                   searchQuery: searchQuery,
+                  hasListFilters: (filterClientKey != null && filterClientKey.isNotEmpty) ||
+                      (filterServiceKey != null && filterServiceKey.isNotEmpty),
                   showNewDraftRow: showNewDraftRow,
                   selectedId: selectedId,
                   wide: wide,
@@ -134,6 +145,7 @@ class InvoiceListScreen extends ConsumerWidget {
     required List<Invoice> invoices,
     required List<Invoice> filtered,
     required String searchQuery,
+    required bool hasListFilters,
     required bool showNewDraftRow,
     required String? selectedId,
     required bool wide,
@@ -158,7 +170,8 @@ class InvoiceListScreen extends ConsumerWidget {
     }
 
     final queryTrimmed = searchQuery.trim();
-    final hasNoMatches = filtered.isEmpty && queryTrimmed.isNotEmpty;
+    final hasNoMatches =
+        filtered.isEmpty && (queryTrimmed.isNotEmpty || hasListFilters);
 
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -181,7 +194,11 @@ class InvoiceListScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Keine Treffer für „$queryTrimmed“',
+                    queryTrimmed.isNotEmpty && hasListFilters
+                        ? 'Keine Treffer für „$queryTrimmed“ und die gewählten Filter.'
+                        : queryTrimmed.isNotEmpty
+                            ? 'Keine Treffer für „$queryTrimmed“'
+                            : 'Keine Rechnungen für die gewählten Filter.',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),

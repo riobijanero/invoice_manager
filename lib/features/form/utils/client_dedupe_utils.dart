@@ -27,3 +27,30 @@ List<Client> uniqueClientsFromInvoices(List<Invoice> invoices) {
   }
   return clients;
 }
+
+/// Anzeigetext für Kunden-Dropdowns (Firma, sonst Name).
+String clientMenuLabel(Client client) {
+  final company = client.companyName.trim();
+  if (company.isNotEmpty) return company;
+  final name = client.name.trim();
+  if (name.isNotEmpty) return name;
+  return 'Unbenannter Kunde';
+}
+
+/// Kunden aus Rechnungen plus [defaultsClient], wenn sinnvoll befüllt (ohne Duplikate).
+List<Client> mergedClientsForInvoiceListFilter(
+  List<Invoice> invoices,
+  Client defaultsClient,
+) {
+  final fromInvoices = uniqueClientsFromInvoices(invoices);
+  final seen = {for (final c in fromInvoices) clientDedupeKey(c)};
+  final out = List<Client>.from(fromInvoices);
+  final d = defaultsClient;
+  if (d.companyName.trim().isNotEmpty || d.name.trim().isNotEmpty) {
+    final k = clientDedupeKey(d);
+    if (!seen.contains(k)) {
+      out.add(d);
+    }
+  }
+  return out;
+}
