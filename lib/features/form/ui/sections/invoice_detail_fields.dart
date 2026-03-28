@@ -7,6 +7,7 @@ import 'package:invoice_manager/common/models/due_date_type.dart';
 import 'package:invoice_manager/common/models/invoice_item.dart';
 import 'package:invoice_manager/common/models/saved_service_preset.dart';
 import 'package:invoice_manager/common/utils/currency_format.dart';
+import 'package:invoice_manager/features/form/ui/widgets/clearable_input_decoration.dart';
 import 'package:invoice_manager/features/form/ui/widgets/description_field_with_service_picker.dart';
 import 'package:invoice_manager/features/form/ui/widgets/discount_control.dart';
 import 'package:invoice_manager/features/form/ui/widgets/saved_service_preset_picker_list.dart';
@@ -140,9 +141,12 @@ class InvoiceDetailFields extends StatelessWidget {
 
     final quantityField = TextFormField(
       controller: quantityControllers[i],
-      decoration: const InputDecoration(
-        labelText: 'Anzahl',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: quantityControllers[i],
+        decoration: const InputDecoration(
+          labelText: 'Anzahl',
+          border: OutlineInputBorder(),
+        ),
       ),
       keyboardType: const TextInputType.numberWithOptions(
         decimal: true,
@@ -178,9 +182,12 @@ class InvoiceDetailFields extends StatelessWidget {
 
     final priceField = TextFormField(
       controller: unitPriceControllers[i],
-      decoration: const InputDecoration(
-        labelText: 'Einzelpreis (€)',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: unitPriceControllers[i],
+        decoration: const InputDecoration(
+          labelText: 'Einzelpreis (€)',
+          border: OutlineInputBorder(),
+        ),
       ),
       keyboardType: const TextInputType.numberWithOptions(
         decimal: true,
@@ -468,9 +475,12 @@ class InvoiceDetailFields extends StatelessWidget {
         FieldRow(
           left: TextFormField(
             controller: invoiceNumberController,
-            decoration: const InputDecoration(
-              labelText: 'Rechnungsnummer',
-              border: OutlineInputBorder(),
+            decoration: inputDecorationWithClear(
+              controller: invoiceNumberController,
+              decoration: const InputDecoration(
+                labelText: 'Rechnungsnummer',
+                border: OutlineInputBorder(),
+              ),
             ),
             validator: (v) =>
                 (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
@@ -526,10 +536,13 @@ class InvoiceDetailFields extends StatelessWidget {
 
         TextFormField(
           controller: introductoryTextController,
-          decoration: const InputDecoration(
-            labelText: 'Einleitungstext',
-            border: OutlineInputBorder(),
-            alignLabelWithHint: true,
+          decoration: inputDecorationWithClear(
+            controller: introductoryTextController,
+            decoration: const InputDecoration(
+              labelText: 'Einleitungstext',
+              border: OutlineInputBorder(),
+              alignLabelWithHint: true,
+            ),
           ),
           maxLines: 3,
           validator: (v) =>

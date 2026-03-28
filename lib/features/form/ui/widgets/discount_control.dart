@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:invoice_manager/features/form/ui/widgets/clearable_input_decoration.dart';
 import 'package:invoice_manager/common/models/discount_type.dart';
 
 class DiscountControl extends StatelessWidget {
@@ -34,8 +35,11 @@ class DiscountControl extends StatelessWidget {
           width: 140,
           child: TextFormField(
             controller: discountValueController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
+            decoration: inputDecorationWithClear(
+              controller: discountValueController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
             ),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             validator: (v) {

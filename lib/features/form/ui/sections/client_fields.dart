@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:invoice_manager/common/models/client.dart';
+import 'package:invoice_manager/features/form/ui/widgets/clearable_input_decoration.dart';
 import 'package:invoice_manager/features/form/ui/widgets/expandable_form_section.dart';
 import 'package:invoice_manager/features/form/ui/widgets/saved_client_picker_list.dart';
 import 'package:invoice_manager/features/form/ui/widgets/field_row.dart';
@@ -55,9 +56,12 @@ class ClientFields extends StatelessWidget {
   Widget _nameField() {
     return TextFormField(
       controller: clientNameController,
-      decoration: const InputDecoration(
-        labelText: 'Name',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: clientNameController,
+        decoration: const InputDecoration(
+          labelText: 'Name',
+          border: OutlineInputBorder(),
+        ),
       ),
       validator: (v) {
         final name = v?.trim() ?? '';
@@ -73,9 +77,12 @@ class ClientFields extends StatelessWidget {
   Widget _streetField() {
     return TextFormField(
       controller: clientStreetNameAndNumberController,
-      decoration: const InputDecoration(
-        labelText: 'Straße und Nr.',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: clientStreetNameAndNumberController,
+        decoration: const InputDecoration(
+          labelText: 'Straße und Nr.',
+          border: OutlineInputBorder(),
+        ),
       ),
       validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
     );
@@ -84,9 +91,12 @@ class ClientFields extends StatelessWidget {
   Widget _plzField() {
     return TextFormField(
       controller: clientPostalCodeController,
-      decoration: const InputDecoration(
-        labelText: 'PLZ',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: clientPostalCodeController,
+        decoration: const InputDecoration(
+          labelText: 'PLZ',
+          border: OutlineInputBorder(),
+        ),
       ),
       keyboardType: TextInputType.number,
       validator: (v) {
@@ -101,9 +111,12 @@ class ClientFields extends StatelessWidget {
   Widget _townField() {
     return TextFormField(
       controller: clientTownController,
-      decoration: const InputDecoration(
-        labelText: 'Ort',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: clientTownController,
+        decoration: const InputDecoration(
+          labelText: 'Ort',
+          border: OutlineInputBorder(),
+        ),
       ),
       validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
     );
@@ -112,9 +125,12 @@ class ClientFields extends StatelessWidget {
   Widget _countryField() {
     return TextFormField(
       controller: clientCountryController,
-      decoration: const InputDecoration(
-        labelText: 'Land',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: clientCountryController,
+        decoration: const InputDecoration(
+          labelText: 'Land',
+          border: OutlineInputBorder(),
+        ),
       ),
       validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
     );
@@ -123,9 +139,12 @@ class ClientFields extends StatelessWidget {
   Widget _contractField() {
     return TextFormField(
       controller: contractNumberController,
-      decoration: const InputDecoration(
-        labelText: 'Vertragsnummer (optional)',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: contractNumberController,
+        decoration: const InputDecoration(
+          labelText: 'Vertragsnummer (optional)',
+          border: OutlineInputBorder(),
+        ),
       ),
     );
   }
@@ -133,9 +152,12 @@ class ClientFields extends StatelessWidget {
   Widget _clientIdField() {
     return TextFormField(
       controller: clientIdController,
-      decoration: const InputDecoration(
-        labelText: 'Kundennummer (optional)',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: clientIdController,
+        decoration: const InputDecoration(
+          labelText: 'Kundennummer (optional)',
+          border: OutlineInputBorder(),
+        ),
       ),
     );
   }
@@ -401,13 +423,16 @@ class _CompanyFieldWithClientPickerState extends State<_CompanyFieldWithClientPi
     return TextFormField(
       key: _fieldKey,
       controller: widget.controller,
-      decoration: InputDecoration(
-        labelText: 'Firma',
-        border: const OutlineInputBorder(),
-        suffixIcon: IconButton(
-          tooltip: 'Aus vorhandenen Kunden wählen',
-          icon: const Icon(Icons.arrow_drop_down),
-          onPressed: _toggleClientOverlay,
+      decoration: inputDecorationWithClear(
+        controller: widget.controller,
+        decoration: InputDecoration(
+          labelText: 'Firma',
+          border: const OutlineInputBorder(),
+          suffixIcon: IconButton(
+            tooltip: 'Aus vorhandenen Kunden wählen',
+            icon: const Icon(Icons.arrow_drop_down),
+            onPressed: _toggleClientOverlay,
+          ),
         ),
       ),
       validator: (v) {

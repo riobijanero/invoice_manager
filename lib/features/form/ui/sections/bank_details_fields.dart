@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:invoice_manager/common/extensions/list_extensions.dart';
 
+import 'package:invoice_manager/features/form/ui/widgets/clearable_input_decoration.dart';
 import 'package:invoice_manager/features/form/ui/widgets/expandable_form_section.dart';
 import 'package:invoice_manager/features/form/utils/utils.dart';
 import 'package:invoice_manager/features/form/ui/widgets/field_row.dart';
@@ -27,9 +28,12 @@ class BankDetailsFields extends StatelessWidget {
   Widget _accountHolderField() {
     return TextFormField(
       controller: accountHolderController,
-      decoration: const InputDecoration(
-        labelText: 'Kontoinhaber',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: accountHolderController,
+        decoration: const InputDecoration(
+          labelText: 'Kontoinhaber',
+          border: OutlineInputBorder(),
+        ),
       ),
       validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
     );
@@ -38,9 +42,12 @@ class BankDetailsFields extends StatelessWidget {
   Widget _institutionField() {
     return TextFormField(
       controller: institutionController,
-      decoration: const InputDecoration(
-        labelText: 'Geldinstitut',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: institutionController,
+        decoration: const InputDecoration(
+          labelText: 'Geldinstitut',
+          border: OutlineInputBorder(),
+        ),
       ),
       validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
     );
@@ -49,9 +56,12 @@ class BankDetailsFields extends StatelessWidget {
   Widget _ibanField() {
     return TextFormField(
       controller: ibanController,
-      decoration: const InputDecoration(
-        labelText: 'IBAN',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: ibanController,
+        decoration: const InputDecoration(
+          labelText: 'IBAN',
+          border: OutlineInputBorder(),
+        ),
       ),
       validator: (v) {
         final raw = v?.trim() ?? '';
@@ -65,9 +75,12 @@ class BankDetailsFields extends StatelessWidget {
   Widget _bicField() {
     return TextFormField(
       controller: bicController,
-      decoration: const InputDecoration(
-        labelText: 'BIC',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: bicController,
+        decoration: const InputDecoration(
+          labelText: 'BIC',
+          border: OutlineInputBorder(),
+        ),
       ),
       validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
     );

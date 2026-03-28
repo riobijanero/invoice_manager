@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:invoice_manager/common/extensions/list_extensions.dart';
 
+import 'package:invoice_manager/features/form/ui/widgets/clearable_input_decoration.dart';
 import 'package:invoice_manager/features/form/ui/widgets/expandable_form_section.dart';
 import 'package:invoice_manager/features/form/ui/widgets/field_row.dart';
 
@@ -40,9 +41,12 @@ class SenderFields extends StatelessWidget {
   Widget _nameField() {
     return TextFormField(
       controller: senderNameController,
-      decoration: const InputDecoration(
-        labelText: 'Name',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: senderNameController,
+        decoration: const InputDecoration(
+          labelText: 'Name',
+          border: OutlineInputBorder(),
+        ),
       ),
       validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
     );
@@ -51,10 +55,13 @@ class SenderFields extends StatelessWidget {
   Widget _jobField() {
     return TextFormField(
       controller: jobDescriptionController,
-      decoration: const InputDecoration(
-        labelText: 'Jobbeschreibung (optional)',
-        border: OutlineInputBorder(),
-        alignLabelWithHint: true,
+      decoration: inputDecorationWithClear(
+        controller: jobDescriptionController,
+        decoration: const InputDecoration(
+          labelText: 'Jobbeschreibung (optional)',
+          border: OutlineInputBorder(),
+          alignLabelWithHint: true,
+        ),
       ),
     );
   }
@@ -62,9 +69,12 @@ class SenderFields extends StatelessWidget {
   Widget _streetField() {
     return TextFormField(
       controller: senderStreetNameAndNumberController,
-      decoration: const InputDecoration(
-        labelText: 'Straße und Nr.',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: senderStreetNameAndNumberController,
+        decoration: const InputDecoration(
+          labelText: 'Straße und Nr.',
+          border: OutlineInputBorder(),
+        ),
       ),
       validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
     );
@@ -73,9 +83,12 @@ class SenderFields extends StatelessWidget {
   Widget _plzField() {
     return TextFormField(
       controller: senderPostalCodeController,
-      decoration: const InputDecoration(
-        labelText: 'PLZ',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: senderPostalCodeController,
+        decoration: const InputDecoration(
+          labelText: 'PLZ',
+          border: OutlineInputBorder(),
+        ),
       ),
       keyboardType: TextInputType.number,
       validator: (v) {
@@ -90,9 +103,12 @@ class SenderFields extends StatelessWidget {
   Widget _townField() {
     return TextFormField(
       controller: senderTownController,
-      decoration: const InputDecoration(
-        labelText: 'Ort',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: senderTownController,
+        decoration: const InputDecoration(
+          labelText: 'Ort',
+          border: OutlineInputBorder(),
+        ),
       ),
       validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
     );
@@ -101,9 +117,12 @@ class SenderFields extends StatelessWidget {
   Widget _countryField() {
     return TextFormField(
       controller: senderCountryController,
-      decoration: const InputDecoration(
-        labelText: 'Land',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: senderCountryController,
+        decoration: const InputDecoration(
+          labelText: 'Land',
+          border: OutlineInputBorder(),
+        ),
       ),
       validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
     );
@@ -112,9 +131,12 @@ class SenderFields extends StatelessWidget {
   Widget _phoneField() {
     return TextFormField(
       controller: senderPhoneController,
-      decoration: const InputDecoration(
-        labelText: 'Telefon',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: senderPhoneController,
+        decoration: const InputDecoration(
+          labelText: 'Telefon',
+          border: OutlineInputBorder(),
+        ),
       ),
     );
   }
@@ -122,9 +144,12 @@ class SenderFields extends StatelessWidget {
   Widget _emailField() {
     return TextFormField(
       controller: senderEmailController,
-      decoration: const InputDecoration(
-        labelText: 'E-Mail',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: senderEmailController,
+        decoration: const InputDecoration(
+          labelText: 'E-Mail',
+          border: OutlineInputBorder(),
+        ),
       ),
       keyboardType: TextInputType.emailAddress,
     );
@@ -133,9 +158,12 @@ class SenderFields extends StatelessWidget {
   Widget _websiteField() {
     return TextFormField(
       controller: senderWebsiteController,
-      decoration: const InputDecoration(
-        labelText: 'Website',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: senderWebsiteController,
+        decoration: const InputDecoration(
+          labelText: 'Website',
+          border: OutlineInputBorder(),
+        ),
       ),
     );
   }
@@ -143,9 +171,12 @@ class SenderFields extends StatelessWidget {
   Widget _ustField() {
     return TextFormField(
       controller: ustIdController,
-      decoration: const InputDecoration(
-        labelText: 'USt-ID (z.B: DE123456789)',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: ustIdController,
+        decoration: const InputDecoration(
+          labelText: 'USt-ID (z.B: DE123456789)',
+          border: OutlineInputBorder(),
+        ),
       ),
     );
   }
@@ -153,9 +184,12 @@ class SenderFields extends StatelessWidget {
   Widget _taxField() {
     return TextFormField(
       controller: taxNumberController,
-      decoration: const InputDecoration(
-        labelText: 'Steuernummer (z.B: 012/345/67890)',
-        border: OutlineInputBorder(),
+      decoration: inputDecorationWithClear(
+        controller: taxNumberController,
+        decoration: const InputDecoration(
+          labelText: 'Steuernummer (z.B: 012/345/67890)',
+          border: OutlineInputBorder(),
+        ),
       ),
     );
   }

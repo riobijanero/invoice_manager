@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+
 import 'package:invoice_manager/common/models/invoice_item.dart';
 import 'package:invoice_manager/common/models/saved_service_preset.dart';
 import 'package:invoice_manager/common/utils/currency_format.dart';
+import 'package:invoice_manager/features/form/ui/widgets/clearable_input_decoration.dart';
 import 'package:invoice_manager/features/form/ui/widgets/saved_service_preset_picker_list.dart';
 import 'package:invoice_manager/features/form/utils/service_preset_dedupe_utils.dart';
 
@@ -193,14 +195,17 @@ class _DescriptionFieldWithServicePickerState
     return TextFormField(
       key: _fieldKey,
       controller: widget.controller,
-      decoration: InputDecoration(
-        labelText: 'Leistungsbeschreibung',
-        border: const OutlineInputBorder(),
-        alignLabelWithHint: true,
-        suffixIcon: IconButton(
-          tooltip: 'Gespeicherte Leistung wählen',
-          icon: const Icon(Icons.arrow_drop_down),
-          onPressed: _toggleOverlay,
+      decoration: inputDecorationWithClear(
+        controller: widget.controller,
+        decoration: InputDecoration(
+          labelText: 'Leistungsbeschreibung',
+          border: const OutlineInputBorder(),
+          alignLabelWithHint: true,
+          suffixIcon: IconButton(
+            tooltip: 'Gespeicherte Leistung wählen',
+            icon: const Icon(Icons.arrow_drop_down),
+            onPressed: _toggleOverlay,
+          ),
         ),
       ),
       maxLines: 5,
