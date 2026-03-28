@@ -15,6 +15,27 @@ import 'package:invoice_manager/common/models/invoice_item.dart';
 import '../../utils/date_utils.dart';
 import '../../utils/invoice_calculations.dart';
 
+/// Kalendertag (ohne Uhrzeit) für Vergleiche und PDF-Zeilen.
+DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+/// Start/Ende des Leistungszeitraums pro Position (Monat+Jahr **oder** einzelnes Datum).
+(DateTime start, DateTime end) _itemPeriodBounds(InvoiceItem item) {
+  if (item.serviceDate != null) {
+    final d = _dateOnly(item.serviceDate!);
+    return (d, d);
+  }
+  final m = item.serviceMonth!;
+  final y = item.serviceYear!;
+  return (periodStart(m, y), periodEnd(m, y));
+}
+
+String _formatPeriodRange(DateTime start, DateTime end) {
+  if (start.year == end.year && start.month == end.month && start.day == end.day) {
+    return formatDate(start);
+  }
+  return '${formatDate(start)} - ${formatDate(end)}';
+}
+
 /// Generates PDF bytes for an invoice matching the German template layout.
 /// Uses embedded **Open Sans** (OFL) from `assets/fonts/` so € and Unicode work
 /// without network. TTFs must be real font files (not HTML placeholders).
@@ -29,16 +50,20 @@ Future<Uint8List> generateInvoicePdf(Invoice invoice) async {
   final itemList = invoice.invoiceItemList;
   final itemsWithPeriod = itemList.where((InvoiceItem i) => i.hasServicePeriod).toList();
 
-  // Title: show Leistungszeitraum line only when at least one position has month+year.
+  // Title: Leistungszeitraum über alle Positionen mit Zeitraum (Monat/Jahr oder Datum).
   final String? periodText;
   if (itemsWithPeriod.isEmpty) {
     periodText = null;
   } else {
-    final firstItem = itemsWithPeriod.first;
-    final lastItem = itemsWithPeriod.last;
-    final periodStartDate = periodStart(firstItem.serviceMonth!, firstItem.serviceYear!);
-    final periodEndDate = periodEnd(lastItem.serviceMonth!, lastItem.serviceYear!);
-    periodText = '${formatDate(periodStartDate)} - ${formatDate(periodEndDate)}';
+    final firstBounds = _itemPeriodBounds(itemsWithPeriod.first);
+    var rangeStart = firstBounds.$1;
+    var rangeEnd = firstBounds.$2;
+    for (final item in itemsWithPeriod.skip(1)) {
+      final (s, e) = _itemPeriodBounds(item);
+      if (s.isBefore(rangeStart)) rangeStart = s;
+      if (e.isAfter(rangeEnd)) rangeEnd = e;
+    }
+    periodText = _formatPeriodRange(rangeStart, rangeEnd);
   }
 
   // One row per invoice item; {PERIOD} replaced only when that line has a Zeitraum.
@@ -47,9 +72,8 @@ Future<Uint8List> generateInvoicePdf(Invoice invoice) async {
     if (!item.hasServicePeriod) {
       return desc.replaceAll('{PERIOD}', '').trim();
     }
-    final start = periodStart(item.serviceMonth!, item.serviceYear!);
-    final end = periodEnd(item.serviceMonth!, item.serviceYear!);
-    final itemPeriodText = '${formatDate(start)} - ${formatDate(end)}';
+    final (start, end) = _itemPeriodBounds(item);
+    final itemPeriodText = _formatPeriodRange(start, end);
     return desc.replaceAll('{PERIOD}', itemPeriodText).trim();
   }).toList();
 
