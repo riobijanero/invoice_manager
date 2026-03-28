@@ -193,6 +193,7 @@ class InvoiceListScreen extends ConsumerWidget {
           ...filtered.map(
             (invoice) => InvoiceListTile(
               invoice: invoice,
+              highlightQuery: searchQuery,
               selected: selectedId == invoice.id,
               onAction: (action) => _handleAction(context, ref, action, invoice),
               onTap: () => wide ? context.go(pathEdit(invoice.id)) : context.push(pathEdit(invoice.id)),

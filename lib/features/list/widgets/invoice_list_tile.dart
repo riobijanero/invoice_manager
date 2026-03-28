@@ -6,6 +6,7 @@ import 'package:invoice_manager/common/models/invoice.dart';
 import 'package:invoice_manager/common/providers/providers.dart';
 import 'package:invoice_manager/common/utils/currency_format.dart';
 import 'package:invoice_manager/common/utils/invoice_calculations.dart';
+import 'package:invoice_manager/features/search/utils/search_highlight_spans.dart';
 
 import 'invoice_list_payment_badge.dart';
 
@@ -16,12 +17,16 @@ class InvoiceListTile extends ConsumerWidget {
     required this.onAction,
     required this.onTap,
     this.selected = false,
+    this.highlightQuery = '',
   });
 
   final Invoice invoice;
   final ValueChanged<String> onAction;
   final VoidCallback onTap;
   final bool selected;
+
+  /// Aktiver Suchtext; leer = keine Hervorhebung (case-insensitive Teilstrings).
+  final String highlightQuery;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -36,6 +41,29 @@ class InvoiceListTile extends ConsumerWidget {
         : '-';
 
     final theme = Theme.of(context);
+    final titleStyle = theme.textTheme.titleMedium ?? const TextStyle();
+    final subtitleStyle = theme.textTheme.bodySmall ?? const TextStyle();
+    final highlightStyle = titleStyle.copyWith(
+      fontWeight: FontWeight.w600,
+      backgroundColor: theme.colorScheme.secondaryContainer,
+      color: theme.colorScheme.onSecondaryContainer,
+    );
+    final highlightSubtitleStyle = subtitleStyle.copyWith(
+      fontWeight: FontWeight.w600,
+      backgroundColor: theme.colorScheme.secondaryContainer,
+      color: theme.colorScheme.onSecondaryContainer,
+    );
+    final paidStyle = theme.textTheme.bodySmall?.copyWith(fontSize: 12) ?? const TextStyle(fontSize: 12);
+    final paidHighlightStyle = paidStyle.copyWith(
+      fontWeight: FontWeight.w600,
+      backgroundColor: theme.colorScheme.secondaryContainer,
+      color: theme.colorScheme.onSecondaryContainer,
+    );
+
+    final nrPart = 'Nr. ${invoice.invoiceNumber} ·';
+    final line1 = '${dateFormat.format(invoice.invoiceDate)} · $periodLabel';
+    final line2 = formatCurrency(totals.gross);
+
     return ListTile(
       selected: selected,
       selectedTileColor: theme.colorScheme.surfaceContainerHighest,
@@ -43,22 +71,64 @@ class InvoiceListTile extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            'Nr. ${invoice.invoiceNumber} ·',
+          Text.rich(
+            TextSpan(
+              style: titleStyle,
+              children: searchHighlightSpans(
+                text: nrPart,
+                query: highlightQuery,
+                style: titleStyle,
+                highlightStyle: highlightStyle,
+              ),
+            ),
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(width: 6),
-          Flexible(
-            child: Text(
-              clientLine,
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                style: titleStyle,
+                children: searchHighlightSpans(
+                  text: clientLine,
+                  query: highlightQuery,
+                  style: titleStyle,
+                  highlightStyle: highlightStyle,
+                ),
+              ),
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          // InvoiceListPaymentBadge(invoice: invoice),
         ],
       ),
-      subtitle: Text(
-        '${dateFormat.format(invoice.invoiceDate)} · $periodLabel\n${formatCurrency(totals.gross)}',
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text.rich(
+            TextSpan(
+              style: subtitleStyle,
+              children: searchHighlightSpans(
+                text: line1,
+                query: highlightQuery,
+                style: subtitleStyle,
+                highlightStyle: highlightSubtitleStyle,
+              ),
+            ),
+          ),
+          Text.rich(
+            TextSpan(
+              style: subtitleStyle,
+              children: searchHighlightSpans(
+                text: line2,
+                query: highlightQuery,
+                style: subtitleStyle,
+                highlightStyle: highlightSubtitleStyle,
+              ),
+            ),
+          ),
+        ],
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -88,9 +158,16 @@ class InvoiceListTile extends ConsumerWidget {
                     'Bezahlt am',
                     style: TextStyle(fontSize: 12, color: Colors.black54),
                   ),
-                  Text(
-                    invoice.paidOn != null ? dateFormat.format(invoice.paidOn!) : '-',
-                    style: const TextStyle(fontSize: 12),
+                  Text.rich(
+                    TextSpan(
+                      style: paidStyle,
+                      children: searchHighlightSpans(
+                        text: invoice.paidOn != null ? dateFormat.format(invoice.paidOn!) : '-',
+                        query: highlightQuery,
+                        style: paidStyle,
+                        highlightStyle: paidHighlightStyle,
+                      ),
+                    ),
                   ),
                 ],
               ),
