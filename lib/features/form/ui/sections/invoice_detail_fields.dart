@@ -5,8 +5,11 @@ import 'package:invoice_manager/common/extensions/list_extensions.dart';
 import 'package:invoice_manager/common/models/discount_type.dart';
 import 'package:invoice_manager/common/models/due_date_type.dart';
 import 'package:invoice_manager/common/models/invoice_item.dart';
+import 'package:invoice_manager/common/models/saved_service_preset.dart';
 import 'package:invoice_manager/common/utils/currency_format.dart';
+import 'package:invoice_manager/features/form/ui/widgets/description_field_with_service_picker.dart';
 import 'package:invoice_manager/features/form/ui/widgets/discount_control.dart';
+import 'package:invoice_manager/features/form/ui/widgets/saved_service_preset_picker_list.dart';
 import 'package:invoice_manager/features/form/ui/widgets/field_row.dart';
 import 'package:invoice_manager/features/form/ui/widgets/vat_control.dart';
 
@@ -49,6 +52,9 @@ class InvoiceDetailFields extends StatelessWidget {
     required this.onDueDateTypeChanged,
     required this.customDueDate,
     required this.onCustomDueDateTap,
+    required this.savedServicePresets,
+    required this.onSavedServicePresetPicked,
+    required this.onSavedServicePresetRemoveRequested,
   });
 
   final TextEditingController invoiceNumberController;
@@ -87,6 +93,9 @@ class InvoiceDetailFields extends StatelessWidget {
   final ValueChanged<DueDateType> onDueDateTypeChanged;
   final DateTime? customDueDate;
   final VoidCallback onCustomDueDateTap;
+  final List<SavedServicePreset> savedServicePresets;
+  final void Function(int index, SavedServicePreset preset) onSavedServicePresetPicked;
+  final ValueChanged<String> onSavedServicePresetRemoveRequested;
 
   static const List<int> _months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   static const List<String> _monthLabels = [
@@ -110,16 +119,13 @@ class InvoiceDetailFields extends StatelessWidget {
     required bool reorderable,
     required String Function(UnitType) unitLabel,
     required double Function(int) itemTotalFor,
+    required List<SavedServicePresetPickerEntry> servicePresetPickerEntries,
   }) {
-    final descriptionField = TextFormField(
+    final descriptionField = DescriptionFieldWithServicePicker(
       controller: serviceDescriptionControllers[i],
-      decoration: const InputDecoration(
-        labelText: 'Leistungsbeschreibung',
-        border: OutlineInputBorder(),
-        alignLabelWithHint: true,
-      ),
-      maxLines: 5,
-      validator: (v) => (v == null || v.trim().isEmpty) ? 'Pflichtfeld' : null,
+      presetEntries: servicePresetPickerEntries,
+      onPresetSelected: (preset) => onSavedServicePresetPicked(i, preset),
+      onPresetRemoveRequested: onSavedServicePresetRemoveRequested,
     );
 
     final posField = InputDecorator(
@@ -423,6 +429,9 @@ class InvoiceDetailFields extends StatelessWidget {
       return q * p;
     }
 
+    final servicePresetPickerEntries =
+        savedServicePresetPickerEntries(savedServicePresets);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -522,6 +531,7 @@ class InvoiceDetailFields extends StatelessWidget {
                           reorderable: true,
                           unitLabel: unitLabel,
                           itemTotalFor: itemTotalFor,
+                          servicePresetPickerEntries: servicePresetPickerEntries,
                         ),
                       ),
                   ],
@@ -532,6 +542,7 @@ class InvoiceDetailFields extends StatelessWidget {
                   reorderable: false,
                   unitLabel: unitLabel,
                   itemTotalFor: itemTotalFor,
+                  servicePresetPickerEntries: servicePresetPickerEntries,
                 ),
         ),
 

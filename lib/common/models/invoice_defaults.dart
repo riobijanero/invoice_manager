@@ -4,6 +4,7 @@ import 'bank_details.dart';
 import 'client.dart';
 import 'discount_type.dart';
 import 'due_date_type.dart';
+import 'saved_service_preset.dart';
 import 'sender.dart';
 
 part 'invoice_defaults.freezed.dart';
@@ -15,6 +16,8 @@ part 'invoice_defaults.g.dart';
 /// - Loaded when the invoice form opens to prefill sender, client, bank data, etc.
 /// - Updated every time an invoice is saved, so the next invoice starts from
 ///   the most recent data instead of empty fields.
+/// - [savedServicePresets] stores Leistungsbeschreibung + Einzelpreis pairs for
+///   quick reuse (merged from saved line items on each save).
 ///
 /// This makes repeated invoice creation much faster and keeps things consistent
 /// (same business title, same USt-ID, same hourly rate and due date, etc.).
@@ -34,6 +37,7 @@ class InvoiceDefaults with _$InvoiceDefaults {
     @Default(0.0) double discountValue,
     @Default(DueDateType.twoWeeks) DueDateType dueDateType,
     @Default('') String serviceDescriptionTemplate,
+    @Default(<SavedServicePreset>[]) List<SavedServicePreset> savedServicePresets,
   }) = _InvoiceDefaults;
 
   factory InvoiceDefaults.fromJson(Map<String, dynamic> json) =>
@@ -52,6 +56,8 @@ class InvoiceDefaults with _$InvoiceDefaults {
         'discountValue': discountValue,
         'dueDateType': dueDateType.name,
         'serviceDescriptionTemplate': serviceDescriptionTemplate,
+        'savedServicePresets':
+            savedServicePresets.map((e) => e.toJson()).toList(),
       };
 }
 

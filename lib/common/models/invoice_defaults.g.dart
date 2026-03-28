@@ -33,6 +33,11 @@ _$InvoiceDefaultsImpl _$$InvoiceDefaultsImplFromJson(
               DueDateType.twoWeeks,
       serviceDescriptionTemplate:
           json['serviceDescriptionTemplate'] as String? ?? '',
+      savedServicePresets: (json['savedServicePresets'] as List<dynamic>?)
+              ?.map(
+                  (e) => SavedServicePreset.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const <SavedServicePreset>[],
     );
 
 const _$DiscountTypeEnumMap = {

@@ -32,6 +32,8 @@ mixin _$InvoiceDefaults {
   double get discountValue => throw _privateConstructorUsedError;
   DueDateType get dueDateType => throw _privateConstructorUsedError;
   String get serviceDescriptionTemplate => throw _privateConstructorUsedError;
+  List<SavedServicePreset> get savedServicePresets =>
+      throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $InvoiceDefaultsCopyWith<InvoiceDefaults> get copyWith =>
@@ -56,7 +58,8 @@ abstract class $InvoiceDefaultsCopyWith<$Res> {
       DiscountType discountType,
       double discountValue,
       DueDateType dueDateType,
-      String serviceDescriptionTemplate});
+      String serviceDescriptionTemplate,
+      List<SavedServicePreset> savedServicePresets});
 
   $SenderCopyWith<$Res> get sender;
   $ClientCopyWith<$Res> get client;
@@ -88,6 +91,7 @@ class _$InvoiceDefaultsCopyWithImpl<$Res, $Val extends InvoiceDefaults>
     Object? discountValue = null,
     Object? dueDateType = null,
     Object? serviceDescriptionTemplate = null,
+    Object? savedServicePresets = null,
   }) {
     return _then(_value.copyWith(
       lastInvoiceNumber: null == lastInvoiceNumber
@@ -138,6 +142,10 @@ class _$InvoiceDefaultsCopyWithImpl<$Res, $Val extends InvoiceDefaults>
           ? _value.serviceDescriptionTemplate
           : serviceDescriptionTemplate // ignore: cast_nullable_to_non_nullable
               as String,
+      savedServicePresets: null == savedServicePresets
+          ? _value.savedServicePresets
+          : savedServicePresets // ignore: cast_nullable_to_non_nullable
+              as List<SavedServicePreset>,
     ) as $Val);
   }
 
@@ -190,7 +198,8 @@ abstract class _$$InvoiceDefaultsImplCopyWith<$Res>
       DiscountType discountType,
       double discountValue,
       DueDateType dueDateType,
-      String serviceDescriptionTemplate});
+      String serviceDescriptionTemplate,
+      List<SavedServicePreset> savedServicePresets});
 
   @override
   $SenderCopyWith<$Res> get sender;
@@ -223,6 +232,7 @@ class __$$InvoiceDefaultsImplCopyWithImpl<$Res>
     Object? discountValue = null,
     Object? dueDateType = null,
     Object? serviceDescriptionTemplate = null,
+    Object? savedServicePresets = null,
   }) {
     return _then(_$InvoiceDefaultsImpl(
       lastInvoiceNumber: null == lastInvoiceNumber
@@ -273,6 +283,10 @@ class __$$InvoiceDefaultsImplCopyWithImpl<$Res>
           ? _value.serviceDescriptionTemplate
           : serviceDescriptionTemplate // ignore: cast_nullable_to_non_nullable
               as String,
+      savedServicePresets: null == savedServicePresets
+          ? _value._savedServicePresets
+          : savedServicePresets // ignore: cast_nullable_to_non_nullable
+              as List<SavedServicePreset>,
     ));
   }
 }
@@ -292,8 +306,11 @@ class _$InvoiceDefaultsImpl extends _InvoiceDefaults {
       this.discountType = DiscountType.percent,
       this.discountValue = 0.0,
       this.dueDateType = DueDateType.twoWeeks,
-      this.serviceDescriptionTemplate = ''})
-      : super._();
+      this.serviceDescriptionTemplate = '',
+      final List<SavedServicePreset> savedServicePresets =
+          const <SavedServicePreset>[]})
+      : _savedServicePresets = savedServicePresets,
+        super._();
 
   factory _$InvoiceDefaultsImpl.fromJson(Map<String, dynamic> json) =>
       _$$InvoiceDefaultsImplFromJson(json);
@@ -333,10 +350,19 @@ class _$InvoiceDefaultsImpl extends _InvoiceDefaults {
   @override
   @JsonKey()
   final String serviceDescriptionTemplate;
+  final List<SavedServicePreset> _savedServicePresets;
+  @override
+  @JsonKey()
+  List<SavedServicePreset> get savedServicePresets {
+    if (_savedServicePresets is EqualUnmodifiableListView)
+      return _savedServicePresets;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_savedServicePresets);
+  }
 
   @override
   String toString() {
-    return 'InvoiceDefaults(lastInvoiceNumber: $lastInvoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, ustId: $ustId, businessTitle: $businessTitle, hourlyRate: $hourlyRate, discountType: $discountType, discountValue: $discountValue, dueDateType: $dueDateType, serviceDescriptionTemplate: $serviceDescriptionTemplate)';
+    return 'InvoiceDefaults(lastInvoiceNumber: $lastInvoiceNumber, sender: $sender, client: $client, contractNumber: $contractNumber, bankDetails: $bankDetails, ustId: $ustId, businessTitle: $businessTitle, hourlyRate: $hourlyRate, discountType: $discountType, discountValue: $discountValue, dueDateType: $dueDateType, serviceDescriptionTemplate: $serviceDescriptionTemplate, savedServicePresets: $savedServicePresets)';
   }
 
   @override
@@ -366,7 +392,9 @@ class _$InvoiceDefaultsImpl extends _InvoiceDefaults {
             (identical(other.serviceDescriptionTemplate,
                     serviceDescriptionTemplate) ||
                 other.serviceDescriptionTemplate ==
-                    serviceDescriptionTemplate));
+                    serviceDescriptionTemplate) &&
+            const DeepCollectionEquality()
+                .equals(other._savedServicePresets, _savedServicePresets));
   }
 
   @JsonKey(ignore: true)
@@ -384,7 +412,8 @@ class _$InvoiceDefaultsImpl extends _InvoiceDefaults {
       discountType,
       discountValue,
       dueDateType,
-      serviceDescriptionTemplate);
+      serviceDescriptionTemplate,
+      const DeepCollectionEquality().hash(_savedServicePresets));
 
   @JsonKey(ignore: true)
   @override
@@ -396,18 +425,20 @@ class _$InvoiceDefaultsImpl extends _InvoiceDefaults {
 
 abstract class _InvoiceDefaults extends InvoiceDefaults {
   const factory _InvoiceDefaults(
-      {final String lastInvoiceNumber,
-      final Sender sender,
-      final Client client,
-      final String contractNumber,
-      final BankDetails? bankDetails,
-      final String ustId,
-      final String businessTitle,
-      final double hourlyRate,
-      final DiscountType discountType,
-      final double discountValue,
-      final DueDateType dueDateType,
-      final String serviceDescriptionTemplate}) = _$InvoiceDefaultsImpl;
+          {final String lastInvoiceNumber,
+          final Sender sender,
+          final Client client,
+          final String contractNumber,
+          final BankDetails? bankDetails,
+          final String ustId,
+          final String businessTitle,
+          final double hourlyRate,
+          final DiscountType discountType,
+          final double discountValue,
+          final DueDateType dueDateType,
+          final String serviceDescriptionTemplate,
+          final List<SavedServicePreset> savedServicePresets}) =
+      _$InvoiceDefaultsImpl;
   const _InvoiceDefaults._() : super._();
 
   factory _InvoiceDefaults.fromJson(Map<String, dynamic> json) =
@@ -437,6 +468,8 @@ abstract class _InvoiceDefaults extends InvoiceDefaults {
   DueDateType get dueDateType;
   @override
   String get serviceDescriptionTemplate;
+  @override
+  List<SavedServicePreset> get savedServicePresets;
   @override
   @JsonKey(ignore: true)
   _$$InvoiceDefaultsImplCopyWith<_$InvoiceDefaultsImpl> get copyWith =>

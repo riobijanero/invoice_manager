@@ -49,7 +49,25 @@ Map<String, dynamic> _normalizeDefaultsJson(Map<String, dynamic> raw) {
   final normalized = Map<String, dynamic>.from(raw);
   normalized['sender'] = _normalizePartyJson(raw['sender']);
   normalized['client'] = _normalizePartyJson(raw['client']);
+  normalized['savedServicePresets'] = _normalizeSavedServicePresetsJson(
+    raw['savedServicePresets'],
+  );
   return normalized;
+}
+
+List<Map<String, dynamic>> _normalizeSavedServicePresetsJson(Object? value) {
+  if (value is! List) return <Map<String, dynamic>>[];
+  final out = <Map<String, dynamic>>[];
+  for (final item in value) {
+    if (item is! Map<String, dynamic>) continue;
+    final m = Map<String, dynamic>.from(item);
+    m['description'] = m['description']?.toString() ?? '';
+    m['unitPrice'] = (m['unitPrice'] as num?)?.toDouble() ?? 0.0;
+    final ut = m['unitType']?.toString();
+    if (ut == null || ut.isEmpty) m['unitType'] = 'hours';
+    out.add(m);
+  }
+  return out;
 }
 
 Map<String, dynamic> _normalizePartyJson(Object? value) {

@@ -1,3 +1,5 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +15,7 @@ import 'package:invoice_manager/common/models/due_date_type.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
 import 'package:invoice_manager/common/models/invoice_defaults.dart';
 import 'package:invoice_manager/common/models/invoice_item.dart';
+import 'package:invoice_manager/common/models/saved_service_preset.dart';
 import 'package:invoice_manager/features/form/ui/widgets/overdue_chip.dart';
 import 'package:invoice_manager/features/form/services/invoice_form_defaults_sync.dart';
 import 'package:invoice_manager/features/form/services/invoice_form_dto_builders.dart';
@@ -23,6 +26,7 @@ import 'package:invoice_manager/features/form/ui/sections/client_fields.dart';
 import 'package:invoice_manager/features/form/ui/sections/invoice_detail_fields.dart';
 import 'package:invoice_manager/features/form/ui/sections/sender_fields.dart';
 import 'package:invoice_manager/features/form/utils/client_dedupe_utils.dart';
+import 'package:invoice_manager/features/form/utils/service_preset_dedupe_utils.dart';
 import 'package:invoice_manager/features/form/utils/form_mandatory_sections.dart';
 import 'package:invoice_manager/features/form/utils/service_period_description.dart';
 import 'package:invoice_manager/features/form/utils/utils.dart';
@@ -442,6 +446,18 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     });
   }
 
+  Future<void> _removeSavedServicePreset(String key) async {
+    final repo = ref.read(defaultsRepositoryProvider);
+    final current = await repo.load();
+    final next = current.savedServicePresets
+        .where((p) => servicePresetDedupeKey(p) != key)
+        .toList();
+    if (next.length == current.savedServicePresets.length) return;
+    await repo.save(current.copyWith(savedServicePresets: next));
+    ref.invalidate(defaultsProvider);
+    if (mounted) setState(() {});
+  }
+
   void _applySelectedClient(Client client) {
     _clientCompanyName.text = client.companyName;
     _clientName.text = client.name;
@@ -461,6 +477,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     final allExistingClients =
         asyncInvoiceList.hasValue ? uniqueClientsFromInvoices(asyncInvoiceList.value!) : <Client>[];
     final existingClients = allExistingClients.where((c) => !_deletedClientKeys.contains(clientDedupeKey(c))).toList();
+    final savedServicePresets =
+        asyncDefaults.value?.savedServicePresets ?? const <SavedServicePreset>[];
 
     if (widget.invoiceId != null) {
       ref.listen<AsyncValue<Invoice?>>(
@@ -747,6 +765,18 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                               );
                               if (d != null) setState(() => _customDueDate = d);
                             },
+                            savedServicePresets: savedServicePresets,
+                            onSavedServicePresetPicked: (index, preset) {
+                              setState(() {
+                                _serviceDescriptionControllers[index].text =
+                                    preset.description;
+                                _unitPriceControllers[index].text =
+                                    formatQuantityForDisplay(preset.unitPrice);
+                                _unitTypes[index] = preset.unitType;
+                              });
+                            },
+                            onSavedServicePresetRemoveRequested: (key) =>
+                                unawaited(_removeSavedServicePreset(key)),
                           ),
                         ],
                       ),
@@ -817,6 +847,12 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       discountType: _discountType,
       discountValue: double.tryParse(_discountValue.text.replaceFirst(',', '.')) ?? 0,
       dueDateType: _dueDateType,
+      linePresetsForMerge: savedServicePresetsFromFormRows(
+        descriptions:
+            _serviceDescriptionControllers.map((c) => c.text).toList(),
+        unitPriceTexts: _unitPriceControllers.map((c) => c.text).toList(),
+        unitTypes: _unitTypes,
+      ),
     );
   }
 

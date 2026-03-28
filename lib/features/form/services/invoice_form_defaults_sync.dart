@@ -4,7 +4,9 @@ import 'package:invoice_manager/common/models/client.dart';
 import 'package:invoice_manager/common/models/discount_type.dart';
 import 'package:invoice_manager/common/models/due_date_type.dart';
 import 'package:invoice_manager/common/models/invoice_item.dart';
+import 'package:invoice_manager/common/models/saved_service_preset.dart';
 import 'package:invoice_manager/common/models/sender.dart';
+import 'package:invoice_manager/features/form/utils/service_preset_dedupe_utils.dart';
 import 'package:invoice_manager/repositories/defaults_repository.dart';
 
 /// Hourly rate taken from the first row that uses [UnitType.hours].
@@ -38,8 +40,13 @@ Future<void> persistInvoiceDefaultsFromForm({
   required DiscountType discountType,
   required double discountValue,
   required DueDateType dueDateType,
+  required List<SavedServicePreset> linePresetsForMerge,
 }) async {
   final current = await defaultsRepo.load();
+  final mergedPresets = mergeSavedServicePresets(
+    current.savedServicePresets,
+    linePresetsForMerge,
+  );
   await defaultsRepo.save(
     current.copyWith(
       lastInvoiceNumber: isNewInvoice ? invoiceNumber.trim() : current.lastInvoiceNumber,
@@ -52,6 +59,7 @@ Future<void> persistInvoiceDefaultsFromForm({
       discountType: discountType,
       discountValue: discountValue,
       dueDateType: dueDateType,
+      savedServicePresets: mergedPresets,
     ),
   );
 }
