@@ -312,6 +312,8 @@ class InvoiceListScreen extends ConsumerWidget {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       invoiceNumber: newNumber,
+      invoiceDate: DateTime.now(),
+      paidOn: null,
     );
     await repo.save(newInvoice);
     await defaultsRepo.save(d.copyWith(lastInvoiceNumber: newNumber));
