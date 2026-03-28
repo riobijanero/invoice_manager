@@ -777,6 +777,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             },
                             onSavedServicePresetRemoveRequested: (key) =>
                                 unawaited(_removeSavedServicePreset(key)),
+                            onSaveServicePresetTemplate: (index) =>
+                                unawaited(_saveServicePresetForRow(context, index)),
                           ),
                         ],
                       ),
@@ -847,13 +849,43 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       discountType: _discountType,
       discountValue: double.tryParse(_discountValue.text.replaceFirst(',', '.')) ?? 0,
       dueDateType: _dueDateType,
-      linePresetsForMerge: savedServicePresetsFromFormRows(
-        descriptions:
-            _serviceDescriptionControllers.map((c) => c.text).toList(),
-        unitPriceTexts: _unitPriceControllers.map((c) => c.text).toList(),
-        unitTypes: _unitTypes,
-      ),
     );
+  }
+
+  Future<void> _saveServicePresetForRow(BuildContext context, int index) async {
+    final desc = _serviceDescriptionControllers[index].text.trim();
+    if (desc.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Zuerst eine Leistungsbeschreibung eintragen.')),
+        );
+      }
+      return;
+    }
+    final priceText = _unitPriceControllers[index].text;
+    final price = double.tryParse(priceText.replaceFirst(',', '.'));
+    if (price == null || price < 0) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gültigen Einzelpreis eintragen.')),
+        );
+      }
+      return;
+    }
+    final preset = SavedServicePreset(
+      description: desc,
+      unitPrice: price,
+      unitType: _unitTypes[index],
+    );
+    final repo = ref.read(defaultsRepositoryProvider);
+    await appendSavedServicePreset(defaultsRepo: repo, preset: preset);
+    ref.invalidate(defaultsProvider);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vorlage gespeichert.')),
+      );
+    }
+    if (mounted) setState(() {});
   }
 
   (Invoice?, String?) _buildInvoiceFromForm() {

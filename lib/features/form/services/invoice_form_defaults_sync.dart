@@ -40,13 +40,8 @@ Future<void> persistInvoiceDefaultsFromForm({
   required DiscountType discountType,
   required double discountValue,
   required DueDateType dueDateType,
-  required List<SavedServicePreset> linePresetsForMerge,
 }) async {
   final current = await defaultsRepo.load();
-  final mergedPresets = mergeSavedServicePresets(
-    current.savedServicePresets,
-    linePresetsForMerge,
-  );
   await defaultsRepo.save(
     current.copyWith(
       lastInvoiceNumber: isNewInvoice ? invoiceNumber.trim() : current.lastInvoiceNumber,
@@ -59,7 +54,17 @@ Future<void> persistInvoiceDefaultsFromForm({
       discountType: discountType,
       discountValue: discountValue,
       dueDateType: dueDateType,
-      savedServicePresets: mergedPresets,
     ),
   );
+}
+
+/// Fügt eine einzelne Vorlage zu [InvoiceDefaults.savedServicePresets] hinzu (oben, ohne Duplikate).
+Future<void> appendSavedServicePreset({
+  required DefaultsRepository defaultsRepo,
+  required SavedServicePreset preset,
+}) async {
+  if (preset.description.trim().isEmpty) return;
+  final current = await defaultsRepo.load();
+  final merged = mergeSavedServicePresets(current.savedServicePresets, [preset]);
+  await defaultsRepo.save(current.copyWith(savedServicePresets: merged));
 }

@@ -168,9 +168,9 @@ class _DescriptionFieldWithServicePickerState
           ? Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                'Keine gespeicherten Leistungen. Speichern Sie eine Rechnung '
-                'mit ausgefüllter Beschreibung und Einzelpreis, um Vorlagen '
-                'anzulegen.',
+                'Keine gespeicherten Leistungen. Unter der Beschreibung auf '
+                '„Vorlage speichern“ tippen (Beschreibung und Einzelpreis '
+                'ausfüllen).',
                 style: theme.textTheme.bodyMedium,
               ),
             )

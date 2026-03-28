@@ -16,8 +16,8 @@ part 'invoice_defaults.g.dart';
 /// - Loaded when the invoice form opens to prefill sender, client, bank data, etc.
 /// - Updated every time an invoice is saved, so the next invoice starts from
 ///   the most recent data instead of empty fields.
-/// - [savedServicePresets] stores Leistungsbeschreibung + Einzelpreis pairs for
-///   quick reuse (merged from saved line items on each save).
+/// - [savedServicePresets] stores Leistungsbeschreibung + Einzelpreis + Einheit
+///   for quick reuse (user adds via „Vorlage speichern“ in the form).
 ///
 /// This makes repeated invoice creation much faster and keeps things consistent
 /// (same business title, same USt-ID, same hourly rate and due date, etc.).

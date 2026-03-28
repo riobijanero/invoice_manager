@@ -1,4 +1,3 @@
-import 'package:invoice_manager/common/models/invoice_item.dart';
 import 'package:invoice_manager/common/models/saved_service_preset.dart';
 
 /// Stable key for deduplicating presets (trimmed text + price + unit).
@@ -29,30 +28,6 @@ List<SavedServicePreset> mergeSavedServicePresets(
   }
   for (final p in existing) {
     add(p);
-  }
-  return out;
-}
-
-/// Builds presets from current form rows (non-empty trimmed description).
-List<SavedServicePreset> savedServicePresetsFromFormRows({
-  required List<String> descriptions,
-  required List<String> unitPriceTexts,
-  required List<UnitType> unitTypes,
-}) {
-  var n = descriptions.length;
-  if (unitPriceTexts.length < n) n = unitPriceTexts.length;
-  if (unitTypes.length < n) n = unitTypes.length;
-  final out = <SavedServicePreset>[];
-  for (var i = 0; i < n; i++) {
-    final d = descriptions[i].trim();
-    if (d.isEmpty) continue;
-    final price =
-        double.tryParse(unitPriceTexts[i].replaceFirst(',', '.')) ?? 0.0;
-    out.add(SavedServicePreset(
-      description: d,
-      unitPrice: price,
-      unitType: unitTypes[i],
-    ));
   }
   return out;
 }

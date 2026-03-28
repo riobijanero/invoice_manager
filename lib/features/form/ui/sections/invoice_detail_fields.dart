@@ -55,6 +55,7 @@ class InvoiceDetailFields extends StatelessWidget {
     required this.savedServicePresets,
     required this.onSavedServicePresetPicked,
     required this.onSavedServicePresetRemoveRequested,
+    required this.onSaveServicePresetTemplate,
   });
 
   final TextEditingController invoiceNumberController;
@@ -96,6 +97,7 @@ class InvoiceDetailFields extends StatelessWidget {
   final List<SavedServicePreset> savedServicePresets;
   final void Function(int index, SavedServicePreset preset) onSavedServicePresetPicked;
   final ValueChanged<String> onSavedServicePresetRemoveRequested;
+  final void Function(int index) onSaveServicePresetTemplate;
 
   static const List<int> _months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   static const List<String> _monthLabels = [
@@ -365,7 +367,30 @@ class InvoiceDetailFields extends StatelessWidget {
               children: [
                 SizedBox(width: 60, child: posField),
                 const SizedBox(width: 12),
-                Expanded(child: descriptionField),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      descriptionField,
+                      ValueListenableBuilder<TextEditingValue>(
+                        valueListenable: serviceDescriptionControllers[i],
+                        builder: (context, value, _) {
+                          if (value.text.trim().isEmpty) {
+                            return const SizedBox.shrink();
+                          }
+                          return Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton.icon(
+                              onPressed: () => onSaveServicePresetTemplate(i),
+                              icon: const Icon(Icons.bookmark_add_outlined, size: 18),
+                              label: const Text('Vorlage speichern'),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
