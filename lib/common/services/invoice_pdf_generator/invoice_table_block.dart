@@ -37,12 +37,12 @@ const pw.TableBorder _kInvoiceItemRowBorder = pw.TableBorder(
   horizontalInside: pw.BorderSide.none,
 );
 
-/// Pos. | Beschreibung | Einheit | Anzahl | Einzelpreis | Gesamt
+/// Pos. | Beschreibung | Anzahl | Einheit | Einzelpreis | Gesamt
 const Map<int, pw.TableColumnWidth> _sixColumnWidths = {
   0: pw.FixedColumnWidth(_kPosWidth), // Pos.
   1: pw.FlexColumnWidth(1), // Beschreibung
-  2: pw.FixedColumnWidth(_kEinheitWidth),
-  3: pw.FixedColumnWidth(_kAnzahlWidth),
+  2: pw.FixedColumnWidth(_kAnzahlWidth),
+  3: pw.FixedColumnWidth(_kEinheitWidth),
   4: pw.FixedColumnWidth(_kEinzelpreisWidth),
   5: pw.FixedColumnWidth(_kGesamtWidth),
 };
@@ -85,8 +85,8 @@ List<pw.Widget> invoiceTableBlock({
               children: [
                 cell('Pos.', bold: true),
                 cell('Beschreibung', bold: true),
-                cell('Einheit', bold: true, alignRight: true),
                 cell('Anzahl', bold: true, alignRight: true),
+                cell('Einheit', bold: true, alignRight: true),
                 cell('Einzelpreis', bold: true, alignRight: true),
                 cell('Gesamt', bold: true, alignRight: true),
               ],
@@ -102,8 +102,8 @@ List<pw.Widget> invoiceTableBlock({
                 children: [
                   cell('1'),
                   cell(''),
-                  cell('Std.', alignRight: true),
                   cell('0', alignRight: true),
+                  cell('Std.', alignRight: true),
                   cell(formatCurrency(0), alignRight: true),
                   cell(formatCurrency(0), alignRight: true),
                 ],
@@ -122,8 +122,8 @@ List<pw.Widget> invoiceTableBlock({
                     cell(
                       serviceDescriptions.length > i ? serviceDescriptions[i] : '',
                     ),
-                    cell(items[i].unitLabel, alignRight: true),
                     cell(formatQuantityForDisplay(items[i].quantity), alignRight: true),
+                    cell(items[i].unitLabel, alignRight: true),
                     cell(formatCurrency(items[i].unitPrice), alignRight: true),
                     cell(
                       formatCurrency(items[i].itemTotal),
