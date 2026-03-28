@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:invoice_manager/common/models/discount_type.dart';
 import 'package:invoice_manager/common/models/due_date_type.dart';
 import 'package:invoice_manager/common/models/invoice.dart';
+import 'package:invoice_manager/common/utils/currency_format.dart';
+import 'package:invoice_manager/common/utils/invoice_calculations.dart';
 
 String _formatDatesForSearch(DateTime d) =>
     '${d.toIso8601String()} ${DateFormat('dd.MM.yyyy').format(d)}';
@@ -21,7 +23,28 @@ void _bufAppendDate(StringBuffer b, DateTime? d) {
   _bufAppend(b, _formatDatesForSearch(d));
 }
 
-/// Ein einziger lowercased String mit allen durchsuchbaren Inhalten (inkl. Datums-ISO und `dd.MM.yyyy`).
+/// Zwei-Dezimal-Schreibweisen (Punkt und Komma) für Betragssuche ohne Tausenderpunkt.
+void _bufAppendAmountFixed(StringBuffer b, double x) {
+  if (x.isNaN || x.isInfinite) return;
+  final f = x.toStringAsFixed(2);
+  _bufAppend(b, f);
+  _bufAppend(b, f.replaceAll('.', ','));
+}
+
+/// Rechnungs-Summen aus [computeTotals]: Zwischensumme, Rabatt, Netto, MwSt-Betrag, **Brutto**.
+///
+/// Zusätzlich [formatCurrency] für den Bruttobetrag (z. B. `1.234,56 €`), wie in der App/PDF.
+void _bufAppendInvoiceTotals(StringBuffer b, Invoice invoice) {
+  final t = computeTotals(invoice);
+  _bufAppendAmountFixed(b, t.subtotal);
+  _bufAppendAmountFixed(b, t.discountAmount);
+  _bufAppendAmountFixed(b, t.net);
+  _bufAppendAmountFixed(b, t.vat);
+  _bufAppendAmountFixed(b, t.gross);
+  _bufAppend(b, formatCurrency(t.gross));
+}
+
+/// Ein einziger lowercased String mit allen durchsuchbaren Inhalten (inkl. Datums-ISO, `dd.MM.yyyy`, Beträge).
 String buildInvoiceSearchHaystack(Invoice invoice) {
   final b = StringBuffer();
   _bufAppend(b, invoice.id);
@@ -78,6 +101,8 @@ String buildInvoiceSearchHaystack(Invoice invoice) {
     _bufAppend(b, item.quantity.toString());
     _bufAppend(b, item.unitPrice.toString());
   }
+
+  _bufAppendInvoiceTotals(b, invoice);
 
   return b.toString();
 }
