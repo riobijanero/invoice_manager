@@ -4,6 +4,7 @@ import 'package:invoice_manager/features/form/ui/widgets/expandable_form_section
 import 'package:invoice_manager/features/form/ui/widgets/saved_client_picker_list.dart';
 import 'package:invoice_manager/features/form/ui/widgets/field_row.dart';
 import 'package:invoice_manager/features/form/utils/client_dedupe_utils.dart';
+import 'package:invoice_manager/features/form/utils/form_mandatory_sections.dart';
 import 'package:invoice_manager/common/extensions/list_extensions.dart';
 
 class ClientFields extends StatelessWidget {
@@ -20,6 +21,7 @@ class ClientFields extends StatelessWidget {
     required this.clientCountryController,
     required this.clientIdController,
     required this.contractNumberController,
+    required this.onSaveClientData,
     this.initiallyExpanded = true,
   });
 
@@ -34,6 +36,7 @@ class ClientFields extends StatelessWidget {
   final TextEditingController clientCountryController;
   final TextEditingController clientIdController;
   final TextEditingController contractNumberController;
+  final VoidCallback onSaveClientData;
   final bool initiallyExpanded;
 
   static const double _minColumnWidth = 280;
@@ -163,29 +166,64 @@ class ClientFields extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final twoCols = constraints.maxWidth >= _minColumnWidth * 2 + _columnGap;
-          if (twoCols) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                FieldRow(left: _companyPicker(clientOptions), right: _nameField()),
-                FieldRow(left: _streetField(), right: _plzField()),
-                FieldRow(left: _townField(), right: _countryField()),
-                FieldRow(left: _contractField(), right: _clientIdField()),
-              ].intersperse(const SizedBox(height: 12)),
-            );
-          }
+          final clientMandatoryListenables = Listenable.merge([
+            clientCompanyNameController,
+            clientNameController,
+            clientStreetNameAndNumberController,
+            clientPostalCodeController,
+            clientTownController,
+            clientCountryController,
+          ]);
+          final fieldsColumn = twoCols
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    FieldRow(left: _companyPicker(clientOptions), right: _nameField()),
+                    FieldRow(left: _streetField(), right: _plzField()),
+                    FieldRow(left: _townField(), right: _countryField()),
+                    FieldRow(left: _contractField(), right: _clientIdField()),
+                  ].intersperse(const SizedBox(height: 12)),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _companyPicker(clientOptions),
+                    _nameField(),
+                    _streetField(),
+                    _plzField(),
+                    _townField(),
+                    _countryField(),
+                    _contractField(),
+                    _clientIdField(),
+                  ].intersperse(const SizedBox(height: 12)),
+                );
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _companyPicker(clientOptions),
-              _nameField(),
-              _streetField(),
-              _plzField(),
-              _townField(),
-              _countryField(),
-              _contractField(),
-              _clientIdField(),
-            ].intersperse(const SizedBox(height: 12)),
+              fieldsColumn,
+              ListenableBuilder(
+                listenable: clientMandatoryListenables,
+                builder: (context, _) {
+                  final show = isClientMandatoryComplete(
+                    companyName: clientCompanyNameController.text,
+                    personName: clientNameController.text,
+                    street: clientStreetNameAndNumberController.text,
+                    postalCodeText: clientPostalCodeController.text,
+                    town: clientTownController.text,
+                    country: clientCountryController.text,
+                  );
+                  if (!show) return const SizedBox.shrink();
+                  return Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      onPressed: onSaveClientData,
+                      icon: const Icon(Icons.person_add_alt_1_outlined, size: 18),
+                      label: const Text('Kundendaten speichern'),
+                    ),
+                  );
+                },
+              ),
+            ],
           );
         },
       ),
@@ -339,7 +377,8 @@ class _CompanyFieldWithClientPickerState extends State<_CompanyFieldWithClientPi
           ? Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                'Keine gespeicherten Kunden vorhanden.',
+                'Keine Kunden aus bisherigen Rechnungen. Pflichtfelder ausfüllen '
+                'und unten „Kundendaten speichern“ wählen.',
                 style: theme.textTheme.bodyMedium,
               ),
             )

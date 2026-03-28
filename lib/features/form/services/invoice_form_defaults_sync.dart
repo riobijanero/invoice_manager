@@ -24,7 +24,10 @@ double hourlyRateFromUnitTypeRow({
   return 0.0;
 }
 
-/// Lädt aktuelle Defaults, merged Sender/Kunde/Bank/Rabatt/Fälligkeit/Stundensatz und speichert.
+/// Lädt aktuelle Defaults, merged Sender/Bank/Rabatt/Fälligkeit/Stundensatz und speichert.
+///
+/// Kunde und Vertragsnummer werden nicht mehr hier geschrieben — siehe
+/// [persistClientSectionToDefaults].
 ///
 /// [lastInvoiceNumber] wird nur überschrieben, wenn [isNewInvoice] true ist.
 Future<void> persistInvoiceDefaultsFromForm({
@@ -32,8 +35,6 @@ Future<void> persistInvoiceDefaultsFromForm({
   required bool isNewInvoice,
   required String invoiceNumber,
   required Sender sender,
-  required Client client,
-  required String contractNumber,
   required BankDetails bankDetails,
   required String ustId,
   required double hourlyRate,
@@ -46,14 +47,27 @@ Future<void> persistInvoiceDefaultsFromForm({
     current.copyWith(
       lastInvoiceNumber: isNewInvoice ? invoiceNumber.trim() : current.lastInvoiceNumber,
       sender: sender,
-      client: client,
-      contractNumber: contractNumber.trim(),
       bankDetails: bankDetails,
       ustId: ustId.trim(),
       hourlyRate: hourlyRate,
       discountType: discountType,
       discountValue: discountValue,
       dueDateType: dueDateType,
+    ),
+  );
+}
+
+/// Schreibt Kunde und Vertragsnummer in [InvoiceDefaults] (Button „Kundendaten speichern“).
+Future<void> persistClientSectionToDefaults({
+  required DefaultsRepository defaultsRepo,
+  required Client client,
+  required String contractNumber,
+}) async {
+  final current = await defaultsRepo.load();
+  await defaultsRepo.save(
+    current.copyWith(
+      client: client,
+      contractNumber: contractNumber.trim(),
     ),
   );
 }

@@ -14,8 +14,8 @@ part 'invoice_defaults.g.dart';
 ///
 /// These values are:
 /// - Loaded when the invoice form opens to prefill sender, client, bank data, etc.
-/// - Updated every time an invoice is saved, so the next invoice starts from
-///   the most recent data instead of empty fields.
+/// - Updated when an invoice is saved for sender, bank, rates, etc.; **Kunde** and
+///   **Vertragsnummer** only when the user taps „Kundendaten speichern“.
 /// - [savedServicePresets] stores Leistungsbeschreibung + Einzelpreis + Einheit
 ///   for quick reuse (user adds via „Vorlage speichern“ in the form).
 ///

@@ -91,6 +91,12 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
   bool _initialized = false;
   bool _hasQrCode = false;
 
+  /// Ob Abschnitte ausgeklappt starten — nur einmal nach [_applyDefaults]/[_applyInvoice],
+  /// nicht bei jeder Textänderung (sonst klappt der Block beim Ausfüllen zu).
+  bool _senderInitiallyExpanded = true;
+  bool _bankInitiallyExpanded = true;
+  bool _clientInitiallyExpanded = true;
+
   @override
   void initState() {
     super.initState();
@@ -142,6 +148,9 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       if (widget.invoiceId == null) {
         _defaults = null;
       }
+      _senderInitiallyExpanded = true;
+      _bankInitiallyExpanded = true;
+      _clientInitiallyExpanded = true;
     }
   }
 
@@ -256,6 +265,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _jobDescription.text = inv.sender.jobDescription;
     _introductoryText.text = inv.introductoryText;
     // invoiceItemList already handled above
+    _snapshotExpandableSectionsAfterApply();
   }
 
   void _applyDefaults(InvoiceDefaults d) {
@@ -295,7 +305,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     _clientTown.clear();
     _clientCountry.text = 'Deutschland';
     _clientId.clear();
-    _contractNumber.text = d.contractNumber;
+    _contractNumber.clear();
     if (d.bankDetails != null) {
       _accountHolder.text = d.bankDetails!.accountHolder;
       _institution.text = d.bankDetails!.institution;
@@ -312,26 +322,37 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
     // Prefill the invoice greeting text for new invoices.
     _introductoryText.text =
         'Sehr geehrte Damen und Herren,\nfür das Erbringen meiner Dienstleistungen berechne ich Ihnen:';
-    final m0 = _serviceMonths.first;
-    final y0 = _serviceYears.first;
-    if (d.serviceDescriptionTemplate.isNotEmpty) {
-      var text = d.serviceDescriptionTemplate;
-      if (m0 != null && y0 != null) {
-        text = text.replaceAll('{PERIOD}', periodPlaceholderForMonthYear(m0, y0));
-      }
-      _serviceDescriptionControllers[0].text = text;
-    } else {
-      if (m0 != null && y0 != null) {
-        _serviceDescriptionControllers[0].text = defaultServiceDescriptionTemplate.replaceAll(
-          '{PERIOD}',
-          periodPlaceholderForMonthYear(m0, y0),
-        );
-      } else {
-        _serviceDescriptionControllers[0].text = defaultServiceDescriptionTemplate;
-      }
+    // Neue Rechnung: Leistungsbeschreibung leer (Duplikat lädt über [_applyInvoice]).
+    for (final c in _serviceDescriptionControllers) {
+      c.clear();
     }
     _ustId.text = d.sender.ustId.isNotEmpty ? d.sender.ustId : d.ustId;
     _taxNumber.text = d.sender.taxNumber;
+    _snapshotExpandableSectionsAfterApply();
+  }
+
+  void _snapshotExpandableSectionsAfterApply() {
+    _senderInitiallyExpanded = !isSenderMandatoryComplete(
+      name: _senderName.text,
+      street: _senderStreetNameAndNumber.text,
+      postalCodeText: _senderPostalCode.text,
+      town: _senderTown.text,
+      country: _senderCountry.text,
+    );
+    _bankInitiallyExpanded = !isBankMandatoryComplete(
+      accountHolder: _accountHolder.text,
+      institution: _institution.text,
+      iban: _iban.text,
+      bic: _bic.text,
+    );
+    _clientInitiallyExpanded = !isClientMandatoryComplete(
+      companyName: _clientCompanyName.text,
+      personName: _clientName.text,
+      street: _clientStreetNameAndNumber.text,
+      postalCodeText: _clientPostalCode.text,
+      town: _clientTown.text,
+      country: _clientCountry.text,
+    );
   }
 
   void _backFromForm(BuildContext context) {
@@ -520,29 +541,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       _initialized = true;
     }
 
-    // Eingeklappt, sobald alle Pflichtfelder des Blocks gültig befüllt sind.
-    final senderExpanded = !isSenderMandatoryComplete(
-      name: _senderName.text,
-      street: _senderStreetNameAndNumber.text,
-      postalCodeText: _senderPostalCode.text,
-      town: _senderTown.text,
-      country: _senderCountry.text,
-    );
-    final bankExpanded = !isBankMandatoryComplete(
-      accountHolder: _accountHolder.text,
-      institution: _institution.text,
-      iban: _iban.text,
-      bic: _bic.text,
-    );
-    final clientExpanded = !isClientMandatoryComplete(
-      companyName: _clientCompanyName.text,
-      personName: _clientName.text,
-      street: _clientStreetNameAndNumber.text,
-      postalCodeText: _clientPostalCode.text,
-      town: _clientTown.text,
-      country: _clientCountry.text,
-    );
-
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -601,6 +599,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                         children: [
                           // Zeile 1: Absender + Bankverbindung
                           SenderFields(
+                            key: ValueKey('sender_${widget.invoiceId ?? 'new'}'),
                             senderNameController: _senderName,
                             jobDescriptionController: _jobDescription,
                             senderStreetNameAndNumberController: _senderStreetNameAndNumber,
@@ -612,19 +611,21 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             senderWebsiteController: _senderWebsite,
                             ustIdController: _ustId,
                             taxNumberController: _taxNumber,
-                            initiallyExpanded: senderExpanded,
+                            initiallyExpanded: _senderInitiallyExpanded,
                           ),
                           const SizedBox(height: 20),
                           BankDetailsFields(
+                            key: ValueKey('bank_${widget.invoiceId ?? 'new'}'),
                             accountHolderController: _accountHolder,
                             institutionController: _institution,
                             ibanController: _iban,
                             bicController: _bic,
-                            initiallyExpanded: bankExpanded,
+                            initiallyExpanded: _bankInitiallyExpanded,
                           ),
                           const SizedBox(height: 30),
                           // Zeile 2: Kunde
                           ClientFields(
+                            key: ValueKey('client_${widget.invoiceId ?? 'new'}'),
                             existingClients: existingClients,
                             onExistingClientPicked: (client) => setState(() => _applySelectedClient(client)),
                             onDeleteClientKey: (key) {
@@ -632,6 +633,8 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                                 _deletedClientKeys.add(key);
                               });
                             },
+                            onSaveClientData: () =>
+                                unawaited(_saveClientDataToDefaults(context)),
                             clientCompanyNameController: _clientCompanyName,
                             clientNameController: _clientName,
                             clientStreetNameAndNumberController: _clientStreetNameAndNumber,
@@ -640,7 +643,7 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
                             clientCountryController: _clientCountry,
                             clientIdController: _clientId,
                             contractNumberController: _contractNumber,
-                            initiallyExpanded: clientExpanded,
+                            initiallyExpanded: _clientInitiallyExpanded,
                           ),
                           const SizedBox(height: 30),
                           // Zeile 3: Rechnungsdetails
@@ -828,16 +831,6 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
         ustId: _ustId.text,
         taxNumber: _taxNumber.text,
       ),
-      client: clientFromFormFields(
-        clientId: _clientId.text,
-        companyName: _clientCompanyName.text,
-        name: _clientName.text,
-        street: _clientStreetNameAndNumber.text,
-        town: _clientTown.text,
-        country: _clientCountry.text,
-        postalCodeText: _clientPostalCode.text,
-      ),
-      contractNumber: _contractNumber.text,
       bankDetails: bankDetailsFromFormFields(
         accountHolder: _accountHolder.text,
         institution: _institution.text,
@@ -850,6 +843,48 @@ class _InvoiceFormScreenState extends ConsumerState<InvoiceFormScreen> {
       discountValue: double.tryParse(_discountValue.text.replaceFirst(',', '.')) ?? 0,
       dueDateType: _dueDateType,
     );
+  }
+
+  Future<void> _saveClientDataToDefaults(BuildContext context) async {
+    if (!isClientMandatoryComplete(
+      companyName: _clientCompanyName.text,
+      personName: _clientName.text,
+      street: _clientStreetNameAndNumber.text,
+      postalCodeText: _clientPostalCode.text,
+      town: _clientTown.text,
+      country: _clientCountry.text,
+    )) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Alle Pflichtfelder für den Kunden ausfüllen (Firma oder Name, Adresse, PLZ, Ort, Land).'),
+          ),
+        );
+      }
+      return;
+    }
+    final client = clientFromFormFields(
+      clientId: _clientId.text,
+      companyName: _clientCompanyName.text,
+      name: _clientName.text,
+      street: _clientStreetNameAndNumber.text,
+      town: _clientTown.text,
+      country: _clientCountry.text,
+      postalCodeText: _clientPostalCode.text,
+    );
+    final repo = ref.read(defaultsRepositoryProvider);
+    await persistClientSectionToDefaults(
+      defaultsRepo: repo,
+      client: client,
+      contractNumber: _contractNumber.text,
+    );
+    ref.invalidate(defaultsProvider);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kundendaten gespeichert.')),
+      );
+    }
+    if (mounted) setState(() {});
   }
 
   Future<void> _saveServicePresetForRow(BuildContext context, int index) async {
