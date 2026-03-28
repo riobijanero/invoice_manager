@@ -11,7 +11,9 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../../common/services/invoice_pdf_generator/invoice_pdf_generator.dart';
 
-/// Saves the invoice PDF: tries file picker, then file_selector, then app documents exports folder.
+/// Speichert die Rechnung als PDF: zuerst [FilePicker], bei Fehler [getSaveLocation],
+/// zuletzt automatisch unter `Documents/invoice_manager/exports` (nur wenn die Dialoge
+/// mit einer Exception scheitern — **nicht** nach Abbruch durch den Nutzer).
 Future<void> exportPdf(
   BuildContext context,
   WidgetRef ref,
@@ -31,7 +33,10 @@ Future<void> exportPdf(
     final safeFileName = 'Rechnung-${safeInvoiceNumber.isEmpty ? 'unnamed' : safeInvoiceNumber}.pdf';
 
     // 1) First attempt: macOS-friendly save dialog via file_picker.
+    // `saveFile` returns null when the user cancels — do not fall through to another
+    // dialog or auto-save (that felt like a bug: second dialog + unwanted download).
     String? pickedPath;
+    var filePickerThrew = false;
     try {
       debugPrint('PDF export: opening file_picker save dialog...');
       pickedPath = await FilePicker.platform.saveFile(
@@ -41,8 +46,10 @@ Future<void> exportPdf(
       );
       debugPrint('PDF export: file_picker returned pickedPath=$pickedPath');
     } on PlatformException catch (e) {
+      filePickerThrew = true;
       debugPrint('PDF export: file_picker PlatformException: ${e.message ?? e.code}');
     } catch (e) {
+      filePickerThrew = true;
       debugPrint('PDF export: file_picker unexpected error: $e');
     }
 
@@ -58,7 +65,12 @@ Future<void> exportPdf(
       return;
     }
 
-    // 2) Fallback: file_selector (may fail on some macOS setups).
+    if (!filePickerThrew) {
+      // null without exception: user dismissed the dialog (or equivalent).
+      return;
+    }
+
+    // 2) Fallback: file_selector when file_picker failed with an exception.
     try {
       final saveLocation = await fs.getSaveLocation(suggestedName: safeFileName);
       debugPrint('PDF export: file_selector returned saveLocation=${saveLocation?.path}');
@@ -72,13 +84,15 @@ Future<void> exportPdf(
         }
         return;
       }
+      // null: user cancelled — do not auto-save.
+      return;
     } on PlatformException catch (e) {
       debugPrint('PDF export: file_selector PlatformException: ${e.message ?? e.code}');
     } catch (e) {
       debugPrint('PDF export: file_selector unexpected error: $e');
     }
 
-    // 3) Last resort: auto-save so export never "does nothing".
+    // 3) Last resort: auto-save only when file_selector threw (file_picker already failed).
     final baseDir = await getApplicationDocumentsDirectory();
     final exportDir =
         Directory(path.join(baseDir.path, 'invoice_manager', 'exports'));
