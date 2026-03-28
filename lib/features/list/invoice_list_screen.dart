@@ -32,29 +32,61 @@ class InvoiceListScreen extends ConsumerWidget {
     final showNewDraftRow = wide && GoRouterState.of(context).uri.path == '/invoice/new';
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rechnungsliste'),
-        actions: [
-          PopupMenuButton<String>(
-            tooltip: 'Menü',
-            onSelected: (v) async {
-              if (v == 'reset_data') {
-                await _confirmResetAllData(context, ref);
-              }
-            },
-            itemBuilder: (context) => const [
-              PopupMenuItem(
-                value: 'reset_data',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete_forever_outlined),
-                    SizedBox(width: 8),
-                    Text('Alle Daten löschen'),
-                  ],
-                ),
+        automaticallyImplyLeading: false,
+        leading: PopupMenuButton<String>(
+          tooltip: 'Menü',
+          icon: const Icon(Icons.menu),
+          onSelected: (v) async {
+            if (v == 'import') {
+              await CsvImportService.importIntoRepository(
+                context: context,
+                repository: ref.read(invoiceRepositoryProvider),
+                onDataChanged: () => ref.invalidate(invoiceListProvider),
+              );
+            } else if (v == 'export') {
+              await CsvExportService.exportFromRepository(
+                context: context,
+                repository: ref.read(invoiceRepositoryProvider),
+              );
+            } else if (v == 'reset_data') {
+              await _confirmResetAllData(context, ref);
+            }
+          },
+          itemBuilder: (context) => const [
+            PopupMenuItem(
+              value: 'import',
+              child: Row(
+                children: [
+                  Icon(Icons.upload_file_outlined),
+                  SizedBox(width: 8),
+                  Text('Rechnungen importieren'),
+                ],
               ),
-            ],
-          ),
-        ],
+            ),
+            PopupMenuItem(
+              value: 'export',
+              child: Row(
+                children: [
+                  Icon(Icons.download_outlined),
+                  SizedBox(width: 8),
+                  Text('Rechnungen exportieren'),
+                ],
+              ),
+            ),
+            PopupMenuDivider(),
+            PopupMenuItem(
+              value: 'reset_data',
+              child: Row(
+                children: [
+                  Icon(Icons.delete_forever_outlined),
+                  SizedBox(width: 8),
+                  Text('Alle Daten löschen'),
+                ],
+              ),
+            ),
+          ],
+        ),
+        title: const Text('Rechnungsliste'),
       ),
       body: asyncInvoices.when(
         data: (invoices) {
@@ -100,41 +132,11 @@ class InvoiceListScreen extends ConsumerWidget {
           ),
         ),
       ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              const SizedBox(width: 30),
-              FloatingActionButton(
-                tooltip: 'Rechnungen importieren',
-                heroTag: 'import_data_fab',
-                onPressed: () => CsvImportService.importIntoRepository(
-                  context: context,
-                  repository: ref.read(invoiceRepositoryProvider),
-                  onDataChanged: () => ref.invalidate(invoiceListProvider),
-                ),
-                child: const Icon(Icons.upload_file_outlined),
-              ),
-              const SizedBox(width: 12),
-              FloatingActionButton(
-                tooltip: 'Rechnungen exportieren',
-                heroTag: 'export_data_fab',
-                onPressed: () => CsvExportService.exportFromRepository(
-                  context: context,
-                  repository: ref.read(invoiceRepositoryProvider),
-                ),
-                child: const Icon(Icons.download_outlined),
-              ),
-            ],
-          ),
-          FloatingActionButton.extended(
-            heroTag: 'new_invoice_fab',
-            onPressed: () => context.go('/invoice/new'),
-            icon: const Icon(Icons.add),
-            label: const Text('Neue Rechnung'),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'new_invoice_fab',
+        onPressed: () => context.go('/invoice/new'),
+        icon: const Icon(Icons.add),
+        label: const Text('Neue Rechnung'),
       ),
     );
   }
